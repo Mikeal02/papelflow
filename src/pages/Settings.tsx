@@ -28,7 +28,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 const Settings = () => {
@@ -41,12 +41,12 @@ const Settings = () => {
   const [currency, setCurrency] = useState('USD');
 
   // Update local state when profile loads
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
       setCurrency(profile.preferred_currency || 'USD');
     }
-  });
+  }, [profile]);
 
   const handleSaveProfile = async () => {
     await updateProfile.mutateAsync({
@@ -120,7 +120,6 @@ const Settings = () => {
             <Button 
               onClick={handleSaveProfile}
               disabled={updateProfile.isPending}
-              className="bg-gradient-sunset hover:opacity-90 text-primary-foreground"
             >
               {updateProfile.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
             </Button>

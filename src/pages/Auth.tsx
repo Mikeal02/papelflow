@@ -110,7 +110,7 @@ const Auth = () => {
 
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-sunset animate-pulse-glow">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary neon-glow">
               <TrendingUp className="h-6 w-6 text-primary-foreground" />
             </div>
             <span className="text-2xl font-bold gradient-text">Finflow</span>
@@ -169,7 +169,7 @@ const Auth = () => {
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-sunset">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary">
               <TrendingUp className="h-6 w-6 text-primary-foreground" />
             </div>
             <span className="text-2xl font-bold gradient-text">Finflow</span>
@@ -243,7 +243,7 @@ const Auth = () => {
 
             <Button
               type="submit"
-              className="w-full h-12 bg-gradient-sunset hover:opacity-90 transition-opacity text-primary-foreground font-semibold gap-2"
+              className="w-full h-12 font-semibold gap-2"
               disabled={loading}
             >
               {loading ? (
