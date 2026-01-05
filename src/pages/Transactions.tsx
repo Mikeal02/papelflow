@@ -6,11 +6,11 @@ import {
   ArrowUpRight,
   ArrowLeftRight,
   Search,
-  Filter,
   Download,
   MoreHorizontal,
   Tag,
   Repeat,
+  Loader2,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { mockTransactions, mockAccounts, mockCategories } from '@/lib/mock-data';
+import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
+import { useAccounts } from '@/hooks/useAccounts';
 import { cn } from '@/lib/utils';
 
 const Transactions = () => {
@@ -36,13 +37,17 @@ const Transactions = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [accountFilter, setAccountFilter] = useState<string>('all');
 
-  const filteredTransactions = mockTransactions.filter((transaction) => {
+  const { data: transactions = [], isLoading } = useTransactions();
+  const { data: accounts = [] } = useAccounts();
+  const deleteTransaction = useDeleteTransaction();
+
+  const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
       transaction.payee?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       transaction.notes?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
     const matchesAccount =
-      accountFilter === 'all' || transaction.accountId === accountFilter;
+      accountFilter === 'all' || transaction.account_id === accountFilter;
 
     return (searchQuery === '' || matchesSearch) && matchesType && matchesAccount;
   });
@@ -55,11 +60,21 @@ const Transactions = () => {
     }
     groups[date].push(transaction);
     return groups;
-  }, {} as Record<string, typeof mockTransactions>);
+  }, {} as Record<string, typeof transactions>);
 
   const sortedDates = Object.keys(groupedTransactions).sort(
     (a, b) => new Date(b).getTime() - new Date(a).getTime()
   );
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -71,7 +86,7 @@ const Transactions = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-3xl font-bold">Transactions</h1>
+            <h1 className="text-3xl font-bold gradient-text">Transactions</h1>
             <p className="text-muted-foreground mt-1">
               {filteredTransactions.length} transactions found
             </p>
@@ -95,11 +110,11 @@ const Transactions = () => {
               placeholder="Search transactions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-card/50"
             />
           </div>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] bg-card/50">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -110,12 +125,12 @@ const Transactions = () => {
             </SelectContent>
           </Select>
           <Select value={accountFilter} onValueChange={setAccountFilter}>
-            <SelectTrigger className="w-[160px]">
+            <SelectTrigger className="w-[160px] bg-card/50">
               <SelectValue placeholder="Account" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Accounts</SelectItem>
-              {mockAccounts.map((account) => (
+              {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
                   {account.name}
                 </SelectItem>
@@ -125,150 +140,158 @@ const Transactions = () => {
         </motion.div>
 
         {/* Transactions List */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-6"
-        >
-          {sortedDates.map((date, dateIndex) => (
-            <div key={date}>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 sticky top-0 bg-background py-2">
-                {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-              </h3>
-              <div className="space-y-2">
-                {groupedTransactions[date].map((transaction, index) => {
-                  const account = mockAccounts.find(
-                    (a) => a.id === transaction.accountId
-                  );
-                  const category = transaction.categoryId
-                    ? mockCategories.find((c) => c.id === transaction.categoryId)
-                    : null;
-                  const toAccount = transaction.toAccountId
-                    ? mockAccounts.find((a) => a.id === transaction.toAccountId)
-                    : null;
-
-                  const Icon =
-                    transaction.type === 'income'
-                      ? ArrowUpRight
-                      : transaction.type === 'transfer'
-                      ? ArrowLeftRight
-                      : ArrowDownLeft;
-
-                  return (
-                    <motion.div
-                      key={transaction.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 + dateIndex * 0.05 + index * 0.02 }}
-                      className="flex items-center gap-4 rounded-xl bg-card/50 p-4 border border-border/50 hover:border-border transition-colors group"
-                    >
-                      <div
-                        className={cn(
-                          'flex h-12 w-12 items-center justify-center rounded-xl',
-                          transaction.type === 'income' && 'bg-income/10',
-                          transaction.type === 'expense' && 'bg-expense/10',
-                          transaction.type === 'transfer' && 'bg-transfer/10'
-                        )}
-                      >
-                        <Icon
-                          className={cn(
-                            'h-6 w-6',
-                            transaction.type === 'income' && 'text-income',
-                            transaction.type === 'expense' && 'text-expense',
-                            transaction.type === 'transfer' && 'text-transfer'
-                          )}
-                        />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold truncate">
-                            {transaction.payee ||
-                              (transaction.type === 'transfer'
-                                ? `Transfer to ${toAccount?.name}`
-                                : category?.name)}
-                          </p>
-                          {transaction.isRecurring && (
-                            <Repeat className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{account?.name}</span>
-                          {category && (
-                            <>
-                              <span>•</span>
-                              <span>{category.name}</span>
-                            </>
-                          )}
-                        </div>
-                        {transaction.notes && (
-                          <p className="text-sm text-muted-foreground mt-1 truncate">
-                            {transaction.notes}
-                          </p>
-                        )}
-                      </div>
-
-                      {transaction.tags && transaction.tags.length > 0 && (
-                        <div className="hidden sm:flex items-center gap-1">
-                          {transaction.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground"
-                            >
-                              <Tag className="h-3 w-3" />
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <span
-                        className={cn(
-                          'text-lg font-bold tabular-nums',
-                          transaction.type === 'income' && 'amount-positive',
-                          transaction.type === 'expense' && 'amount-negative',
-                          transaction.type === 'transfer' && 'amount-neutral'
-                        )}
-                      >
-                        {transaction.type === 'income'
-                          ? '+'
-                          : transaction.type === 'expense'
-                          ? '-'
-                          : ''}
-                        $
-                        {transaction.amount.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                          <DropdownMenuItem>Add tags</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </motion.div>
-                  );
-                })}
-              </div>
+        {filteredTransactions.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="stat-card flex flex-col items-center justify-center py-16 text-center"
+          >
+            <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+              <ArrowLeftRight className="h-8 w-8 text-muted-foreground" />
             </div>
-          ))}
-        </motion.div>
+            <h3 className="text-xl font-semibold mb-2">No transactions yet</h3>
+            <p className="text-muted-foreground">Add your first transaction to start tracking</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
+          >
+            {sortedDates.map((date, dateIndex) => (
+              <div key={date}>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 sticky top-0 bg-background/80 backdrop-blur-sm py-2 z-10">
+                  {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                </h3>
+                <div className="space-y-2">
+                  {groupedTransactions[date].map((transaction, index) => {
+                    const Icon =
+                      transaction.type === 'income'
+                        ? ArrowUpRight
+                        : transaction.type === 'transfer'
+                        ? ArrowLeftRight
+                        : ArrowDownLeft;
+
+                    return (
+                      <motion.div
+                        key={transaction.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25 + dateIndex * 0.05 + index * 0.02 }}
+                        className="flex items-center gap-4 rounded-2xl bg-card/50 p-4 border border-border/30 hover:border-primary/30 transition-all duration-300 group"
+                      >
+                        <div
+                          className={cn(
+                            'flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110',
+                            transaction.type === 'income' && 'bg-income/10',
+                            transaction.type === 'expense' && 'bg-expense/10',
+                            transaction.type === 'transfer' && 'bg-transfer/10'
+                          )}
+                        >
+                          <Icon
+                            className={cn(
+                              'h-6 w-6',
+                              transaction.type === 'income' && 'text-income',
+                              transaction.type === 'expense' && 'text-expense',
+                              transaction.type === 'transfer' && 'text-transfer'
+                            )}
+                          />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold truncate">
+                              {transaction.payee ||
+                                (transaction.type === 'transfer'
+                                  ? `Transfer to ${(transaction.to_account as any)?.name || 'Account'}`
+                                  : (transaction.category as any)?.name || 'Uncategorized')}
+                            </p>
+                            {transaction.is_recurring && (
+                              <Repeat className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>{(transaction.account as any)?.name}</span>
+                            {(transaction.category as any)?.name && (
+                              <>
+                                <span>•</span>
+                                <span>{(transaction.category as any).name}</span>
+                              </>
+                            )}
+                          </div>
+                          {transaction.notes && (
+                            <p className="text-sm text-muted-foreground mt-1 truncate">
+                              {transaction.notes}
+                            </p>
+                          )}
+                        </div>
+
+                        {transaction.tags && transaction.tags.length > 0 && (
+                          <div className="hidden sm:flex items-center gap-1">
+                            {transaction.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground"
+                              >
+                                <Tag className="h-3 w-3" />
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <span
+                          className={cn(
+                            'text-lg font-bold tabular-nums',
+                            transaction.type === 'income' && 'amount-positive',
+                            transaction.type === 'expense' && 'amount-negative',
+                            transaction.type === 'transfer' && 'amount-neutral'
+                          )}
+                        >
+                          {transaction.type === 'income'
+                            ? '+'
+                            : transaction.type === 'expense'
+                            ? '-'
+                            : ''}
+                          $
+                          {Number(transaction.amount).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                            <DropdownMenuItem>Add tags</DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => deleteTransaction.mutate(transaction.id)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </AppLayout>
   );
