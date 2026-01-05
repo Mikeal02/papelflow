@@ -110,17 +110,17 @@ export default {
           from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
-        shimmer: {
-          from: { backgroundPosition: "200% 0" },
-          to: { backgroundPosition: "-200% 0" },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
         },
-        pulse: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5" },
+        "gradient-shift": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
         },
-        "number-tick": {
-          from: { transform: "translateY(-100%)" },
-          to: { transform: "translateY(0)" },
+        glow: {
+          "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.6)" },
         },
       },
       animation: {
@@ -130,19 +130,22 @@ export default {
         "fade-in-up": "fade-in-up 0.5s ease-out",
         "slide-in-right": "slide-in-right 0.4s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
-        shimmer: "shimmer 2s infinite linear",
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "number-tick": "number-tick 0.3s ease-out",
+        "spin-slow": "spin-slow 20s linear infinite",
+        "gradient-shift": "gradient-shift 8s ease infinite",
+        glow: "glow 3s ease-in-out infinite",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "glass-gradient": "linear-gradient(180deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.6))",
+        "gradient-sunset": "linear-gradient(135deg, hsl(35 100% 55%), hsl(320 80% 55%))",
+        "gradient-aurora": "linear-gradient(135deg, hsl(200 90% 55%), hsl(150 80% 50%), hsl(320 80% 55%))",
       },
       boxShadow: {
-        glow: "0 0 40px -10px hsl(var(--primary) / 0.3)",
-        "glow-sm": "0 0 20px -5px hsl(var(--primary) / 0.2)",
-        card: "0 4px 24px -4px hsl(222 47% 5% / 0.5)",
+        glow: "0 0 40px -10px hsl(var(--primary) / 0.4)",
+        "glow-sm": "0 0 20px -5px hsl(var(--primary) / 0.3)",
+        "glow-lg": "0 0 60px -10px hsl(var(--primary) / 0.5)",
+        card: "0 8px 32px -8px hsl(250 20% 3% / 0.6)",
+        "card-hover": "0 16px 48px -12px hsl(250 20% 3% / 0.8)",
       },
     },
   },

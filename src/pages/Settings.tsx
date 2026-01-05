@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import {
   User,
-  CreditCard,
   Bell,
   Shield,
   Download,
@@ -10,7 +9,10 @@ import {
   Globe,
   Calendar,
   ChevronRight,
+  Loader2,
+  LogOut,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,8 +26,50 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 const Settings = () => {
+  const { data: profile, isLoading } = useProfile();
+  const updateProfile = useUpdateProfile();
+  const { signOut, user } = useAuth();
+  const navigate = useNavigate();
+  
+  const [fullName, setFullName] = useState('');
+  const [currency, setCurrency] = useState('USD');
+
+  // Update local state when profile loads
+  useState(() => {
+    if (profile) {
+      setFullName(profile.full_name || '');
+      setCurrency(profile.preferred_currency || 'USD');
+    }
+  });
+
+  const handleSaveProfile = async () => {
+    await updateProfile.mutateAsync({
+      full_name: fullName,
+      preferred_currency: currency,
+    });
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <div className="max-w-3xl space-y-6">
@@ -34,7 +78,7 @@ const Settings = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl font-bold">Settings</h1>
+          <h1 className="text-3xl font-bold gradient-text">Settings</h1>
           <p className="text-muted-foreground mt-1">
             Manage your account and preferences
           </p>
@@ -60,21 +104,26 @@ const Settings = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
-                <Input id="firstName" defaultValue="Alex" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
-                <Input id="lastName" defaultValue="Johnson" />
-              </div>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="alex@example.com" />
+              <Input id="email" type="email" value={user?.email || ''} disabled className="bg-muted/30" />
             </div>
-            <Button>Save Changes</Button>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input 
+                id="fullName" 
+                value={fullName || profile?.full_name || ''} 
+                onChange={(e) => setFullName(e.target.value)}
+                className="bg-muted/30"
+              />
+            </div>
+            <Button 
+              onClick={handleSaveProfile}
+              disabled={updateProfile.isPending}
+              className="bg-gradient-sunset hover:opacity-90 text-primary-foreground"
+            >
+              {updateProfile.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
+            </Button>
           </div>
         </motion.div>
 
@@ -111,27 +160,27 @@ const Settings = () => {
               <Switch defaultChecked />
             </div>
 
-            <Separator />
+            <Separator className="bg-border/50" />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Currency</Label>
-                <Select defaultValue="usd">
-                  <SelectTrigger>
+                <Select value={currency || profile?.preferred_currency || 'USD'} onValueChange={setCurrency}>
+                  <SelectTrigger className="bg-muted/30">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="usd">USD ($)</SelectItem>
-                    <SelectItem value="eur">EUR (€)</SelectItem>
-                    <SelectItem value="gbp">GBP (£)</SelectItem>
-                    <SelectItem value="jpy">JPY (¥)</SelectItem>
+                    <SelectItem value="USD">USD ($)</SelectItem>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                    <SelectItem value="GBP">GBP (£)</SelectItem>
+                    <SelectItem value="JPY">JPY (¥)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label>Fiscal month start</Label>
                 <Select defaultValue="1">
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-muted/30">
                     <Calendar className="h-4 w-4 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
@@ -202,17 +251,13 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <Button variant="outline" className="w-full justify-between">
+          <div className="space-y-3">
+            <Button variant="outline" className="w-full justify-between h-12">
               Change password
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="w-full justify-between">
+            <Button variant="outline" className="w-full justify-between h-12">
               Two-factor authentication
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" className="w-full justify-between">
-              Connected devices
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -237,8 +282,8 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <Button variant="outline" className="w-full justify-between">
+          <div className="space-y-3">
+            <Button variant="outline" className="w-full justify-between h-12">
               <span className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 Export all data
@@ -247,7 +292,17 @@ const Settings = () => {
             </Button>
             <Button
               variant="outline"
-              className="w-full justify-between text-destructive hover:text-destructive"
+              onClick={handleSignOut}
+              className="w-full justify-between h-12"
+            >
+              <span className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-between h-12 text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5"
             >
               <span className="flex items-center gap-2">
                 <Trash2 className="h-4 w-4" />

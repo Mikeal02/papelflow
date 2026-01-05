@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -12,9 +12,11 @@ import {
   Settings,
   Plus,
   LogOut,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -33,23 +35,30 @@ interface SidebarProps {
 
 export function Sidebar({ onAddTransaction }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut, user } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar/80 backdrop-blur-xl">
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-sunset animate-pulse-glow">
             <TrendingUp className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold text-foreground">Finflow</span>
+          <span className="text-xl font-bold gradient-text">Finflow</span>
         </div>
 
         {/* Quick Add Button */}
         <div className="p-4">
           <Button
             onClick={onAddTransaction}
-            className="w-full gap-2 bg-primary hover:bg-primary/90"
+            className="w-full gap-2 bg-gradient-sunset hover:opacity-90 transition-opacity text-primary-foreground font-semibold h-11"
           >
             <Plus className="h-4 w-4" />
             Add Transaction
@@ -66,32 +75,41 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
-                    'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                    'relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300',
                     isActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                      ? 'bg-gradient-to-r from-primary/20 to-accent/10 text-foreground border border-primary/20'
                       : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
                   )}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-indicator"
-                      className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary"
+                      className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-gradient-sunset"
                     />
                   )}
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className={cn('h-5 w-5', isActive && 'text-primary')} />
                   {item.label}
+                  {isActive && (
+                    <Sparkles className="h-3 w-3 ml-auto text-primary animate-pulse" />
+                  )}
                 </motion.div>
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom Actions */}
-        <div className="border-t border-sidebar-border p-3">
+        {/* User & Actions */}
+        <div className="border-t border-sidebar-border p-3 space-y-1">
+          {user && (
+            <div className="px-3 py-2 mb-2">
+              <p className="text-xs text-muted-foreground">Signed in as</p>
+              <p className="text-sm font-medium truncate">{user.email}</p>
+            </div>
+          )}
           <Link to="/settings">
             <motion.div
               whileHover={{ x: 4 }}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-all"
             >
               <Settings className="h-5 w-5" />
               Settings
@@ -99,7 +117,8 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
           </Link>
           <motion.button
             whileHover={{ x: 4 }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+            onClick={handleSignOut}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
           >
             <LogOut className="h-5 w-5" />
             Sign Out
