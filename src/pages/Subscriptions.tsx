@@ -4,10 +4,9 @@ import {
   Plus,
   Calendar,
   AlertCircle,
-  CheckCircle2,
   MoreHorizontal,
   Bell,
-  BellOff,
+  Loader2,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -18,19 +17,41 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { mockSubscriptions, mockCategories } from '@/lib/mock-data';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useCategories } from '@/hooks/useCategories';
 import { cn } from '@/lib/utils';
 
 const Subscriptions = () => {
-  const activeSubscriptions = mockSubscriptions.filter((s) => s.isActive);
+  const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptions();
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+
+  const activeSubscriptions = subscriptions.filter((s) => s.is_active);
   const totalMonthly = activeSubscriptions.reduce((sum, s) => {
-    if (s.frequency === 'monthly') return sum + s.amount;
-    if (s.frequency === 'yearly') return sum + s.amount / 12;
-    if (s.frequency === 'weekly') return sum + s.amount * 4;
+    if (s.frequency === 'monthly') return sum + Number(s.amount);
+    if (s.frequency === 'yearly') return sum + Number(s.amount) / 12;
+    if (s.frequency === 'weekly') return sum + Number(s.amount) * 4;
     return sum;
   }, 0);
 
   const totalYearly = totalMonthly * 12;
+
+  const nextPayment = subscriptions.length > 0
+    ? subscriptions
+        .filter(s => s.is_active)
+        .sort((a, b) => new Date(a.next_due).getTime() - new Date(b.next_due).getTime())[0]
+    : null;
+
+  const isLoading = subscriptionsLoading || categoriesLoading;
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -80,7 +101,9 @@ const Subscriptions = () => {
             <p className="text-sm text-muted-foreground">Next Payment</p>
             <div className="flex items-center gap-2 mt-2">
               <Calendar className="h-5 w-5 text-warning" />
-              <span className="text-xl font-semibold">Jan 15</span>
+              <span className="text-xl font-semibold">
+                {nextPayment ? format(new Date(nextPayment.next_due), 'MMM d') : 'N/A'}
+              </span>
             </div>
           </div>
         </motion.div>
@@ -100,95 +123,108 @@ const Subscriptions = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            {mockSubscriptions.map((subscription, index) => {
-              const category = mockCategories.find(
-                (c) => c.id === subscription.categoryId
-              );
-              const daysUntil = differenceInDays(
-                new Date(subscription.nextDue),
-                new Date()
-              );
-              const isUrgent = daysUntil <= 3 && daysUntil >= 0;
+          {subscriptions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
+                <Plus className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No subscriptions yet</h3>
+              <p className="text-muted-foreground text-center max-w-md mb-4">
+                Add your recurring payments to track them and never miss a due date.
+              </p>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Subscription
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {subscriptions.map((subscription, index) => {
+                const category = categories.find(
+                  (c) => c.id === subscription.category_id
+                );
+                const daysUntil = differenceInDays(
+                  new Date(subscription.next_due),
+                  new Date()
+                );
+                const isUrgent = daysUntil <= 3 && daysUntil >= 0;
 
-              return (
-                <motion.div
-                  key={subscription.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 + index * 0.05 }}
-                  className={cn(
-                    'flex items-center gap-4 rounded-xl p-4 border transition-colors group',
-                    subscription.isActive
-                      ? 'bg-card/50 border-border/50 hover:border-border'
-                      : 'bg-muted/30 border-border/30 opacity-60'
-                  )}
-                >
-                  <div
+                return (
+                  <motion.div
+                    key={subscription.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 + index * 0.05 }}
                     className={cn(
-                      'flex h-12 w-12 items-center justify-center rounded-xl text-xl',
-                      isUrgent ? 'bg-warning/10' : 'bg-muted'
+                      'flex items-center gap-4 rounded-xl p-4 border transition-colors group',
+                      subscription.is_active
+                        ? 'bg-card/50 border-border/50 hover:border-border'
+                        : 'bg-muted/30 border-border/30 opacity-60'
                     )}
                   >
-                    {subscription.name === 'Netflix' && '📺'}
-                    {subscription.name === 'Spotify' && '🎵'}
-                    {subscription.name === 'Gym Membership' && '💪'}
-                    {subscription.name === 'Cloud Storage' && '☁️'}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold">{subscription.name}</h4>
-                      {isUrgent && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-warning/10 text-warning">
-                          <AlertCircle className="h-3 w-3" />
-                          Due soon
-                        </span>
+                    <div
+                      className={cn(
+                        'flex h-12 w-12 items-center justify-center rounded-xl text-xl',
+                        isUrgent ? 'bg-warning/10' : 'bg-muted'
                       )}
+                    >
+                      📺
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {category?.name} • {subscription.frequency}
-                    </p>
-                  </div>
 
-                  <div className="text-right">
-                    <p className="font-semibold tabular-nums">
-                      ${subscription.amount}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(subscription.nextDue), 'MMM d, yyyy')}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">{subscription.name}</h4>
+                        {isUrgent && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-warning/10 text-warning">
+                            <AlertCircle className="h-3 w-3" />
+                            Due soon
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {category?.name || 'Uncategorized'} • {subscription.frequency}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={subscription.isActive}
-                      className="data-[state=checked]:bg-primary"
-                    />
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Mark as paid</DropdownMenuItem>
-                        <DropdownMenuItem>View history</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Cancel
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                    <div className="text-right">
+                      <p className="font-semibold tabular-nums">
+                        ${Number(subscription.amount).toFixed(2)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(subscription.next_due), 'MMM d, yyyy')}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={subscription.is_active || false}
+                        className="data-[state=checked]:bg-primary"
+                      />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Mark as paid</DropdownMenuItem>
+                          <DropdownMenuItem>View history</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">
+                            Cancel
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </motion.div>
       </div>
     </AppLayout>

@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["IBM Plex Sans", "system-ui", "sans-serif"],
+        sans: ["Space Grotesk", "IBM Plex Sans", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -122,6 +123,14 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
           "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.6)" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -133,19 +142,22 @@ export default {
         "spin-slow": "spin-slow 20s linear infinite",
         "gradient-shift": "gradient-shift 8s ease infinite",
         glow: "glow 3s ease-in-out infinite",
+        float: "float 6s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "gradient-sunset": "linear-gradient(135deg, hsl(35 100% 55%), hsl(320 80% 55%))",
-        "gradient-aurora": "linear-gradient(135deg, hsl(200 90% 55%), hsl(150 80% 50%), hsl(320 80% 55%))",
+        "gradient-cyber": "linear-gradient(135deg, hsl(185 85% 50%), hsl(280 75% 60%))",
+        "gradient-ocean": "linear-gradient(135deg, hsl(222 47% 8%), hsl(222 47% 15%))",
       },
       boxShadow: {
         glow: "0 0 40px -10px hsl(var(--primary) / 0.4)",
         "glow-sm": "0 0 20px -5px hsl(var(--primary) / 0.3)",
         "glow-lg": "0 0 60px -10px hsl(var(--primary) / 0.5)",
-        card: "0 8px 32px -8px hsl(250 20% 3% / 0.6)",
-        "card-hover": "0 16px 48px -12px hsl(250 20% 3% / 0.8)",
+        neon: "0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.2)",
+        card: "0 8px 32px -8px hsl(222 47% 3% / 0.6)",
+        "card-hover": "0 16px 48px -12px hsl(222 47% 3% / 0.8)",
       },
     },
   },

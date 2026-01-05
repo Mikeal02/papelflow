@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Plus, Target, Calendar, MoreHorizontal, TrendingUp } from 'lucide-react';
+import { Plus, Target, Calendar, MoreHorizontal, TrendingUp, Loader2 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { mockGoals } from '@/lib/mock-data';
+import { useGoals } from '@/hooks/useGoals';
 
 const Goals = () => {
-  const totalTarget = mockGoals.reduce((sum, g) => sum + g.targetAmount, 0);
-  const totalSaved = mockGoals.reduce((sum, g) => sum + g.currentAmount, 0);
+  const { data: goals = [], isLoading } = useGoals();
+
+  const totalTarget = goals.reduce((sum, g) => sum + Number(g.target_amount), 0);
+  const totalSaved = goals.reduce((sum, g) => sum + Number(g.current_amount || 0), 0);
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -38,43 +50,47 @@ const Goals = () => {
         </motion.div>
 
         {/* Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="stat-card"
-        >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Progress</p>
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-income">
-                  ${totalSaved.toLocaleString()}
-                </span>
-                <span className="text-muted-foreground">
-                  of ${totalTarget.toLocaleString()} goal
-                </span>
+        {goals.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="stat-card"
+          >
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Total Progress</p>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-bold text-income">
+                    ${totalSaved.toLocaleString()}
+                  </span>
+                  <span className="text-muted-foreground">
+                    of ${totalTarget.toLocaleString()} goal
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1 max-w-md">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">
+                    {totalTarget > 0 ? ((totalSaved / totalTarget) * 100).toFixed(0) : 0}% complete
+                  </span>
+                  <span className="font-medium">
+                    ${(totalTarget - totalSaved).toLocaleString()} remaining
+                  </span>
+                </div>
+                <Progress value={totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0} className="h-3" />
               </div>
             </div>
-            <div className="flex-1 max-w-md">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-muted-foreground">
-                  {((totalSaved / totalTarget) * 100).toFixed(0)}% complete
-                </span>
-                <span className="font-medium">
-                  ${(totalTarget - totalSaved).toLocaleString()} remaining
-                </span>
-              </div>
-              <Progress value={(totalSaved / totalTarget) * 100} className="h-3" />
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Goals Grid */}
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {mockGoals.map((goal, index) => {
-            const percentage = (goal.currentAmount / goal.targetAmount) * 100;
-            const remaining = goal.targetAmount - goal.currentAmount;
+          {goals.map((goal, index) => {
+            const percentage = Number(goal.target_amount) > 0 
+              ? (Number(goal.current_amount || 0) / Number(goal.target_amount)) * 100 
+              : 0;
+            const remaining = Number(goal.target_amount) - Number(goal.current_amount || 0);
             const daysRemaining = goal.deadline
               ? differenceInDays(new Date(goal.deadline), new Date())
               : null;
@@ -94,11 +110,14 @@ const Goals = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div
                     className="flex h-14 w-14 items-center justify-center rounded-2xl text-2xl"
-                    style={{ backgroundColor: `${goal.color}20` }}
+                    style={{ backgroundColor: `${goal.color || '#10B981'}20` }}
                   >
-                    {goal.name === 'Emergency Fund' && '🛡️'}
-                    {goal.name === 'Vacation' && '✈️'}
-                    {goal.name === 'New Car' && '🚗'}
+                    {goal.icon === 'shield' && '🛡️'}
+                    {goal.icon === 'plane' && '✈️'}
+                    {goal.icon === 'car' && '🚗'}
+                    {goal.icon === 'home' && '🏠'}
+                    {goal.icon === 'target' && '🎯'}
+                    {!goal.icon && '🎯'}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -140,18 +159,18 @@ const Goals = () => {
                   <div className="relative h-3 overflow-hidden rounded-full bg-muted">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${percentage}%` }}
+                      animate={{ width: `${Math.min(percentage, 100)}%` }}
                       transition={{ delay: 0.3 + index * 0.1, duration: 0.8 }}
                       className="absolute inset-y-0 left-0 rounded-full"
-                      style={{ backgroundColor: goal.color }}
+                      style={{ backgroundColor: goal.color || '#10B981' }}
                     />
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="font-semibold text-income">
-                      ${goal.currentAmount.toLocaleString()}
+                      ${Number(goal.current_amount || 0).toLocaleString()}
                     </span>
                     <span className="text-muted-foreground">
-                      ${goal.targetAmount.toLocaleString()}
+                      ${Number(goal.target_amount).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -174,7 +193,7 @@ const Goals = () => {
                 <Button
                   className="w-full mt-4"
                   variant="secondary"
-                  style={{ borderColor: goal.color }}
+                  style={{ borderColor: goal.color || '#10B981' }}
                 >
                   Add Funds
                 </Button>

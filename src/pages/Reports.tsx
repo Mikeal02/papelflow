@@ -8,8 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
-import { getCategorySpending, getMonthlyStats } from '@/lib/mock-data';
+import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2 } from 'lucide-react';
+import { useTransactions } from '@/hooks/useTransactions';
+import { useCategories } from '@/hooks/useCategories';
 import {
   AreaChart,
   Area,
@@ -22,32 +23,134 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-
-const monthlyData = [
-  { month: 'Aug', income: 5400, expenses: 3200 },
-  { month: 'Sep', income: 5400, expenses: 3800 },
-  { month: 'Oct', income: 6100, expenses: 3500 },
-  { month: 'Nov', income: 5400, expenses: 4200 },
-  { month: 'Dec', income: 6800, expenses: 5100 },
-  { month: 'Jan', income: 6250, expenses: 2611 },
-];
+import { useMemo, useState } from 'react';
+import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 const COLORS = [
-  'hsl(217, 91%, 60%)',
-  'hsl(160, 84%, 39%)',
+  'hsl(185, 85%, 50%)',
+  'hsl(160, 84%, 45%)',
+  'hsl(280, 75%, 60%)',
   'hsl(38, 92%, 50%)',
-  'hsl(0, 72%, 60%)',
-  'hsl(280, 65%, 60%)',
+  'hsl(0, 72%, 55%)',
 ];
 
 const Reports = () => {
-  const categorySpending = getCategorySpending();
-  const stats = getMonthlyStats();
+  const [timeRange, setTimeRange] = useState('6months');
+  const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
-  const pieData = categorySpending.map((item) => ({
-    name: item.category.name,
-    value: item.amount,
-  }));
+  // Calculate monthly data based on time range
+  const monthlyData = useMemo(() => {
+    const months = timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '1year' ? 12 : 6;
+    const result = [];
+
+    for (let i = months - 1; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+
+      const monthTransactions = transactions.filter(t => {
+        const txDate = new Date(t.date);
+        return txDate >= monthStart && txDate <= monthEnd;
+      });
+
+      const income = monthTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+
+      const expenses = monthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+
+      result.push({
+        month: format(date, 'MMM'),
+        income,
+        expenses,
+      });
+    }
+
+    return result;
+  }, [transactions, timeRange]);
+
+  // Calculate category spending for pie chart
+  const categorySpending = useMemo(() => {
+    const spending: Record<string, number> = {};
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
+
+    transactions
+      .filter(t => {
+        const txDate = new Date(t.date);
+        return t.type === 'expense' && txDate >= monthStart && txDate <= monthEnd;
+      })
+      .forEach(t => {
+        if (t.category_id) {
+          spending[t.category_id] = (spending[t.category_id] || 0) + Number(t.amount);
+        }
+      });
+
+    return Object.entries(spending)
+      .map(([categoryId, amount]) => {
+        const category = categories.find(c => c.id === categoryId);
+        return {
+          name: category?.name || 'Unknown',
+          value: amount,
+        };
+      })
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+  }, [transactions, categories]);
+
+  // Calculate averages
+  const stats = useMemo(() => {
+    const monthCount = monthlyData.length || 1;
+    const totalIncome = monthlyData.reduce((sum, m) => sum + m.income, 0);
+    const totalExpenses = monthlyData.reduce((sum, m) => sum + m.expenses, 0);
+
+    return {
+      avgIncome: totalIncome / monthCount,
+      avgExpenses: totalExpenses / monthCount,
+      savingsRate: totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0,
+    };
+  }, [monthlyData]);
+
+  // Top merchants (group by payee)
+  const topMerchants = useMemo(() => {
+    const merchantSpending: Record<string, { amount: number; category: string }> = {};
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
+
+    transactions
+      .filter(t => {
+        const txDate = new Date(t.date);
+        return t.type === 'expense' && txDate >= monthStart && txDate <= monthEnd && t.payee;
+      })
+      .forEach(t => {
+        const payee = t.payee || 'Unknown';
+        const category = categories.find(c => c.id === t.category_id);
+        if (!merchantSpending[payee]) {
+          merchantSpending[payee] = { amount: 0, category: category?.name || 'Uncategorized' };
+        }
+        merchantSpending[payee].amount += Number(t.amount);
+      });
+
+    return Object.entries(merchantSpending)
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+  }, [transactions, categories]);
+
+  const isLoading = transactionsLoading || categoriesLoading;
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -65,7 +168,7 @@ const Reports = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Select defaultValue="6months">
+            <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-[160px]">
                 <Calendar className="h-4 w-4 mr-2" />
                 <SelectValue />
@@ -98,7 +201,7 @@ const Reports = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Average Income</p>
-                <p className="text-2xl font-bold">$5,892</p>
+                <p className="text-2xl font-bold">${stats.avgIncome.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
               </div>
             </div>
           </div>
@@ -110,7 +213,7 @@ const Reports = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Average Expenses</p>
-                <p className="text-2xl font-bold">$3,735</p>
+                <p className="text-2xl font-bold">${stats.avgExpenses.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
               </div>
             </div>
           </div>
@@ -122,7 +225,9 @@ const Reports = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Avg. Savings Rate</p>
-                <p className="text-2xl font-bold text-income">36.6%</p>
+                <p className={`text-2xl font-bold ${stats.savingsRate >= 0 ? 'text-income' : 'text-expense'}`}>
+                  {stats.savingsRate.toFixed(1)}%
+                </p>
               </div>
             </div>
           </div>
@@ -143,40 +248,40 @@ const Reports = () => {
                 <AreaChart data={monthlyData}>
                   <defs>
                     <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="hsl(160, 84%, 45%)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(160, 84%, 45%)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(0, 72%, 60%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(0, 72%, 60%)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="hsl(0, 72%, 55%)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(0, 72%, 55%)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 22%)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" />
                   <XAxis
                     dataKey="month"
-                    stroke="hsl(215, 20%, 55%)"
+                    stroke="hsl(215, 25%, 55%)"
                     fontSize={12}
                     tickLine={false}
                   />
                   <YAxis
-                    stroke="hsl(215, 20%, 55%)"
+                    stroke="hsl(215, 25%, 55%)"
                     fontSize={12}
                     tickLine={false}
                     tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(222, 47%, 13%)',
-                      border: '1px solid hsl(222, 30%, 22%)',
+                      backgroundColor: 'hsl(222, 47%, 10%)',
+                      border: '1px solid hsl(222, 30%, 18%)',
                       borderRadius: '8px',
                     }}
-                    labelStyle={{ color: 'hsl(210, 40%, 98%)' }}
+                    labelStyle={{ color: 'hsl(210, 40%, 96%)' }}
                     formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
                   />
                   <Area
                     type="monotone"
                     dataKey="income"
-                    stroke="hsl(160, 84%, 39%)"
+                    stroke="hsl(160, 84%, 45%)"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#incomeGradient)"
@@ -185,7 +290,7 @@ const Reports = () => {
                   <Area
                     type="monotone"
                     dataKey="expenses"
-                    stroke="hsl(0, 72%, 60%)"
+                    stroke="hsl(0, 72%, 55%)"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#expenseGradient)"
@@ -214,47 +319,55 @@ const Reports = () => {
             className="stat-card"
           >
             <h3 className="text-lg font-semibold mb-6">Spending by Category</h3>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
+            {categorySpending.length > 0 ? (
+              <>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={categorySpending}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {categorySpending.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(222, 47%, 10%)',
+                          border: '1px solid hsl(222, 30%, 18%)',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
                       />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(222, 47%, 13%)',
-                      border: '1px solid hsl(222, 30%, 22%)',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4 mt-4">
-              {pieData.map((item, index) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  />
-                  <span className="text-sm text-muted-foreground">{item.name}</span>
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-              ))}
-            </div>
+                <div className="flex flex-wrap justify-center gap-4 mt-4">
+                  {categorySpending.map((item, index) => (
+                    <div key={item.name} className="flex items-center gap-2">
+                      <div
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      />
+                      <span className="text-sm text-muted-foreground">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[300px]">
+                <p className="text-muted-foreground">No expense data for this period</p>
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -266,37 +379,37 @@ const Reports = () => {
           className="stat-card"
         >
           <h3 className="text-lg font-semibold mb-6">Top Merchants</h3>
-          <div className="space-y-4">
-            {[
-              { name: 'Apartment Rent', amount: 1800, category: 'Housing' },
-              { name: 'Amazon', amount: 234.5, category: 'Shopping' },
-              { name: 'Whole Foods Market', amount: 156.32, category: 'Groceries' },
-              { name: 'Electric Company', amount: 125, category: 'Utilities' },
-              { name: 'The Italian Place', amount: 78.5, category: 'Dining' },
-            ].map((merchant, index) => (
-              <motion.div
-                key={merchant.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.35 + index * 0.05 }}
-                className="flex items-center gap-4"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-lg font-semibold">
-                  {index + 1}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">{merchant.name}</p>
-                  <p className="text-sm text-muted-foreground">{merchant.category}</p>
-                </div>
-                <span className="font-semibold tabular-nums">
-                  ${merchant.amount.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </motion.div>
-            ))}
-          </div>
+          {topMerchants.length > 0 ? (
+            <div className="space-y-4">
+              {topMerchants.map((merchant, index) => (
+                <motion.div
+                  key={merchant.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 + index * 0.05 }}
+                  className="flex items-center gap-4"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-lg font-semibold">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">{merchant.name}</p>
+                    <p className="text-sm text-muted-foreground">{merchant.category}</p>
+                  </div>
+                  <span className="font-semibold tabular-nums">
+                    ${merchant.amount.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8">
+              <p className="text-muted-foreground">No expense data to show top merchants</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </AppLayout>

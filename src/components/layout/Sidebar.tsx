@@ -48,7 +48,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-sunset animate-pulse-glow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
             <TrendingUp className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="text-xl font-bold gradient-text">Finflow</span>
@@ -58,7 +58,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
         <div className="p-4">
           <Button
             onClick={onAddTransaction}
-            className="w-full gap-2 bg-gradient-sunset hover:opacity-90 transition-opacity text-primary-foreground font-semibold h-11"
+            className="w-full gap-2 transition-opacity font-semibold h-11"
           >
             <Plus className="h-4 w-4" />
             Add Transaction
@@ -84,7 +84,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-indicator"
-                      className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-gradient-sunset"
+                      className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary"
                     />
                   )}
                   <item.icon className={cn('h-5 w-5', isActive && 'text-primary')} />

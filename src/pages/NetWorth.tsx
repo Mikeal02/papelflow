@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { mockAccounts, getNetWorth } from '@/lib/mock-data';
-import { TrendingUp, TrendingDown, Wallet, Building2, CreditCard, PiggyBank } from 'lucide-react';
+import { useAccounts } from '@/hooks/useAccounts';
+import { TrendingUp, TrendingDown, Wallet, Building2, CreditCard, PiggyBank, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   AreaChart,
@@ -12,34 +12,57 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
-const netWorthHistory = [
-  { month: 'Jul', netWorth: 32000 },
-  { month: 'Aug', netWorth: 34500 },
-  { month: 'Sep', netWorth: 35200 },
-  { month: 'Oct', netWorth: 37800 },
-  { month: 'Nov', netWorth: 38500 },
-  { month: 'Dec', netWorth: 39100 },
-  { month: 'Jan', netWorth: 40300 },
-];
+import { useMemo } from 'react';
 
 const NetWorth = () => {
-  const netWorth = getNetWorth();
+  const { data: accounts = [], isLoading } = useAccounts();
 
-  const assets = mockAccounts.filter(
-    (a) => a.type !== 'credit_card' && a.type !== 'loan'
-  );
-  const liabilities = mockAccounts.filter(
-    (a) => a.type === 'credit_card' || a.type === 'loan'
-  );
+  const { assets, liabilities, totalAssets, totalLiabilities, netWorth } = useMemo(() => {
+    const assetAccounts = accounts.filter(
+      (a) => a.type !== 'credit_card' && a.type !== 'loan'
+    );
+    const liabilityAccounts = accounts.filter(
+      (a) => a.type === 'credit_card' || a.type === 'loan'
+    );
 
-  const totalAssets = assets.reduce((sum, a) => sum + Math.max(0, a.balance), 0);
-  const totalLiabilities = Math.abs(
-    liabilities.reduce((sum, a) => sum + a.balance, 0)
-  );
+    const totalAsset = assetAccounts.reduce((sum, a) => sum + Math.max(0, Number(a.balance || 0)), 0);
+    const totalLiability = Math.abs(
+      liabilityAccounts.reduce((sum, a) => sum + Number(a.balance || 0), 0)
+    );
 
-  const monthlyChange = netWorth - 39100;
-  const percentChange = ((monthlyChange / 39100) * 100).toFixed(1);
+    return {
+      assets: assetAccounts,
+      liabilities: liabilityAccounts,
+      totalAssets: totalAsset,
+      totalLiabilities: totalLiability,
+      netWorth: totalAsset - totalLiability,
+    };
+  }, [accounts]);
+
+  // Mock historical data - in a real app, this would come from the database
+  const netWorthHistory = [
+    { month: 'Jul', netWorth: Math.max(0, netWorth * 0.85) },
+    { month: 'Aug', netWorth: Math.max(0, netWorth * 0.88) },
+    { month: 'Sep', netWorth: Math.max(0, netWorth * 0.91) },
+    { month: 'Oct', netWorth: Math.max(0, netWorth * 0.94) },
+    { month: 'Nov', netWorth: Math.max(0, netWorth * 0.97) },
+    { month: 'Dec', netWorth: Math.max(0, netWorth * 0.99) },
+    { month: 'Jan', netWorth: netWorth },
+  ];
+
+  const previousMonth = netWorth * 0.99;
+  const monthlyChange = netWorth - previousMonth;
+  const percentChange = previousMonth > 0 ? ((monthlyChange / previousMonth) * 100).toFixed(1) : '0';
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -76,22 +99,24 @@ const NetWorth = () => {
                   minimumFractionDigits: 2,
                 })}
               </p>
-              <div className="flex items-center gap-2">
-                {monthlyChange >= 0 ? (
-                  <TrendingUp className="h-4 w-4 text-income" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-expense" />
-                )}
-                <span
-                  className={cn(
-                    'text-sm font-medium',
-                    monthlyChange >= 0 ? 'text-income' : 'text-expense'
+              {accounts.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {monthlyChange >= 0 ? (
+                    <TrendingUp className="h-4 w-4 text-income" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4 text-expense" />
                   )}
-                >
-                  {monthlyChange >= 0 ? '+' : ''}$
-                  {monthlyChange.toLocaleString()} ({percentChange}%) this month
-                </span>
-              </div>
+                  <span
+                    className={cn(
+                      'text-sm font-medium',
+                      monthlyChange >= 0 ? 'text-income' : 'text-expense'
+                    )}
+                  >
+                    {monthlyChange >= 0 ? '+' : ''}$
+                    {monthlyChange.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({percentChange}%) this month
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-8">
@@ -118,59 +143,61 @@ const NetWorth = () => {
         </motion.div>
 
         {/* Net Worth Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="stat-card"
-        >
-          <h3 className="text-lg font-semibold mb-6">Net Worth Over Time</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={netWorthHistory}>
-                <defs>
-                  <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 22%)" />
-                <XAxis
-                  dataKey="month"
-                  stroke="hsl(215, 20%, 55%)"
-                  fontSize={12}
-                  tickLine={false}
-                />
-                <YAxis
-                  stroke="hsl(215, 20%, 55%)"
-                  fontSize={12}
-                  tickLine={false}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(222, 47%, 13%)',
-                    border: '1px solid hsl(222, 30%, 22%)',
-                    borderRadius: '8px',
-                  }}
-                  labelStyle={{ color: 'hsl(210, 40%, 98%)' }}
-                  formatter={(value: number) => [
-                    `$${value.toLocaleString()}`,
-                    'Net Worth',
-                  ]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="netWorth"
-                  stroke="hsl(160, 84%, 39%)"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#netWorthGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
+        {accounts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="stat-card"
+          >
+            <h3 className="text-lg font-semibold mb-6">Net Worth Over Time</h3>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={netWorthHistory}>
+                  <defs>
+                    <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(160, 84%, 45%)" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="hsl(160, 84%, 45%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" />
+                  <XAxis
+                    dataKey="month"
+                    stroke="hsl(215, 25%, 55%)"
+                    fontSize={12}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    stroke="hsl(215, 25%, 55%)"
+                    fontSize={12}
+                    tickLine={false}
+                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(222, 47%, 10%)',
+                      border: '1px solid hsl(222, 30%, 18%)',
+                      borderRadius: '8px',
+                    }}
+                    labelStyle={{ color: 'hsl(210, 40%, 96%)' }}
+                    formatter={(value: number) => [
+                      `$${value.toLocaleString()}`,
+                      'Net Worth',
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="netWorth"
+                    stroke="hsl(160, 84%, 45%)"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#netWorthGradient)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+        )}
 
         {/* Breakdown */}
         <div className="grid gap-5 lg:grid-cols-2">
@@ -193,52 +220,67 @@ const NetWorth = () => {
               </div>
             </div>
 
-            <div className="space-y-4">
-              {assets.map((account, index) => {
-                const percentage = (account.balance / totalAssets) * 100;
-                return (
-                  <motion.div
-                    key={account.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.35 + index * 0.05 }}
-                    className="space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-8 w-8 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: `${account.color}20` }}
-                        >
-                          {account.type === 'bank' && (
-                            <Building2 className="h-4 w-4" style={{ color: account.color }} />
-                          )}
-                          {account.type === 'cash' && (
-                            <Wallet className="h-4 w-4" style={{ color: account.color }} />
-                          )}
-                          {account.type === 'investment' && (
-                            <PiggyBank className="h-4 w-4" style={{ color: account.color }} />
-                          )}
+            {assets.length > 0 ? (
+              <div className="space-y-4">
+                {assets.map((account, index) => {
+                  const percentage = totalAssets > 0 ? (Number(account.balance || 0) / totalAssets) * 100 : 0;
+                  return (
+                    <motion.div
+                      key={account.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.35 + index * 0.05 }}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-8 w-8 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: `${account.color || '#10B981'}20` }}
+                          >
+                            {account.type === 'bank' && (
+                              <Building2 className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                            )}
+                            {account.type === 'cash' && (
+                              <Wallet className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                            )}
+                            {account.type === 'investment' && (
+                              <PiggyBank className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                            )}
+                            {account.type === 'wallet' && (
+                              <Wallet className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                            )}
+                          </div>
+                          <span className="font-medium">{account.name}</span>
                         </div>
-                        <span className="font-medium">{account.name}</span>
+                        <span className="font-semibold">
+                          ${Number(account.balance || 0).toLocaleString()}
+                        </span>
                       </div>
-                      <span className="font-semibold">
-                        ${account.balance.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="relative h-2 overflow-hidden rounded-full bg-muted">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        transition={{ delay: 0.4 + index * 0.05, duration: 0.6 }}
-                        className="absolute inset-y-0 left-0 rounded-full"
-                        style={{ backgroundColor: account.color }}
-                      />
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                      <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ delay: 0.4 + index * 0.05, duration: 0.6 }}
+                          className="absolute inset-y-0 left-0 rounded-full"
+                          style={{ backgroundColor: account.color || '#10B981' }}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-3">
+                  <Wallet className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="font-medium">No asset accounts</p>
+                <p className="text-sm text-muted-foreground">
+                  Add accounts to track your assets
+                </p>
+              </div>
+            )}
           </motion.div>
 
           {/* Liabilities Breakdown */}
@@ -263,8 +305,9 @@ const NetWorth = () => {
             {liabilities.length > 0 ? (
               <div className="space-y-4">
                 {liabilities.map((account, index) => {
-                  const percentage =
-                    (Math.abs(account.balance) / totalLiabilities) * 100;
+                  const percentage = totalLiabilities > 0
+                    ? (Math.abs(Number(account.balance || 0)) / totalLiabilities) * 100
+                    : 0;
                   return (
                     <motion.div
                       key={account.id}
@@ -277,17 +320,17 @@ const NetWorth = () => {
                         <div className="flex items-center gap-2">
                           <div
                             className="h-8 w-8 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: `${account.color}20` }}
+                            style={{ backgroundColor: `${account.color || '#EF4444'}20` }}
                           >
                             <CreditCard
                               className="h-4 w-4"
-                              style={{ color: account.color }}
+                              style={{ color: account.color || '#EF4444' }}
                             />
                           </div>
                           <span className="font-medium">{account.name}</span>
                         </div>
                         <span className="font-semibold text-expense">
-                          ${Math.abs(account.balance).toLocaleString()}
+                          ${Math.abs(Number(account.balance || 0)).toLocaleString()}
                         </span>
                       </div>
                       <div className="relative h-2 overflow-hidden rounded-full bg-muted">
