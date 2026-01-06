@@ -18,7 +18,7 @@ export function useTransactions() {
         .from('transactions')
         .select(`
           *,
-          account:accounts(id, name, type, color),
+          account:accounts!transactions_account_id_fkey(id, name, type, color),
           category:categories(id, name, icon, color, type),
           to_account:accounts!transactions_to_account_id_fkey(id, name, type, color)
         `)
