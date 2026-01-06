@@ -9,9 +9,11 @@ import { cn } from '@/lib/utils';
 import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { useState, useMemo } from 'react';
+import { AddBudgetModal } from '@/components/budgets/AddBudgetModal';
 
 const Budgets = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showAddModal, setShowAddModal] = useState(false);
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
@@ -117,16 +119,21 @@ const Budgets = () => {
                 className="h-8 w-8"
                 onClick={() => setCurrentDate(addMonths(currentDate, 1))}
               >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Budget
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-        </motion.div>
+          <Button className="gap-2" onClick={() => setShowAddModal(true)}>
+            <Plus className="h-4 w-4" />
+            New Budget
+          </Button>
+        </div>
+      </motion.div>
 
+        <AddBudgetModal 
+          open={showAddModal} 
+          onOpenChange={setShowAddModal}
+          month={currentMonth}
+        />
         {/* Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -174,7 +181,7 @@ const Budgets = () => {
             <p className="text-muted-foreground text-center max-w-md mb-4">
               Create your first budget to start tracking your spending limits and stay on top of your finances.
             </p>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => setShowAddModal(true)}>
               <Plus className="h-4 w-4" />
               Create Budget
             </Button>
