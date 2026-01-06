@@ -349,7 +349,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_income_categories_for_user: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       account_type:

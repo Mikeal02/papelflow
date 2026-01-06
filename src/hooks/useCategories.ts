@@ -14,12 +14,27 @@ export function useCategories() {
   return useQuery({
     queryKey: ['categories', user?.id],
     queryFn: async () => {
+      // First fetch existing categories
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('name', { ascending: true });
 
       if (error) throw error;
+
+      // Check if income categories exist, if not, add them
+      const hasIncomeCategories = data?.some(c => c.type === 'income');
+      if (!hasIncomeCategories && user) {
+        await supabase.rpc('add_income_categories_for_user', { p_user_id: user.id });
+        // Refetch after adding income categories
+        const { data: refreshedData, error: refreshError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name', { ascending: true });
+        if (refreshError) throw refreshError;
+        return refreshedData as Category[];
+      }
+
       return data as Category[];
     },
     enabled: !!user,

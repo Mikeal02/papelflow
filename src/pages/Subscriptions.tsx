@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { format, differenceInDays } from 'date-fns';
 import {
@@ -17,13 +18,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useSubscriptions, useUpdateSubscription, useDeleteSubscription } from '@/hooks/useSubscriptions';
 import { useCategories } from '@/hooks/useCategories';
 import { cn } from '@/lib/utils';
+import { AddSubscriptionModal } from '@/components/subscriptions/AddSubscriptionModal';
 
 const Subscriptions = () => {
+  const [showAddModal, setShowAddModal] = useState(false);
   const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptions();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const updateSubscription = useUpdateSubscription();
+  const deleteSubscription = useDeleteSubscription();
 
   const activeSubscriptions = subscriptions.filter((s) => s.is_active);
   const totalMonthly = activeSubscriptions.reduce((sum, s) => {
@@ -68,11 +73,13 @@ const Subscriptions = () => {
               Track your recurring payments
             </p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowAddModal(true)}>
             <Plus className="h-4 w-4" />
             Add Subscription
           </Button>
         </motion.div>
+
+        <AddSubscriptionModal open={showAddModal} onOpenChange={setShowAddModal} />
 
         {/* Summary */}
         <motion.div
@@ -132,7 +139,7 @@ const Subscriptions = () => {
               <p className="text-muted-foreground text-center max-w-md mb-4">
                 Add your recurring payments to track them and never miss a due date.
               </p>
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => setShowAddModal(true)}>
                 <Plus className="h-4 w-4" />
                 Add Subscription
               </Button>
@@ -198,6 +205,9 @@ const Subscriptions = () => {
                     <div className="flex items-center gap-3">
                       <Switch
                         checked={subscription.is_active || false}
+                        onCheckedChange={(checked) => 
+                          updateSubscription.mutate({ id: subscription.id, is_active: checked })
+                        }
                         className="data-[state=checked]:bg-primary"
                       />
                       <DropdownMenu>
@@ -213,9 +223,11 @@ const Subscriptions = () => {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem>Mark as paid</DropdownMenuItem>
-                          <DropdownMenuItem>View history</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            Cancel
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => deleteSubscription.mutate(subscription.id)}
+                          >
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

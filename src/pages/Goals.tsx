@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Target, Calendar, MoreHorizontal, TrendingUp, Loader2 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
@@ -10,10 +11,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useGoals } from '@/hooks/useGoals';
+import { useGoals, useDeleteGoal, useUpdateGoal } from '@/hooks/useGoals';
+import { AddGoalModal } from '@/components/goals/AddGoalModal';
 
 const Goals = () => {
+  const [showAddModal, setShowAddModal] = useState(false);
   const { data: goals = [], isLoading } = useGoals();
+  const deleteGoal = useDeleteGoal();
+  const updateGoal = useUpdateGoal();
 
   const totalTarget = goals.reduce((sum, g) => sum + Number(g.target_amount), 0);
   const totalSaved = goals.reduce((sum, g) => sum + Number(g.current_amount || 0), 0);
@@ -43,11 +48,13 @@ const Goals = () => {
               Track your savings progress
             </p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowAddModal(true)}>
             <Plus className="h-4 w-4" />
             Create Goal
           </Button>
         </motion.div>
+
+        <AddGoalModal open={showAddModal} onOpenChange={setShowAddModal} />
 
         {/* Summary */}
         {goals.length > 0 && (
@@ -130,10 +137,36 @@ const Goals = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Edit goal</DropdownMenuItem>
-                      <DropdownMenuItem>Add funds</DropdownMenuItem>
-                      <DropdownMenuItem>Withdraw</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          const addAmount = prompt('How much to add?');
+                          if (addAmount) {
+                            updateGoal.mutate({
+                              id: goal.id,
+                              current_amount: Number(goal.current_amount || 0) + Number(addAmount),
+                            });
+                          }
+                        }}
+                      >
+                        Add funds
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          const withdrawAmount = prompt('How much to withdraw?');
+                          if (withdrawAmount) {
+                            updateGoal.mutate({
+                              id: goal.id,
+                              current_amount: Math.max(0, Number(goal.current_amount || 0) - Number(withdrawAmount)),
+                            });
+                          }
+                        }}
+                      >
+                        Withdraw
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-destructive"
+                        onClick={() => deleteGoal.mutate(goal.id)}
+                      >
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -194,6 +227,15 @@ const Goals = () => {
                   className="w-full mt-4"
                   variant="secondary"
                   style={{ borderColor: goal.color || '#10B981' }}
+                  onClick={() => {
+                    const addAmount = prompt('How much to add?');
+                    if (addAmount) {
+                      updateGoal.mutate({
+                        id: goal.id,
+                        current_amount: Number(goal.current_amount || 0) + Number(addAmount),
+                      });
+                    }
+                  }}
                 >
                   Add Funds
                 </Button>
@@ -207,6 +249,7 @@ const Goals = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
             className="stat-card border-dashed flex flex-col items-center justify-center min-h-[300px] cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => setShowAddModal(true)}
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-4">
               <Plus className="h-6 w-6 text-muted-foreground" />
