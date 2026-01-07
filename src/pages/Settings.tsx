@@ -38,24 +38,33 @@ const Settings = () => {
   const updateProfile = useUpdateProfile();
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   
   const [fullName, setFullName] = useState('');
-  const [currency, setCurrency] = useState('USD');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Update local state when profile loads
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
-      setCurrency(profile.preferred_currency || 'USD');
     }
   }, [profile]);
 
   const handleSaveProfile = async () => {
     await updateProfile.mutateAsync({
       full_name: fullName,
-      preferred_currency: currency,
+    });
+  };
+
+  const handleCurrencyChange = async (newCurrency: string) => {
+    await updateProfile.mutateAsync({
+      preferred_currency: newCurrency,
     });
   };
 
@@ -67,6 +76,8 @@ const Settings = () => {
   const handleDarkModeToggle = (checked: boolean) => {
     setTheme(checked ? 'dark' : 'light');
   };
+  
+  const isDark = mounted ? (resolvedTheme === 'dark') : true;
 
   if (isLoading) {
     return (
@@ -164,7 +175,7 @@ const Settings = () => {
                   </p>
                 </div>
               </div>
-              <Switch checked={theme === 'dark'} onCheckedChange={handleDarkModeToggle} />
+              <Switch checked={isDark} onCheckedChange={handleDarkModeToggle} />
             </div>
 
             <Separator className="bg-border/50" />
@@ -172,7 +183,7 @@ const Settings = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Currency</Label>
-                <Select value={currency || profile?.preferred_currency || 'USD'} onValueChange={setCurrency}>
+                <Select value={profile?.preferred_currency || 'USD'} onValueChange={handleCurrencyChange}>
                   <SelectTrigger className="bg-muted/30">
                     <SelectValue />
                   </SelectTrigger>
