@@ -13,6 +13,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,15 +31,18 @@ import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
 
 const Settings = () => {
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   
   const [fullName, setFullName] = useState('');
   const [currency, setCurrency] = useState('USD');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   // Update local state when profile loads
   useEffect(() => {
@@ -58,6 +62,10 @@ const Settings = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
+  };
+
+  const handleDarkModeToggle = (checked: boolean) => {
+    setTheme(checked ? 'dark' : 'light');
   };
 
   if (isLoading) {
@@ -156,7 +164,7 @@ const Settings = () => {
                   </p>
                 </div>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={theme === 'dark'} onCheckedChange={handleDarkModeToggle} />
             </div>
 
             <Separator className="bg-border/50" />
@@ -262,7 +270,7 @@ const Settings = () => {
           </div>
 
           <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-between h-12">
+            <Button variant="outline" className="w-full justify-between h-12" onClick={() => setShowPasswordModal(true)}>
               Change password
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -322,6 +330,11 @@ const Settings = () => {
           </div>
         </motion.div>
       </div>
+      
+      <ChangePasswordModal 
+        open={showPasswordModal} 
+        onOpenChange={setShowPasswordModal} 
+      />
     </AppLayout>
   );
 };

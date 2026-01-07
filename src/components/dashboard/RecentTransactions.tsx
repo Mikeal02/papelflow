@@ -2,12 +2,14 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 export function RecentTransactions() {
   const { data: transactions = [], isLoading } = useTransactions();
+  const { formatCurrency } = useCurrency();
   const recentTransactions = transactions.slice(0, 6);
 
   if (isLoading) {
@@ -103,11 +105,10 @@ export function RecentTransactions() {
                     transaction.type === 'transfer' && 'amount-neutral'
                   )}
                 >
-                  {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}$
-                  {Number(transaction.amount).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatCurrency(
+                    Number(transaction.amount) * (transaction.type === 'expense' ? -1 : 1),
+                    transaction.type !== 'transfer'
+                  )}
                 </span>
               </motion.div>
             );

@@ -10,6 +10,65 @@
 
 @layer base {
   :root {
+    /* Light Mode - Clean and professional */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 185 85% 40%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 25% 45%;
+    
+    --accent: 280 75% 55%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 160 84% 35%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+    
+    --expense: 0 72% 50%;
+    --income: 160 84% 40%;
+    --transfer: 215 70% 55%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 185 85% 40%;
+    
+    --radius: 0.75rem;
+    
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 185 85% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 185 85% 40%;
+    
+    --chart-1: 185 85% 45%;
+    --chart-2: 160 84% 40%;
+    --chart-3: 280 75% 55%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 72% 50%;
+    --chart-6: 215 70% 55%;
+  }
+
+  .dark {
     /* Midnight Ocean Theme - Deep navy with electric cyan */
     --background: 222 47% 8%;
     --foreground: 210 40% 96%;
@@ -49,8 +108,6 @@
     --input: 222 30% 16%;
     --ring: 185 85% 50%;
     
-    --radius: 0.75rem;
-    
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 210 40% 90%;
     --sidebar-primary: 185 85% 50%;
@@ -66,36 +123,6 @@
     --chart-4: 38 92% 50%;
     --chart-5: 0 72% 55%;
     --chart-6: 215 70% 60%;
-  }
-
-  .dark {
-    --background: 222 47% 8%;
-    --foreground: 210 40% 96%;
-    
-    --card: 222 47% 10%;
-    --card-foreground: 210 40% 96%;
-    
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 96%;
-    
-    --primary: 185 85% 50%;
-    --primary-foreground: 222 47% 8%;
-    
-    --secondary: 222 30% 16%;
-    --secondary-foreground: 210 40% 90%;
-    
-    --muted: 222 30% 14%;
-    --muted-foreground: 215 25% 55%;
-    
-    --accent: 280 75% 60%;
-    --accent-foreground: 210 40% 98%;
-    
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 222 30% 18%;
-    --input: 222 30% 16%;
-    --ring: 185 85% 50%;
   }
 }
 
