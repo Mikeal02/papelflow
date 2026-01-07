@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 
 const Transactions = () => {
@@ -40,6 +41,7 @@ const Transactions = () => {
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
   const deleteTransaction = useDeleteTransaction();
+  const { formatCurrency } = useCurrency();
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
@@ -250,16 +252,10 @@ const Transactions = () => {
                             transaction.type === 'transfer' && 'amount-neutral'
                           )}
                         >
-                          {transaction.type === 'income'
-                            ? '+'
-                            : transaction.type === 'expense'
-                            ? '-'
-                            : ''}
-                          $
-                          {Number(transaction.amount).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(
+                            Number(transaction.amount),
+                            transaction.type === 'income' || transaction.type === 'expense'
+                          )}
                         </span>
 
                         <DropdownMenu>

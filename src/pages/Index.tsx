@@ -10,11 +10,13 @@ import { UpcomingBills } from '@/components/dashboard/UpcomingBills';
 import { useMonthlyStats } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useProfile } from '@/hooks/useProfile';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
   const { data: accounts = [] } = useAccounts();
   const { data: profile } = useProfile();
+  const { formatCurrency } = useCurrency();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
@@ -52,28 +54,28 @@ const Dashboard = () => {
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Income"
-            value={`$${(stats?.income || 0).toLocaleString()}`}
+            value={formatCurrency(stats?.income || 0)}
             icon={TrendingUp}
             iconColor="bg-income/10 text-income"
             delay={0.05}
           />
           <StatCard
             title="Total Expenses"
-            value={`$${(stats?.expenses || 0).toLocaleString()}`}
+            value={formatCurrency(stats?.expenses || 0)}
             icon={TrendingDown}
             iconColor="bg-expense/10 text-expense"
             delay={0.1}
           />
           <StatCard
             title="Net Cash Flow"
-            value={`${(stats?.netFlow || 0) >= 0 ? '+' : ''}$${(stats?.netFlow || 0).toLocaleString()}`}
+            value={formatCurrency(stats?.netFlow || 0, true)}
             icon={Scale}
             iconColor="bg-primary/10 text-primary"
             delay={0.15}
           />
           <StatCard
             title="Total Balance"
-            value={`$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+            value={formatCurrency(totalBalance)}
             icon={Wallet}
             iconColor="bg-chart-3/10 text-chart-3"
             delay={0.2}

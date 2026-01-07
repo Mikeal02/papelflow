@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAccounts, useCreateAccount, useDeleteAccount } from '@/hooks/useAccounts';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 
 const accountIcons: Record<string, typeof Wallet> = {
@@ -64,6 +65,7 @@ const Accounts = () => {
   const { data: accounts = [], isLoading } = useAccounts();
   const createAccount = useCreateAccount();
   const deleteAccount = useDeleteAccount();
+  const { formatCurrency } = useCurrency();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newAccount, setNewAccount] = useState({
     name: '',

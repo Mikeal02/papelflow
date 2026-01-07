@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSubscriptions, useUpdateSubscription, useDeleteSubscription } from '@/hooks/useSubscriptions';
 import { useCategories } from '@/hooks/useCategories';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { AddSubscriptionModal } from '@/components/subscriptions/AddSubscriptionModal';
 
@@ -29,6 +30,7 @@ const Subscriptions = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const updateSubscription = useUpdateSubscription();
   const deleteSubscription = useDeleteSubscription();
+  const { formatCurrency } = useCurrency();
 
   const activeSubscriptions = subscriptions.filter((s) => s.is_active);
   const totalMonthly = activeSubscriptions.reduce((sum, s) => {

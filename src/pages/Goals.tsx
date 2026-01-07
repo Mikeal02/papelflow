@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useGoals, useDeleteGoal, useUpdateGoal } from '@/hooks/useGoals';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { AddGoalModal } from '@/components/goals/AddGoalModal';
 
 const Goals = () => {
@@ -19,6 +20,7 @@ const Goals = () => {
   const { data: goals = [], isLoading } = useGoals();
   const deleteGoal = useDeleteGoal();
   const updateGoal = useUpdateGoal();
+  const { formatCurrency } = useCurrency();
 
   const totalTarget = goals.reduce((sum, g) => sum + Number(g.target_amount), 0);
   const totalSaved = goals.reduce((sum, g) => sum + Number(g.current_amount || 0), 0);
