@@ -11,6 +11,7 @@ import {
 import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2 } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import {
   AreaChart,
   Area,
@@ -38,6 +39,7 @@ const Reports = () => {
   const [timeRange, setTimeRange] = useState('6months');
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const { formatCurrency } = useCurrency();
 
   // Calculate monthly data based on time range
   const monthlyData = useMemo(() => {
@@ -201,7 +203,7 @@ const Reports = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Average Income</p>
-                <p className="text-2xl font-bold">${stats.avgIncome.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.avgIncome)}</p>
               </div>
             </div>
           </div>
@@ -213,7 +215,7 @@ const Reports = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Average Expenses</p>
-                <p className="text-2xl font-bold">${stats.avgExpenses.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.avgExpenses)}</p>
               </div>
             </div>
           </div>
@@ -275,8 +277,8 @@ const Reports = () => {
                       border: '1px solid hsl(222, 30%, 18%)',
                       borderRadius: '8px',
                     }}
-                    labelStyle={{ color: 'hsl(210, 40%, 96%)' }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    formatter={(value: number) => [formatCurrency(value), '']}
                   />
                   <Area
                     type="monotone"
@@ -346,7 +348,7 @@ const Reports = () => {
                           border: '1px solid hsl(222, 30%, 18%)',
                           borderRadius: '8px',
                         }}
-                        formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+                        formatter={(value: number) => [formatCurrency(value), '']}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -397,10 +399,7 @@ const Reports = () => {
                     <p className="text-sm text-muted-foreground">{merchant.category}</p>
                   </div>
                   <span className="font-semibold tabular-nums">
-                    ${merchant.amount.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {formatCurrency(merchant.amount)}
                   </span>
                 </motion.div>
               ))}

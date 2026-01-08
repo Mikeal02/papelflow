@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { TrendingUp, TrendingDown, Wallet, Building2, CreditCard, PiggyBank, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -16,6 +17,7 @@ import { useMemo } from 'react';
 
 const NetWorth = () => {
   const { data: accounts = [], isLoading } = useAccounts();
+  const { formatCurrency } = useCurrency();
 
   const { assets, liabilities, totalAssets, totalLiabilities, netWorth } = useMemo(() => {
     const assetAccounts = accounts.filter(
@@ -94,10 +96,7 @@ const NetWorth = () => {
                   netWorth >= 0 ? 'text-income' : 'text-expense'
                 )}
               >
-                {netWorth < 0 && '-'}$
-                {Math.abs(netWorth).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                })}
+                {formatCurrency(netWorth)}
               </p>
               {accounts.length > 0 && (
                 <div className="flex items-center gap-2">
@@ -112,8 +111,7 @@ const NetWorth = () => {
                       monthlyChange >= 0 ? 'text-income' : 'text-expense'
                     )}
                   >
-                    {monthlyChange >= 0 ? '+' : ''}$
-                    {monthlyChange.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({percentChange}%) this month
+                    {formatCurrency(monthlyChange, true)} ({percentChange}%) this month
                   </span>
                 </div>
               )}
@@ -126,7 +124,7 @@ const NetWorth = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">Assets</p>
                 <p className="text-xl font-bold text-income">
-                  ${totalAssets.toLocaleString()}
+                  {formatCurrency(totalAssets)}
                 </p>
               </div>
               <div className="text-center">
@@ -135,7 +133,7 @@ const NetWorth = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">Liabilities</p>
                 <p className="text-xl font-bold text-expense">
-                  ${totalLiabilities.toLocaleString()}
+                  {formatCurrency(totalLiabilities)}
                 </p>
               </div>
             </div>
@@ -179,9 +177,9 @@ const NetWorth = () => {
                       border: '1px solid hsl(222, 30%, 18%)',
                       borderRadius: '8px',
                     }}
-                    labelStyle={{ color: 'hsl(210, 40%, 96%)' }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
                     formatter={(value: number) => [
-                      `$${value.toLocaleString()}`,
+                      formatCurrency(value),
                       'Net Worth',
                     ]}
                   />
@@ -215,7 +213,7 @@ const NetWorth = () => {
               <div>
                 <h3 className="font-semibold">Assets</h3>
                 <p className="text-sm text-muted-foreground">
-                  ${totalAssets.toLocaleString()}
+                  {formatCurrency(totalAssets)}
                 </p>
               </div>
             </div>
@@ -254,7 +252,7 @@ const NetWorth = () => {
                           <span className="font-medium">{account.name}</span>
                         </div>
                         <span className="font-semibold">
-                          ${Number(account.balance || 0).toLocaleString()}
+                          {formatCurrency(Number(account.balance || 0))}
                         </span>
                       </div>
                       <div className="relative h-2 overflow-hidden rounded-full bg-muted">
@@ -297,7 +295,7 @@ const NetWorth = () => {
               <div>
                 <h3 className="font-semibold">Liabilities</h3>
                 <p className="text-sm text-muted-foreground">
-                  ${totalLiabilities.toLocaleString()}
+                  {formatCurrency(totalLiabilities)}
                 </p>
               </div>
             </div>
@@ -330,7 +328,7 @@ const NetWorth = () => {
                           <span className="font-medium">{account.name}</span>
                         </div>
                         <span className="font-semibold text-expense">
-                          ${Math.abs(Number(account.balance || 0)).toLocaleString()}
+                          {formatCurrency(Math.abs(Number(account.balance || 0)))}
                         </span>
                       </div>
                       <div className="relative h-2 overflow-hidden rounded-full bg-muted">
