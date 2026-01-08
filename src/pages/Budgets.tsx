@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
@@ -17,6 +18,7 @@ const Budgets = () => {
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
+  const { formatCurrency } = useCurrency();
 
   const currentMonth = format(currentDate, 'yyyy-MM');
   const monthStart = startOfMonth(currentDate);
@@ -146,10 +148,10 @@ const Budgets = () => {
               <p className="text-sm text-muted-foreground">Total Budget Progress</p>
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold">
-                  ${totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {formatCurrency(totalSpent)}
                 </span>
                 <span className="text-muted-foreground">
-                  of ${totalBudget.toLocaleString()} budgeted
+                  of {formatCurrency(totalBudget)} budgeted
                 </span>
               </div>
             </div>
@@ -159,7 +161,7 @@ const Budgets = () => {
                   {budgetProgress.toFixed(0)}% spent
                 </span>
                 <span className="font-medium text-primary">
-                  ${(totalBudget - totalSpent).toLocaleString()} remaining
+                  {formatCurrency(totalBudget - totalSpent)} remaining
                 </span>
               </div>
               <Progress value={Math.min(budgetProgress, 100)} className="h-3" />
@@ -233,7 +235,7 @@ const Budgets = () => {
                       <div className="space-y-3">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            ${budget.spent.toFixed(0)} spent
+                            {formatCurrency(budget.spent)} spent
                           </span>
                           <span
                             className={cn(
@@ -241,7 +243,7 @@ const Budgets = () => {
                               budget.remaining < 0 ? 'text-expense' : 'text-foreground'
                             )}
                           >
-                            ${Math.abs(budget.remaining).toFixed(0)}{' '}
+                            {formatCurrency(Math.abs(budget.remaining))}{' '}
                             {budget.remaining < 0 ? 'over' : 'left'}
                           </span>
                         </div>
@@ -254,7 +256,7 @@ const Budgets = () => {
                           />
                         </div>
                         <p className="text-xs text-center text-muted-foreground">
-                          ${Number(budget.amount).toFixed(0)} budgeted
+                          {formatCurrency(Number(budget.amount))} budgeted
                         </p>
                       </div>
                     </motion.div>
@@ -308,7 +310,7 @@ const Budgets = () => {
                       <div className="space-y-3">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            ${budget.spent.toFixed(0)} spent
+                            {formatCurrency(budget.spent)} spent
                           </span>
                           <span
                             className={cn(
@@ -316,7 +318,7 @@ const Budgets = () => {
                               budget.remaining < 0 ? 'text-expense' : 'text-foreground'
                             )}
                           >
-                            ${Math.abs(budget.remaining).toFixed(0)}{' '}
+                            {formatCurrency(Math.abs(budget.remaining))}{' '}
                             {budget.remaining < 0 ? 'over' : 'left'}
                           </span>
                         </div>
@@ -329,7 +331,7 @@ const Budgets = () => {
                           />
                         </div>
                         <p className="text-xs text-center text-muted-foreground">
-                          ${Number(budget.amount).toFixed(0)} budgeted
+                          {formatCurrency(Number(budget.amount))} budgeted
                         </p>
                       </div>
                     </motion.div>

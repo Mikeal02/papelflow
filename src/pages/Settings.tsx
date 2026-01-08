@@ -26,12 +26,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useTransactions } from '@/hooks/useTransactions';
+import { useAccounts } from '@/hooks/useAccounts';
+import { useBudgets } from '@/hooks/useBudgets';
+import { useCategories } from '@/hooks/useCategories';
+import { useGoals } from '@/hooks/useGoals';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
 
 const Settings = () => {
   const { data: profile, isLoading } = useProfile();
@@ -40,9 +58,18 @@ const Settings = () => {
   const navigate = useNavigate();
   const { theme, setTheme, resolvedTheme } = useTheme();
   
+  // Data hooks for export
+  const { data: transactions = [] } = useTransactions();
+  const { data: accounts = [] } = useAccounts();
+  const { data: budgets = [] } = useBudgets();
+  const { data: categories = [] } = useCategories();
+  const { data: goals = [] } = useGoals();
+  const { data: subscriptions = [] } = useSubscriptions();
+  
   const [fullName, setFullName] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -78,6 +105,69 @@ const Settings = () => {
   };
   
   const isDark = mounted ? (resolvedTheme === 'dark') : true;
+
+  const handleExportData = () => {
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      profile: profile,
+      accounts: accounts,
+      transactions: transactions,
+      budgets: budgets,
+      categories: categories,
+      goals: goals,
+      subscriptions: subscriptions,
+    };
+
+    const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(jsonBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `finflow-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: 'Data exported',
+      description: 'Your data has been downloaded as a JSON file',
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      // Delete all user data in order (respecting foreign keys)
+      await supabase.from('transactions').delete().eq('user_id', user.id);
+      await supabase.from('budgets').delete().eq('user_id', user.id);
+      await supabase.from('subscriptions').delete().eq('user_id', user.id);
+      await supabase.from('goals').delete().eq('user_id', user.id);
+      await supabase.from('accounts').delete().eq('user_id', user.id);
+      await supabase.from('categories').delete().eq('user_id', user.id);
+      await supabase.from('profiles').delete().eq('user_id', user.id);
+      
+      // Sign out the user
+      await signOut();
+      
+      toast({
+        title: 'Account deleted',
+        description: 'Your account and all data have been deleted',
+      });
+      
+      navigate('/auth');
+    } catch (error: any) {
+      toast({
+        title: 'Failed to delete account',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -312,12 +402,16 @@ const Settings = () => {
           </div>
 
           <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-between h-12">
+            <Button 
+              variant="outline" 
+              className="w-full justify-between h-12"
+              onClick={handleExportData}
+            >
               <span className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 Export all data
               </span>
-              <span className="text-sm text-muted-foreground">JSON, CSV</span>
+              <span className="text-sm text-muted-foreground">JSON</span>
             </Button>
             <Button
               variant="outline"
@@ -329,15 +423,39 @@ const Settings = () => {
                 Sign out
               </span>
             </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-between h-12 text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5"
-            >
-              <span className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" />
-                Delete account
-              </span>
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between h-12 text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5"
+                >
+                  <span className="flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" />
+                    Delete account
+                  </span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    account and remove all your data from our servers including
+                    transactions, accounts, budgets, goals, and subscriptions.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete Account'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </motion.div>
       </div>
