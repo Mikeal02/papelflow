@@ -147,7 +147,7 @@ const Accounts = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Total Assets</p>
                 <p className="text-2xl font-bold amount-positive">
-                  ${totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {formatCurrency(totalAssets)}
                 </p>
               </div>
             </div>
@@ -161,7 +161,7 @@ const Accounts = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Total Liabilities</p>
                 <p className="text-2xl font-bold amount-negative">
-                  -${totalLiabilities.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  -{formatCurrency(totalLiabilities)}
                 </p>
               </div>
             </div>
@@ -180,10 +180,7 @@ const Accounts = () => {
                     netWorth >= 0 ? 'amount-positive' : 'amount-negative'
                   )}
                 >
-                  {netWorth < 0 && '-'}$
-                  {Math.abs(netWorth).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatCurrency(netWorth)}
                 </p>
               </div>
             </div>
@@ -269,9 +266,7 @@ const Accounts = () => {
                           <div>
                             <p className="text-xs text-muted-foreground">Balance</p>
                             <p className="text-2xl font-bold">
-                              ${Number(account.balance).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                              })}
+                              {formatCurrency(Number(account.balance))}
                             </p>
                           </div>
                         </div>
@@ -336,9 +331,7 @@ const Accounts = () => {
                           <div>
                             <p className="text-xs text-muted-foreground">Balance Owed</p>
                             <p className="text-2xl font-bold amount-negative">
-                              ${Math.abs(Number(account.balance)).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                              })}
+                              {formatCurrency(Math.abs(Number(account.balance)))}
                             </p>
                           </div>
                         </div>

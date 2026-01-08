@@ -97,13 +97,13 @@ const Subscriptions = () => {
           <div className="stat-card">
             <p className="text-sm text-muted-foreground">Monthly Cost</p>
             <p className="text-3xl font-bold mt-2">
-              ${totalMonthly.toFixed(2)}
+              {formatCurrency(totalMonthly)}
             </p>
           </div>
           <div className="stat-card">
             <p className="text-sm text-muted-foreground">Yearly Cost</p>
             <p className="text-3xl font-bold mt-2">
-              ${totalYearly.toFixed(0)}
+              {formatCurrency(totalYearly)}
             </p>
           </div>
           <div className="stat-card">
@@ -197,7 +197,7 @@ const Subscriptions = () => {
 
                     <div className="text-right">
                       <p className="font-semibold tabular-nums">
-                        ${Number(subscription.amount).toFixed(2)}
+                        {formatCurrency(Number(subscription.amount))}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {format(new Date(subscription.next_due), 'MMM d, yyyy')}
