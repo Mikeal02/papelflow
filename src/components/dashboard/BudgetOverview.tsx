@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 export function BudgetOverview() {
   const { data: budgets = [], isLoading } = useBudgets();
   const { data: transactions = [] } = useTransactions();
+  const { formatCurrency } = useCurrency();
 
   // Calculate actual spending per category for current month
   const currentMonth = new Date().toISOString().slice(0, 7);
@@ -84,7 +86,7 @@ export function BudgetOverview() {
                       !isOverBudget && !isNearLimit && 'text-muted-foreground'
                     )}
                   >
-                    ${budget.spent.toFixed(0)} / ${Number(budget.amount).toFixed(0)}
+                    {formatCurrency(budget.spent)} / {formatCurrency(Number(budget.amount))}
                   </span>
                 </div>
                 <div className="relative h-2 overflow-hidden rounded-full bg-muted">

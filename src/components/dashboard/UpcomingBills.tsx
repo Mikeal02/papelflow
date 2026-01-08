@@ -2,12 +2,14 @@ import { motion } from 'framer-motion';
 import { Calendar, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 export function UpcomingBills() {
   const { data: subscriptions = [], isLoading } = useSubscriptions();
+  const { formatCurrency } = useCurrency();
 
   const sortedSubscriptions = subscriptions
     .filter((s) => s.is_active)
@@ -96,7 +98,7 @@ export function UpcomingBills() {
                 </div>
 
                 <div className="text-right">
-                  <span className="font-semibold tabular-nums">${Number(subscription.amount).toFixed(2)}</span>
+                  <span className="font-semibold tabular-nums">{formatCurrency(Number(subscription.amount))}</span>
                   <p className="text-xs text-muted-foreground capitalize">{subscription.frequency}</p>
                 </div>
               </motion.div>

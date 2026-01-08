@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Wallet, PiggyBank, CreditCard, Banknote, Building2, Loader2 } from 'lucide-react';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ const accountIcons: Record<string, typeof Wallet> = {
 
 export function AccountsOverview() {
   const { data: accounts = [], isLoading } = useAccounts();
+  const { formatCurrency } = useCurrency();
   const netWorth = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
 
   if (isLoading) {
@@ -44,7 +46,7 @@ export function AccountsOverview() {
           <p className="text-sm text-muted-foreground mt-1">
             Net worth:{' '}
             <span className={cn('font-semibold', netWorth >= 0 ? 'text-income' : 'text-expense')}>
-              ${netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {formatCurrency(netWorth)}
             </span>
           </p>
         </div>
@@ -97,10 +99,7 @@ export function AccountsOverview() {
                     isNegative ? 'amount-negative' : 'text-foreground'
                   )}
                 >
-                  {isNegative ? '-' : ''}$
-                  {Math.abs(Number(account.balance)).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatCurrency(Number(account.balance))}
                 </span>
               </motion.div>
             );

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { Loader2 } from 'lucide-react';
 
 const colors = [
@@ -27,6 +28,7 @@ const categoryEmojis: Record<string, string> = {
 export function TopCategories() {
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: categories = [] } = useCategories();
+  const { formatCurrency } = useCurrency();
 
   // Calculate spending per category
   const categorySpending = transactions
@@ -100,7 +102,7 @@ export function TopCategories() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium truncate">{item.category!.name}</span>
-                    <span className="font-semibold">${item.amount.toFixed(0)}</span>
+                    <span className="font-semibold">{formatCurrency(item.amount)}</span>
                   </div>
                   <div className="relative h-1.5 overflow-hidden rounded-full bg-muted">
                     <motion.div

@@ -71,10 +71,10 @@ const Goals = () => {
                 <p className="text-sm text-muted-foreground">Total Progress</p>
                 <div className="flex items-baseline gap-3">
                   <span className="text-3xl font-bold text-income">
-                    ${totalSaved.toLocaleString()}
+                    {formatCurrency(totalSaved)}
                   </span>
                   <span className="text-muted-foreground">
-                    of ${totalTarget.toLocaleString()} goal
+                    of {formatCurrency(totalTarget)} goal
                   </span>
                 </div>
               </div>
@@ -84,7 +84,7 @@ const Goals = () => {
                     {totalTarget > 0 ? ((totalSaved / totalTarget) * 100).toFixed(0) : 0}% complete
                   </span>
                   <span className="font-medium">
-                    ${(totalTarget - totalSaved).toLocaleString()} remaining
+                    {formatCurrency(totalTarget - totalSaved)} remaining
                   </span>
                 </div>
                 <Progress value={totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0} className="h-3" />
@@ -202,10 +202,10 @@ const Goals = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="font-semibold text-income">
-                      ${Number(goal.current_amount || 0).toLocaleString()}
+                      {formatCurrency(Number(goal.current_amount || 0))}
                     </span>
                     <span className="text-muted-foreground">
-                      ${Number(goal.target_amount).toLocaleString()}
+                      {formatCurrency(Number(goal.target_amount))}
                     </span>
                   </div>
                 </div>
@@ -217,7 +217,7 @@ const Goals = () => {
                       <span className="text-muted-foreground">
                         Save{' '}
                         <span className="font-semibold text-foreground">
-                          ${monthlyNeeded.toFixed(0)}/mo
+                          {formatCurrency(monthlyNeeded)}/mo
                         </span>{' '}
                         to reach goal
                       </span>
