@@ -6,10 +6,11 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 import { cn } from '@/lib/utils';
 import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AddBudgetModal } from '@/components/budgets/AddBudgetModal';
 
 const Budgets = () => {
@@ -66,6 +67,14 @@ const Budgets = () => {
   const totalBudget = monthBudgets.reduce((sum, b) => sum + Number(b.amount), 0);
   const totalSpent = monthBudgets.reduce((sum, b) => sum + b.spent, 0);
   const budgetProgress = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+
+  // Budget alerts - triggers toast and optional email when budgets exceed thresholds
+  const { resetAlerts } = useBudgetAlerts(monthBudgets);
+
+  // Reset alerts when month changes
+  useEffect(() => {
+    resetAlerts();
+  }, [currentMonth]);
 
   const getStatusColor = (percentage: number) => {
     if (percentage >= 100) return 'bg-expense';
