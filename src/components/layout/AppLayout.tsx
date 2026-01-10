@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Sidebar } from './Sidebar';
+import { MobileNav } from './MobileNav';
 import { AddTransactionModal } from '@/components/transactions/AddTransactionModal';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -8,13 +10,26 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar onAddTransaction={() => setIsAddModalOpen(true)} />
-      <main className="pl-64">
-        <div className="min-h-screen p-6">{children}</div>
+      {/* Mobile Navigation */}
+      <MobileNav onAddTransaction={() => setIsAddModalOpen(true)} />
+      
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block">
+        <Sidebar onAddTransaction={() => setIsAddModalOpen(true)} />
+      </div>
+      
+      {/* Main Content */}
+      <main className={`
+        ${isMobile ? 'pt-16' : 'pl-64'}
+        transition-all duration-300
+      `}>
+        <div className="min-h-screen p-4 md:p-6">{children}</div>
       </main>
+      
       <AddTransactionModal
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}

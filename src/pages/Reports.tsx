@@ -12,6 +12,8 @@ import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2 } fro
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { exportReportToCSV } from '@/lib/export-utils';
+import { toast } from '@/hooks/use-toast';
 import {
   AreaChart,
   Area,
@@ -142,6 +144,22 @@ const Reports = () => {
       .slice(0, 5);
   }, [transactions, categories]);
 
+  const handleExport = () => {
+    if (monthlyData.length === 0) {
+      toast({
+        title: 'No data to export',
+        description: 'Add some transactions first',
+        variant: 'destructive',
+      });
+      return;
+    }
+    exportReportToCSV(monthlyData, categorySpending, topMerchants);
+    toast({
+      title: 'Report exported!',
+      description: 'Your financial report has been downloaded',
+    });
+  };
+
   const isLoading = transactionsLoading || categoriesLoading;
 
   if (isLoading) {
@@ -156,22 +174,22 @@ const Reports = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-3xl font-bold">Reports</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-2xl md:text-3xl font-bold">Reports</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Analyze your financial trends
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[130px] sm:w-[160px]">
                 <Calendar className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
@@ -182,9 +200,9 @@ const Reports = () => {
                 <SelectItem value="1year">Last Year</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={handleExport}>
               <Download className="h-4 w-4" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </motion.div>
@@ -194,40 +212,40 @@ const Reports = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid gap-5 md:grid-cols-3"
+          className="grid gap-3 md:gap-5 grid-cols-1 sm:grid-cols-3"
         >
           <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-income/10">
-                <TrendingUp className="h-6 w-6 text-income" />
+              <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-income/10">
+                <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-income" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Average Income</p>
-                <p className="text-2xl font-bold">{formatCurrency(stats.avgIncome)}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Average Income</p>
+                <p className="text-lg md:text-2xl font-bold">{formatCurrency(stats.avgIncome)}</p>
               </div>
             </div>
           </div>
 
           <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-expense/10">
-                <TrendingDown className="h-6 w-6 text-expense" />
+              <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-expense/10">
+                <TrendingDown className="h-5 w-5 md:h-6 md:w-6 text-expense" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Average Expenses</p>
-                <p className="text-2xl font-bold">{formatCurrency(stats.avgExpenses)}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Average Expenses</p>
+                <p className="text-lg md:text-2xl font-bold">{formatCurrency(stats.avgExpenses)}</p>
               </div>
             </div>
           </div>
 
           <div className="stat-card">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                <ArrowRight className="h-6 w-6 text-primary" />
+              <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-primary/10">
+                <ArrowRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Avg. Savings Rate</p>
-                <p className={`text-2xl font-bold ${stats.savingsRate >= 0 ? 'text-income' : 'text-expense'}`}>
+                <p className="text-xs md:text-sm text-muted-foreground">Avg. Savings Rate</p>
+                <p className={`text-lg md:text-2xl font-bold ${stats.savingsRate >= 0 ? 'text-income' : 'text-expense'}`}>
                   {stats.savingsRate.toFixed(1)}%
                 </p>
               </div>
@@ -236,7 +254,7 @@ const Reports = () => {
         </motion.div>
 
         {/* Charts Grid */}
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
           {/* Income vs Expenses Chart */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -244,8 +262,8 @@ const Reports = () => {
             transition={{ delay: 0.2 }}
             className="stat-card"
           >
-            <h3 className="text-lg font-semibold mb-6">Income vs Expenses</h3>
-            <div className="h-[300px]">
+            <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Income vs Expenses</h3>
+            <div className="h-[250px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={monthlyData}>
                   <defs>
@@ -267,9 +285,10 @@ const Reports = () => {
                   />
                   <YAxis
                     stroke="hsl(215, 25%, 55%)"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    width={45}
                   />
                   <Tooltip
                     contentStyle={{
@@ -301,14 +320,14 @@ const Reports = () => {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center gap-6 mt-4">
+            <div className="flex justify-center gap-4 md:gap-6 mt-3 md:mt-4">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-income" />
-                <span className="text-sm text-muted-foreground">Income</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Income</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-expense" />
-                <span className="text-sm text-muted-foreground">Expenses</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Expenses</span>
               </div>
             </div>
           </motion.div>
@@ -320,18 +339,18 @@ const Reports = () => {
             transition={{ delay: 0.25 }}
             className="stat-card"
           >
-            <h3 className="text-lg font-semibold mb-6">Spending by Category</h3>
+            <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Spending by Category</h3>
             {categorySpending.length > 0 ? (
               <>
-                <div className="h-[300px]">
+                <div className="h-[250px] md:h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={categorySpending}
                         cx="50%"
                         cy="50%"
-                        innerRadius={70}
-                        outerRadius={100}
+                        innerRadius={60}
+                        outerRadius={90}
                         paddingAngle={3}
                         dataKey="value"
                       >
@@ -353,21 +372,21 @@ const Reports = () => {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="flex flex-wrap justify-center gap-4 mt-4">
+                <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-3 md:mt-4">
                   {categorySpending.map((item, index) => (
                     <div key={item.name} className="flex items-center gap-2">
                       <div
-                        className="h-3 w-3 rounded-full"
+                        className="h-2.5 w-2.5 md:h-3 md:w-3 rounded-full"
                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       />
-                      <span className="text-sm text-muted-foreground">{item.name}</span>
+                      <span className="text-xs md:text-sm text-muted-foreground">{item.name}</span>
                     </div>
                   ))}
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-[300px]">
-                <p className="text-muted-foreground">No expense data for this period</p>
+              <div className="flex flex-col items-center justify-center h-[250px] md:h-[300px]">
+                <p className="text-sm text-muted-foreground">No expense data for this period</p>
               </div>
             )}
           </motion.div>
@@ -380,25 +399,25 @@ const Reports = () => {
           transition={{ delay: 0.3 }}
           className="stat-card"
         >
-          <h3 className="text-lg font-semibold mb-6">Top Merchants</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Top Merchants</h3>
           {topMerchants.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {topMerchants.map((merchant, index) => (
                 <motion.div
                   key={merchant.name}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 + index * 0.05 }}
-                  className="flex items-center gap-4"
+                  className="flex items-center gap-3 md:gap-4"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-lg font-semibold">
+                  <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg bg-muted text-sm md:text-lg font-semibold shrink-0">
                     {index + 1}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{merchant.name}</p>
-                    <p className="text-sm text-muted-foreground">{merchant.category}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm md:text-base truncate">{merchant.name}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{merchant.category}</p>
                   </div>
-                  <span className="font-semibold tabular-nums">
+                  <span className="font-semibold tabular-nums text-sm md:text-base">
                     {formatCurrency(merchant.amount)}
                   </span>
                 </motion.div>
@@ -406,7 +425,7 @@ const Reports = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8">
-              <p className="text-muted-foreground">No expense data to show top merchants</p>
+              <p className="text-sm text-muted-foreground">No expense data to show top merchants</p>
             </div>
           )}
         </motion.div>

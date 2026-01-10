@@ -41,7 +41,7 @@ const NetWorth = () => {
     };
   }, [accounts]);
 
-  // Mock historical data - in a real app, this would come from the database
+  // Mock historical data
   const netWorthHistory = [
     { month: 'Jul', netWorth: Math.max(0, netWorth * 0.85) },
     { month: 'Aug', netWorth: Math.max(0, netWorth * 0.88) },
@@ -68,14 +68,14 @@ const NetWorth = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl font-bold">Net Worth</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold">Net Worth</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Your complete financial picture
           </p>
         </motion.div>
@@ -87,12 +87,12 @@ const NetWorth = () => {
           transition={{ delay: 0.1 }}
           className="stat-card glow-effect"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="flex flex-col gap-4 md:gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Net Worth</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Total Net Worth</p>
               <p
                 className={cn(
-                  'text-5xl font-bold',
+                  'text-3xl md:text-5xl font-bold',
                   netWorth >= 0 ? 'text-income' : 'text-expense'
                 )}
               >
@@ -107,7 +107,7 @@ const NetWorth = () => {
                   )}
                   <span
                     className={cn(
-                      'text-sm font-medium',
+                      'text-xs md:text-sm font-medium',
                       monthlyChange >= 0 ? 'text-income' : 'text-expense'
                     )}
                   >
@@ -117,22 +117,22 @@ const NetWorth = () => {
               )}
             </div>
 
-            <div className="flex gap-8">
+            <div className="flex gap-6 md:gap-8">
               <div className="text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-income/10 mx-auto mb-2">
-                  <TrendingUp className="h-6 w-6 text-income" />
+                <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-income/10 mx-auto mb-2">
+                  <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-income" />
                 </div>
-                <p className="text-sm text-muted-foreground">Assets</p>
-                <p className="text-xl font-bold text-income">
+                <p className="text-xs md:text-sm text-muted-foreground">Assets</p>
+                <p className="text-lg md:text-xl font-bold text-income">
                   {formatCurrency(totalAssets)}
                 </p>
               </div>
               <div className="text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-expense/10 mx-auto mb-2">
-                  <TrendingDown className="h-6 w-6 text-expense" />
+                <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-expense/10 mx-auto mb-2">
+                  <TrendingDown className="h-5 w-5 md:h-6 md:w-6 text-expense" />
                 </div>
-                <p className="text-sm text-muted-foreground">Liabilities</p>
-                <p className="text-xl font-bold text-expense">
+                <p className="text-xs md:text-sm text-muted-foreground">Liabilities</p>
+                <p className="text-lg md:text-xl font-bold text-expense">
                   {formatCurrency(totalLiabilities)}
                 </p>
               </div>
@@ -148,8 +148,8 @@ const NetWorth = () => {
             transition={{ delay: 0.2 }}
             className="stat-card"
           >
-            <h3 className="text-lg font-semibold mb-6">Net Worth Over Time</h3>
-            <div className="h-[300px]">
+            <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Net Worth Over Time</h3>
+            <div className="h-[250px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={netWorthHistory}>
                   <defs>
@@ -167,9 +167,10 @@ const NetWorth = () => {
                   />
                   <YAxis
                     stroke="hsl(215, 25%, 55%)"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    width={45}
                   />
                   <Tooltip
                     contentStyle={{
@@ -198,7 +199,7 @@ const NetWorth = () => {
         )}
 
         {/* Breakdown */}
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
           {/* Assets Breakdown */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -206,20 +207,20 @@ const NetWorth = () => {
             transition={{ delay: 0.3 }}
             className="stat-card"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-income/10">
-                <TrendingUp className="h-5 w-5 text-income" />
+            <div className="flex items-center gap-3 mb-4 md:mb-6">
+              <div className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-xl bg-income/10">
+                <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-income" />
               </div>
               <div>
-                <h3 className="font-semibold">Assets</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-semibold text-sm md:text-base">Assets</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   {formatCurrency(totalAssets)}
                 </p>
               </div>
             </div>
 
             {assets.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {assets.map((account, index) => {
                   const percentage = totalAssets > 0 ? (Number(account.balance || 0) / totalAssets) * 100 : 0;
                   return (
@@ -233,29 +234,29 @@ const NetWorth = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div
-                            className="h-8 w-8 rounded-lg flex items-center justify-center"
+                            className="h-7 w-7 md:h-8 md:w-8 rounded-lg flex items-center justify-center shrink-0"
                             style={{ backgroundColor: `${account.color || '#10B981'}20` }}
                           >
                             {account.type === 'bank' && (
-                              <Building2 className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                              <Building2 className="h-3.5 w-3.5 md:h-4 md:w-4" style={{ color: account.color || '#10B981' }} />
                             )}
                             {account.type === 'cash' && (
-                              <Wallet className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                              <Wallet className="h-3.5 w-3.5 md:h-4 md:w-4" style={{ color: account.color || '#10B981' }} />
                             )}
                             {account.type === 'investment' && (
-                              <PiggyBank className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                              <PiggyBank className="h-3.5 w-3.5 md:h-4 md:w-4" style={{ color: account.color || '#10B981' }} />
                             )}
                             {account.type === 'wallet' && (
-                              <Wallet className="h-4 w-4" style={{ color: account.color || '#10B981' }} />
+                              <Wallet className="h-3.5 w-3.5 md:h-4 md:w-4" style={{ color: account.color || '#10B981' }} />
                             )}
                           </div>
-                          <span className="font-medium">{account.name}</span>
+                          <span className="font-medium text-sm md:text-base truncate">{account.name}</span>
                         </div>
-                        <span className="font-semibold">
+                        <span className="font-semibold text-sm md:text-base">
                           {formatCurrency(Number(account.balance || 0))}
                         </span>
                       </div>
-                      <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="relative h-1.5 md:h-2 overflow-hidden rounded-full bg-muted">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
@@ -269,12 +270,12 @@ const NetWorth = () => {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-3">
-                  <Wallet className="h-6 w-6 text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center py-6 md:py-8 text-center">
+                <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-muted mb-3">
+                  <Wallet className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
                 </div>
-                <p className="font-medium">No asset accounts</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="font-medium text-sm md:text-base">No asset accounts</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Add accounts to track your assets
                 </p>
               </div>
@@ -288,20 +289,20 @@ const NetWorth = () => {
             transition={{ delay: 0.35 }}
             className="stat-card"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-expense/10">
-                <TrendingDown className="h-5 w-5 text-expense" />
+            <div className="flex items-center gap-3 mb-4 md:mb-6">
+              <div className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-xl bg-expense/10">
+                <TrendingDown className="h-4 w-4 md:h-5 md:w-5 text-expense" />
               </div>
               <div>
-                <h3 className="font-semibold">Liabilities</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-semibold text-sm md:text-base">Liabilities</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   {formatCurrency(totalLiabilities)}
                 </p>
               </div>
             </div>
 
             {liabilities.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {liabilities.map((account, index) => {
                   const percentage = totalLiabilities > 0
                     ? (Math.abs(Number(account.balance || 0)) / totalLiabilities) * 100
@@ -317,21 +318,21 @@ const NetWorth = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div
-                            className="h-8 w-8 rounded-lg flex items-center justify-center"
+                            className="h-7 w-7 md:h-8 md:w-8 rounded-lg flex items-center justify-center shrink-0"
                             style={{ backgroundColor: `${account.color || '#EF4444'}20` }}
                           >
                             <CreditCard
-                              className="h-4 w-4"
+                              className="h-3.5 w-3.5 md:h-4 md:w-4"
                               style={{ color: account.color || '#EF4444' }}
                             />
                           </div>
-                          <span className="font-medium">{account.name}</span>
+                          <span className="font-medium text-sm md:text-base truncate">{account.name}</span>
                         </div>
-                        <span className="font-semibold text-expense">
+                        <span className="font-semibold text-expense text-sm md:text-base">
                           {formatCurrency(Math.abs(Number(account.balance || 0)))}
                         </span>
                       </div>
-                      <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="relative h-1.5 md:h-2 overflow-hidden rounded-full bg-muted">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
@@ -344,12 +345,12 @@ const NetWorth = () => {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-income/10 mb-3">
-                  <TrendingUp className="h-6 w-6 text-income" />
+              <div className="flex flex-col items-center justify-center py-6 md:py-8 text-center">
+                <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-income/10 mb-3">
+                  <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-income" />
                 </div>
-                <p className="font-medium">No liabilities!</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="font-medium text-sm md:text-base">No liabilities!</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   You're debt-free. Keep it up!
                 </p>
               </div>

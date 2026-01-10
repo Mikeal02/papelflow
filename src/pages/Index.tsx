@@ -7,15 +7,19 @@ import { TopCategories } from '@/components/dashboard/TopCategories';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { AccountsOverview } from '@/components/dashboard/AccountsOverview';
 import { UpcomingBills } from '@/components/dashboard/UpcomingBills';
-import { useMonthlyStats } from '@/hooks/useTransactions';
+import { SmartInsights } from '@/components/insights/SmartInsights';
+import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useProfile } from '@/hooks/useProfile';
+import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
   const { data: accounts = [] } = useAccounts();
   const { data: profile } = useProfile();
+  const { data: transactions = [] } = useTransactions();
+  const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
@@ -30,7 +34,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -39,19 +43,19 @@ const Dashboard = () => {
         >
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-xl md:text-3xl font-bold">
                 {getGreeting()}, <span className="gradient-text">{firstName}</span>
               </h1>
-              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+              <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-primary animate-pulse" />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               Here's your financial overview for {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </p>
           </div>
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 md:gap-5 grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Income"
             value={formatCurrency(stats?.income || 0)}
@@ -82,19 +86,28 @@ const Dashboard = () => {
           />
         </div>
 
+        {/* Smart Insights */}
+        {transactions.length > 0 && (
+          <SmartInsights
+            transactions={transactions}
+            categories={categories}
+            formatCurrency={formatCurrency}
+          />
+        )}
+
         {/* Main Content Grid */}
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
           {/* Left Column */}
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2 space-y-4 md:space-y-5">
             <RecentTransactions />
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
               <BudgetOverview />
               <TopCategories />
             </div>
           </div>
 
           {/* Right Column */}
-          <div className="space-y-5">
+          <div className="space-y-4 md:space-y-5">
             <AccountsOverview />
             <UpcomingBills />
           </div>
