@@ -76,15 +76,16 @@ export function BudgetOverview() {
                 transition={{ delay: 0.4 + index * 0.05 }}
                 className="space-y-2"
               >
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{(budget.category as any)?.name || 'Category'}</span>
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-medium truncate flex-1">{(budget.category as any)?.name || 'Category'}</span>
                   <span
                     className={cn(
-                      'font-medium',
+                      'font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-[160px]',
                       isOverBudget && 'text-expense',
                       isNearLimit && 'text-warning',
                       !isOverBudget && !isNearLimit && 'text-muted-foreground'
                     )}
+                    title={`${formatCurrency(budget.spent)} / ${formatCurrency(Number(budget.amount))}`}
                   >
                     {formatCurrency(budget.spent)} / {formatCurrency(Number(budget.amount))}
                   </span>

@@ -99,10 +99,14 @@ export function RecentTransactions() {
 
                 <span
                   className={cn(
-                    'font-semibold tabular-nums',
+                    'font-semibold tabular-nums text-sm sm:text-base truncate max-w-[80px] sm:max-w-[120px] flex-shrink-0',
                     transaction.type === 'income' && 'amount-positive',
                     transaction.type === 'expense' && 'amount-negative',
                     transaction.type === 'transfer' && 'amount-neutral'
+                  )}
+                  title={formatCurrency(
+                    Number(transaction.amount) * (transaction.type === 'expense' ? -1 : 1),
+                    transaction.type !== 'transfer'
                   )}
                 >
                   {formatCurrency(
