@@ -100,9 +100,11 @@ export function TopCategories() {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium truncate">{item.category!.name}</span>
-                    <span className="font-semibold">{formatCurrency(item.amount)}</span>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="font-medium truncate flex-1">{item.category!.name}</span>
+                    <span className="font-semibold text-sm sm:text-base truncate max-w-[80px] sm:max-w-[120px]" title={formatCurrency(item.amount)}>
+                      {formatCurrency(item.amount)}
+                    </span>
                   </div>
                   <div className="relative h-1.5 overflow-hidden rounded-full bg-muted">
                     <motion.div

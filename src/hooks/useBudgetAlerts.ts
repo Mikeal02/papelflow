@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { sendBudgetAlert } from '@/lib/email-service';
 import { toast } from '@/hooks/use-toast';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface BudgetWithSpending {
   id: string;
@@ -17,6 +18,7 @@ interface BudgetWithSpending {
 export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
   const { user } = useAuth();
   const { currency } = useCurrency();
+  const { sendBudgetAlert: sendPushAlert, isSubscribed } = usePushNotifications();
   const alertedBudgets = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -31,13 +33,19 @@ export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
       // Check if budget exceeds 80% or 100%
       if (budget.percentage >= 80) {
         const isOverBudget = budget.percentage >= 100;
+        const categoryName = budget.category?.name || 'Budget';
         
         // Show toast notification
         toast({
           title: isOverBudget ? '🚨 Budget Exceeded!' : '⚠️ Budget Warning',
-          description: `${budget.category?.name || 'Budget'}: ${budget.percentage.toFixed(0)}% spent`,
+          description: `${categoryName}: ${budget.percentage.toFixed(0)}% spent`,
           variant: isOverBudget ? 'destructive' : 'default',
         });
+
+        // Send push notification if enabled
+        if (isSubscribed) {
+          sendPushAlert(categoryName, budget.percentage);
+        }
 
         // Mark as alerted to prevent duplicate notifications
         alertedBudgets.current.add(alertKey);
@@ -48,7 +56,7 @@ export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
             user.email,
             user.user_metadata?.full_name || user.email.split('@')[0],
             {
-              budgetName: budget.category?.name || 'Unknown',
+              budgetName: categoryName,
               spent: budget.spent,
               limit: budget.amount,
               percentage: budget.percentage,
@@ -61,7 +69,7 @@ export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
         }
       }
     });
-  }, [budgets, user, currency]);
+  }, [budgets, user, currency, isSubscribed, sendPushAlert]);
 
   // Reset alerts when month changes
   const resetAlerts = () => {
@@ -70,3 +78,4 @@ export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
 
   return { resetAlerts };
 }
+

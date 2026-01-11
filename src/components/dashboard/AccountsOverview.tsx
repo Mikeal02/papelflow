@@ -95,9 +95,10 @@ export function AccountsOverview() {
 
                 <span
                   className={cn(
-                    'font-semibold tabular-nums',
+                    'font-semibold tabular-nums text-sm sm:text-base truncate max-w-[100px] sm:max-w-[140px]',
                     isNegative ? 'amount-negative' : 'text-foreground'
                   )}
+                  title={formatCurrency(Number(account.balance))}
                 >
                   {formatCurrency(Number(account.balance))}
                 </span>

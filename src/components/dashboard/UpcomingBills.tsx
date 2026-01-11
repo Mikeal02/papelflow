@@ -97,8 +97,10 @@ export function UpcomingBills() {
                   </p>
                 </div>
 
-                <div className="text-right">
-                  <span className="font-semibold tabular-nums">{formatCurrency(Number(subscription.amount))}</span>
+                <div className="text-right flex-shrink-0 max-w-[100px] sm:max-w-[130px]">
+                  <span className="font-semibold tabular-nums text-sm sm:text-base truncate block" title={formatCurrency(Number(subscription.amount))}>
+                    {formatCurrency(Number(subscription.amount))}
+                  </span>
                   <p className="text-xs text-muted-foreground capitalize">{subscription.frequency}</p>
                 </div>
               </motion.div>

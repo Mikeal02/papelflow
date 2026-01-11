@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import {
   User,
-  Bell,
   Shield,
   Download,
   Trash2,
@@ -50,6 +49,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useCategories } from '@/hooks/useCategories';
 import { useGoals } from '@/hooks/useGoals';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 
 const Settings = () => {
   const { data: profile, isLoading } = useProfile();
@@ -319,36 +319,8 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="stat-card"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-chart-2/10">
-              <Bell className="h-5 w-5 text-chart-2" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Notifications</h3>
-              <p className="text-sm text-muted-foreground">
-                Control what alerts you receive
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              { label: 'Budget alerts', desc: 'When you reach 80% of budget' },
-              { label: 'Bill reminders', desc: 'Before subscriptions are due' },
-              { label: 'Weekly summary', desc: 'Your spending overview' },
-              { label: 'Unusual spending', desc: 'Large or suspicious transactions' },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{item.label}</p>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-            ))}
-          </div>
+          <NotificationSettings />
         </motion.div>
 
         {/* Security Section */}
