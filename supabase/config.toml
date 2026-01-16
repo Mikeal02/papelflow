@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.financial-advisor]
 verify_jwt = false
+
+[functions.scan-receipt]
+verify_jwt = false
