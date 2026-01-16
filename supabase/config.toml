@@ -2,3 +2,6 @@ project_id = "zjorcechjdwxmukfzfpe"
 
 [functions.send-email]
 verify_jwt = false
+
+[functions.financial-advisor]
+verify_jwt = false

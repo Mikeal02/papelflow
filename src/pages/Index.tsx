@@ -8,11 +8,15 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { AccountsOverview } from '@/components/dashboard/AccountsOverview';
 import { UpcomingBills } from '@/components/dashboard/UpcomingBills';
 import { SmartInsights } from '@/components/insights/SmartInsights';
+import { FinancialHealthScore } from '@/components/dashboard/FinancialHealthScore';
+import { FinancialAdvisor } from '@/components/ai/FinancialAdvisor';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useProfile } from '@/hooks/useProfile';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
+import { useBillReminders } from '@/hooks/useBillReminders';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
@@ -21,6 +25,10 @@ const Dashboard = () => {
   const { data: transactions = [] } = useTransactions();
   const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
+  
+  // Initialize recurring transactions and bill reminders
+  useRecurringTransactions();
+  useBillReminders();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
@@ -108,11 +116,15 @@ const Dashboard = () => {
 
           {/* Right Column */}
           <div className="space-y-4 md:space-y-5">
+            <FinancialHealthScore />
             <AccountsOverview />
             <UpcomingBills />
           </div>
         </div>
       </div>
+      
+      {/* AI Financial Advisor Chat */}
+      <FinancialAdvisor />
     </AppLayout>
   );
 };
