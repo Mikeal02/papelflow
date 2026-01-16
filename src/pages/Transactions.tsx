@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
 import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -149,10 +150,13 @@ const Transactions = () => {
               {filteredTransactions.length} transactions found
             </p>
           </div>
-          <Button variant="outline" className="gap-2 w-full sm:w-auto" onClick={handleExport}>
-            <Download className="h-4 w-4" />
-            Export CSV
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <ReceiptScanner />
+            <Button variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={handleExport}>
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </Button>
+          </div>
         </motion.div>
 
         {/* Filters */}
