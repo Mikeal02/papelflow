@@ -66,28 +66,28 @@ const Goals = () => {
             transition={{ delay: 0.1 }}
             className="stat-card"
           >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Total Progress</p>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-bold text-income">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-2 min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Progress</p>
+                <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+                  <span className="text-xl sm:text-2xl md:text-3xl font-bold text-income truncate" title={formatCurrency(totalSaved)}>
                     {formatCurrency(totalSaved)}
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     of {formatCurrency(totalTarget)} goal
                   </span>
                 </div>
               </div>
               <div className="flex-1 max-w-md">
-                <div className="flex justify-between text-sm mb-2">
+                <div className="flex justify-between text-xs sm:text-sm mb-2">
                   <span className="text-muted-foreground">
                     {totalTarget > 0 ? ((totalSaved / totalTarget) * 100).toFixed(0) : 0}% complete
                   </span>
-                  <span className="font-medium">
+                  <span className="font-medium truncate ml-2" title={formatCurrency(totalTarget - totalSaved)}>
                     {formatCurrency(totalTarget - totalSaved)} remaining
                   </span>
                 </div>
-                <Progress value={totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0} className="h-3" />
+                <Progress value={totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0} className="h-2 sm:h-3" />
               </div>
             </div>
           </motion.div>
@@ -175,23 +175,23 @@ const Goals = () => {
                   </DropdownMenu>
                 </div>
 
-                <h3 className="text-xl font-semibold mb-1">{goal.name}</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-1 truncate" title={goal.name}>{goal.name}</h3>
                 {goal.deadline && (
-                  <p className="text-sm text-muted-foreground flex items-center gap-1 mb-4">
-                    <Calendar className="h-4 w-4" />
-                    Target: {format(new Date(goal.deadline), 'MMM yyyy')}
+                  <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 mb-4 flex-wrap">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span>Target: {format(new Date(goal.deadline), 'MMM yyyy')}</span>
                     {daysRemaining && daysRemaining > 0 && (
                       <span className="text-xs">• {daysRemaining} days left</span>
                     )}
                   </p>
                 )}
 
-                <div className="space-y-3 mt-auto">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-2 sm:space-y-3 mt-auto">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Progress</span>
                     <span className="font-semibold">{percentage.toFixed(0)}%</span>
                   </div>
-                  <div className="relative h-3 overflow-hidden rounded-full bg-muted">
+                  <div className="relative h-2 sm:h-3 overflow-hidden rounded-full bg-muted">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min(percentage, 100)}%` }}
@@ -200,11 +200,11 @@ const Goals = () => {
                       style={{ backgroundColor: goal.color || '#10B981' }}
                     />
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="font-semibold text-income">
+                  <div className="flex justify-between text-xs sm:text-sm">
+                    <span className="font-semibold text-income truncate" title={formatCurrency(Number(goal.current_amount || 0))}>
                       {formatCurrency(Number(goal.current_amount || 0))}
                     </span>
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground truncate ml-2" title={formatCurrency(Number(goal.target_amount))}>
                       {formatCurrency(Number(goal.target_amount))}
                     </span>
                   </div>

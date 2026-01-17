@@ -152,30 +152,30 @@ const Budgets = () => {
           transition={{ delay: 0.1 }}
           className="stat-card"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Budget Progress</p>
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold">
-                  {formatCurrency(totalSpent)}
-                </span>
-                <span className="text-muted-foreground">
-                  of {formatCurrency(totalBudget)} budgeted
-                </span>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-2 min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Budget Progress</p>
+                <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+                  <span className="text-xl sm:text-2xl md:text-3xl font-bold truncate" title={formatCurrency(totalSpent)}>
+                    {formatCurrency(totalSpent)}
+                  </span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    of {formatCurrency(totalBudget)} budgeted
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1 max-w-md">
+                <div className="flex justify-between text-xs sm:text-sm mb-2">
+                  <span className="text-muted-foreground">
+                    {budgetProgress.toFixed(0)}% spent
+                  </span>
+                  <span className="font-medium text-primary truncate ml-2" title={formatCurrency(totalBudget - totalSpent)}>
+                    {formatCurrency(totalBudget - totalSpent)} remaining
+                  </span>
+                </div>
+                <Progress value={Math.min(budgetProgress, 100)} className="h-2 sm:h-3" />
               </div>
             </div>
-            <div className="flex-1 max-w-md">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-muted-foreground">
-                  {budgetProgress.toFixed(0)}% spent
-                </span>
-                <span className="font-medium text-primary">
-                  {formatCurrency(totalBudget - totalSpent)} remaining
-                </span>
-              </div>
-              <Progress value={Math.min(budgetProgress, 100)} className="h-3" />
-            </div>
-          </div>
         </motion.div>
 
         {monthBudgets.length === 0 ? (

@@ -140,13 +140,13 @@ const Accounts = () => {
           className="grid gap-5 md:grid-cols-3"
         >
           <div className="stat-card">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-income/10">
-                <TrendingUp className="h-6 w-6 text-income" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-income/10 flex-shrink-0">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-income" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Assets</p>
-                <p className="text-2xl font-bold amount-positive">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Assets</p>
+                <p className="text-lg sm:text-xl md:text-2xl font-bold amount-positive truncate" title={formatCurrency(totalAssets)}>
                   {formatCurrency(totalAssets)}
                 </p>
               </div>
@@ -154,13 +154,13 @@ const Accounts = () => {
           </div>
 
           <div className="stat-card">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-expense/10">
-                <TrendingDown className="h-6 w-6 text-expense" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-expense/10 flex-shrink-0">
+                <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 text-expense" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Liabilities</p>
-                <p className="text-2xl font-bold amount-negative">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Liabilities</p>
+                <p className="text-lg sm:text-xl md:text-2xl font-bold amount-negative truncate" title={`-${formatCurrency(totalLiabilities)}`}>
                   -{formatCurrency(totalLiabilities)}
                 </p>
               </div>
@@ -168,17 +168,18 @@ const Accounts = () => {
           </div>
 
           <div className="stat-card glow-effect">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                <Wallet className="h-6 w-6 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
+                <Wallet className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Net Worth</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground">Net Worth</p>
                 <p
                   className={cn(
-                    'text-2xl font-bold',
+                    'text-lg sm:text-xl md:text-2xl font-bold truncate',
                     netWorth >= 0 ? 'amount-positive' : 'amount-negative'
                   )}
+                  title={formatCurrency(netWorth)}
                 >
                   {formatCurrency(netWorth)}
                 </p>
@@ -257,15 +258,15 @@ const Accounts = () => {
                           </DropdownMenu>
                         </div>
 
-                        <h3 className="font-semibold text-lg">{account.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
+                        <h3 className="font-semibold text-base sm:text-lg truncate" title={account.name}>{account.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-3">
                           {accountTypeLabels[account.type]}
                         </p>
 
                         <div className="flex items-end justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="text-xs text-muted-foreground">Balance</p>
-                            <p className="text-2xl font-bold">
+                            <p className="text-lg sm:text-xl md:text-2xl font-bold truncate" title={formatCurrency(Number(account.balance))}>
                               {formatCurrency(Number(account.balance))}
                             </p>
                           </div>
@@ -322,15 +323,15 @@ const Accounts = () => {
                           </DropdownMenu>
                         </div>
 
-                        <h3 className="font-semibold text-lg">{account.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
+                        <h3 className="font-semibold text-base sm:text-lg truncate" title={account.name}>{account.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-3">
                           {accountTypeLabels[account.type]}
                         </p>
 
                         <div className="flex items-end justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="text-xs text-muted-foreground">Balance Owed</p>
-                            <p className="text-2xl font-bold amount-negative">
+                            <p className="text-lg sm:text-xl md:text-2xl font-bold amount-negative truncate" title={formatCurrency(Math.abs(Number(account.balance)))}>
                               {formatCurrency(Math.abs(Number(account.balance)))}
                             </p>
                           </div>

@@ -91,26 +91,26 @@ const Subscriptions = () => {
           className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
         >
           <div className="stat-card">
-            <p className="text-sm text-muted-foreground">Active Subscriptions</p>
-            <p className="text-3xl font-bold mt-2">{activeSubscriptions.length}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Active Subscriptions</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2">{activeSubscriptions.length}</p>
           </div>
           <div className="stat-card">
-            <p className="text-sm text-muted-foreground">Monthly Cost</p>
-            <p className="text-3xl font-bold mt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground">Monthly Cost</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2 truncate" title={formatCurrency(totalMonthly)}>
               {formatCurrency(totalMonthly)}
             </p>
           </div>
           <div className="stat-card">
-            <p className="text-sm text-muted-foreground">Yearly Cost</p>
-            <p className="text-3xl font-bold mt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground">Yearly Cost</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2 truncate" title={formatCurrency(totalYearly)}>
               {formatCurrency(totalYearly)}
             </p>
           </div>
           <div className="stat-card">
-            <p className="text-sm text-muted-foreground">Next Payment</p>
-            <div className="flex items-center gap-2 mt-2">
-              <Calendar className="h-5 w-5 text-warning" />
-              <span className="text-xl font-semibold">
+            <p className="text-xs sm:text-sm text-muted-foreground">Next Payment</p>
+            <div className="flex items-center gap-2 mt-1 sm:mt-2">
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-warning flex-shrink-0" />
+              <span className="text-base sm:text-lg md:text-xl font-semibold truncate">
                 {nextPayment ? format(new Date(nextPayment.next_due), 'MMM d') : 'N/A'}
               </span>
             </div>
@@ -181,26 +181,26 @@ const Subscriptions = () => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold">{subscription.name}</h4>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-semibold text-sm sm:text-base truncate max-w-[120px] sm:max-w-none" title={subscription.name}>{subscription.name}</h4>
                         {isUrgent && (
-                          <span className="flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-warning/10 text-warning">
+                          <span className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs rounded-full bg-warning/10 text-warning flex-shrink-0">
                             <AlertCircle className="h-3 w-3" />
-                            Due soon
+                            <span className="hidden xs:inline">Due soon</span>
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
                         {category?.name || 'Uncategorized'} • {subscription.frequency}
                       </p>
                     </div>
 
-                    <div className="text-right">
-                      <p className="font-semibold tabular-nums">
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-semibold tabular-nums text-sm sm:text-base" title={formatCurrency(Number(subscription.amount))}>
                         {formatCurrency(Number(subscription.amount))}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(subscription.next_due), 'MMM d, yyyy')}
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {format(new Date(subscription.next_due), 'MMM d')}
                       </p>
                     </div>
 
