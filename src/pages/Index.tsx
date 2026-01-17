@@ -9,6 +9,8 @@ import { AccountsOverview } from '@/components/dashboard/AccountsOverview';
 import { UpcomingBills } from '@/components/dashboard/UpcomingBills';
 import { SmartInsights } from '@/components/insights/SmartInsights';
 import { FinancialHealthScore } from '@/components/dashboard/FinancialHealthScore';
+import { FinancialCalendar } from '@/components/dashboard/FinancialCalendar';
+import { SpendingForecast } from '@/components/dashboard/SpendingForecast';
 import { FinancialAdvisor } from '@/components/ai/FinancialAdvisor';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
@@ -111,6 +113,10 @@ const Dashboard = () => {
             <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
               <BudgetOverview />
               <TopCategories />
+            </div>
+            <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
+              <FinancialCalendar />
+              <SpendingForecast />
             </div>
           </div>
 
