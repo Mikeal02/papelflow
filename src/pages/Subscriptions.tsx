@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { format, differenceInDays } from 'date-fns';
+import { format, differenceInDays, addWeeks, addMonths, addYears } from 'date-fns';
 import {
   Plus,
   Calendar,
@@ -18,19 +18,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useSubscriptions, useUpdateSubscription, useDeleteSubscription } from '@/hooks/useSubscriptions';
+import { useSubscriptions, useUpdateSubscription, useDeleteSubscription, Subscription } from '@/hooks/useSubscriptions';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { AddSubscriptionModal } from '@/components/subscriptions/AddSubscriptionModal';
+import { EditSubscriptionModal } from '@/components/subscriptions/EditSubscriptionModal';
+import { toast } from '@/hooks/use-toast';
 
 const Subscriptions = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptions();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const updateSubscription = useUpdateSubscription();
   const deleteSubscription = useDeleteSubscription();
   const { formatCurrency } = useCurrency();
+
+  const handleEdit = (subscription: Subscription) => {
+    setSelectedSubscription(subscription);
+    setShowEditModal(true);
+  };
+
+  const handleMarkAsPaid = async (subscription: Subscription) => {
+    const currentDue = new Date(subscription.next_due);
+    let nextDue: Date;
+    
+    switch (subscription.frequency) {
+      case 'weekly':
+        nextDue = addWeeks(currentDue, 1);
+        break;
+      case 'monthly':
+        nextDue = addMonths(currentDue, 1);
+        break;
+      case 'yearly':
+        nextDue = addYears(currentDue, 1);
+        break;
+      default:
+        nextDue = addMonths(currentDue, 1);
+    }
+    
+    await updateSubscription.mutateAsync({
+      id: subscription.id,
+      next_due: nextDue.toISOString().split('T')[0],
+    });
+    
+    toast({
+      title: 'Marked as paid',
+      description: `Next payment due on ${format(nextDue, 'MMM d, yyyy')}`,
+    });
+  };
 
   const activeSubscriptions = subscriptions.filter((s) => s.is_active);
   const totalMonthly = activeSubscriptions.reduce((sum, s) => {
@@ -82,6 +120,11 @@ const Subscriptions = () => {
         </motion.div>
 
         <AddSubscriptionModal open={showAddModal} onOpenChange={setShowAddModal} />
+        <EditSubscriptionModal 
+          open={showEditModal} 
+          onOpenChange={setShowEditModal} 
+          subscription={selectedSubscription} 
+        />
 
         {/* Summary */}
         <motion.div
@@ -223,8 +266,12 @@ const Subscriptions = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Mark as paid</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(subscription)}>
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleMarkAsPaid(subscription)}>
+                            Mark as paid
+                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-destructive"
                             onClick={() => deleteSubscription.mutate(subscription.id)}
