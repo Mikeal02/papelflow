@@ -1,73 +1,230 @@
-# Welcome to your Lovable project
+# Finflow  
+**A smart, AI-powered personal finance management platform**
 
-## Project info
+<!--
+🖼️ HERO IMAGE / DEMO GIF PLACEHOLDER
+Add a dashboard screenshot or short demo GIF showing transactions, charts, or AI advisor in action.
+Suggested path: /assets/hero.png or /assets/demo.gif
+-->
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Finflow is a modern personal finance management application designed to help users **track expenses, manage budgets, and gain actionable financial insights**. Built with a polished, responsive interface and enhanced by AI-driven features, Finflow goes beyond simple expense tracking to offer a holistic view of financial health.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 📌 Project Overview
 
-**Use Lovable**
+Finflow acts as a **centralized hub for personal finance**, allowing users to monitor transactions, visualize spending habits, manage budgets, track subscriptions, and work toward savings goals—all in one place.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+An integrated **AI Financial Advisor** and **AI Receipt Scanner** elevate the experience by providing personalized insights and automating expense entry. The application is built as a responsive **single-page web application (SPA)**, ensuring a seamless experience across devices.
 
-Changes made via Lovable will be committed automatically to this repo.
+**Project Type:** Personal finance management SPA  
+**Target Audience:** Individuals seeking clarity, control, and insights into their personal finances  
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## ✨ Key Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+<!--
+🎬 FEATURE SHOWCASE GIF PLACEHOLDER
+Add a GIF showing transaction entry, charts updating, or AI advisor interaction.
+-->
 
-Follow these steps:
+### 💰 Financial Tracking
+- Add, edit, and manage income, expenses, and transfers  
+- Categorize transactions dynamically  
+- Track balances across multiple account types (bank, cash, credit card, investments)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+### 📊 Budgeting & Insights
+- Create category-based budgets with rollover support  
+- Visualize spending patterns and trends  
+- Generate financial reports with interactive charts  
+- Monitor an overall **Financial Health Score**
+
+### 🎯 Goals & Subscriptions
+- Define and track financial goals with progress indicators  
+- Manage recurring subscriptions and upcoming bills  
+- View financial events in a calendar-style interface
+
+### 🤖 AI-Powered Features
+- **AI Financial Advisor:** Personalized financial advice via chat  
+- **AI Receipt Scanner:** Automatically extracts transaction details from receipts  
+
+### 🔐 User Experience
+- Secure authentication using Supabase Auth  
+- Light and dark theme support  
+- Responsive layout for desktop and mobile  
+- Smooth animations and transitions
+
+---
+
+## 🧠 Technical Stack
+
+### Frontend
+- **React** – Component-based UI development  
+- **TypeScript** – Type safety and maintainability  
+- **Vite** – Fast development and build tooling  
+- **Tailwind CSS** – Utility-first styling  
+- **shadcn/ui** – Accessible, reusable UI components  
+- **Framer Motion** – Smooth UI animations  
+- **React Router DOM** – Client-side routing  
+- **TanStack Query (React Query)** – Data fetching, caching, and synchronization  
+- **Recharts** – Interactive financial data visualizations  
+- **date-fns** – Date utilities  
+- **next-themes** – Theme management
+
+### Backend & Infrastructure
+- **Supabase**
+  - PostgreSQL database
+  - Authentication
+  - Edge Functions for AI features
+
+### AI Integration
+- Supabase Edge Functions powering:
+  - AI Financial Advisor
+  - AI Receipt Scanner (LLM-backed)
+
+### Tooling & Quality
+- ESLint  
+- TypeScript ESLint  
+- Prettier (via editor configuration)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm (recommended via nvm)
+- A Supabase project
+
+### Installation
+
+1.Clone the repository:
+```bash
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Install Dependencies:
+```bash
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3.Create a .env file in the root directory:
+```bash
+```
+4.Start the development server:
+```bash
+```
+5.The app will be available at:
+```bash
+```
+
+## 🏗 Application Architecture
+
+The application boots from /src/main.tsx, mounting the root App component.
+
+-App.tsx sets up:
+
+-React Query Provider
+
+-Theme Provider (light/dark mode)
+
+-Authentication Context
+
+-Currency Context
+
+-Routing and protected routes
+
+#Core Modules
+
+-AuthContext – Handles authentication state via Supabase
+
+-ProtectedRoute – Restricts access to authenticated users
+
+-Data Hooks – Custom React Query hooks for accounts, transactions, budgets, goals, and subscriptions
+
+##📊 Insights & Intelligence
+
+Finflow provides advanced insights through:
+
+#🧪 Development Workflow
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Instant reloads via Vite
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Linting support:
+```bash
+npm run lint
+```
 
-**Use GitHub Codespaces**
+##🚢 Deployment
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Build the production bundle:
 
-## What technologies are used for this project?
+npm run build
 
-This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The compiled assets will be available in the dist/ directory.
 
-## How can I deploy this project?
+You can deploy using:
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Vercel
 
-## Can I connect a custom domain to my Lovable project?
+Netlify
 
-Yes, you can!
+Lovable
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Any static hosting platform
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Ensure all environment variables are configured in the deployment environment.
+
+##🤝 Contributing
+
+Contributions are welcome.
+
+1.Fork the repository
+
+2.Create a feature branch
+```bash
+git checkout -b feature/AmazingFeature
+```
+
+3.Commit your changes
+
+4.Push and open a Pull Request
+
+##📄 License
+
+This project is licensed under the MIT License.
+See the LICENSE file for details.
+
+Finflow is built with a focus on clarity, intelligence, and real-world financial needs—combining modern tooling with practical problem-solving.
+
+
+---
+```markdown
+### Why this README is solid
+- Accurate to the **actual codebase**
+- Professional but not bloated
+- AI features explained without hype
+- Clear architecture and flow
+- Strong portfolio presence
+
+If you want next:
+- A **short README summary** for recruiters
+- A **system-design diagram**
+- Resume bullet points derived from this project
+- A lighter “public demo” version
+
+Just point the compass.
+Spending forecasts based on habits and upcoming bills
+
+Smart insights highlighting unusual spending or income changes
+```
+
+AI-driven financial guidance tailored to user data
+
+Interactive charts and dashboards for clarity and decision-making
