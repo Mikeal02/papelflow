@@ -107,47 +107,63 @@ cd <YOUR_PROJECT_NAME>
 
 2. Install Dependencies:
 ```bash
+npm install
 ```
 
 3.Create a .env file in the root directory:
 ```bash
+VITE_SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
+VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+VITE_SUPABASE_PUBLISHABLE_KEY="YOUR_SUPABASE_ANON_KEY"
+
 ```
 4.Start the development server:
 ```bash
+npm run dev
+
 ```
 5.The app will be available at:
 ```bash
+http://localhost:5173
+
 ```
+---
 
 ## 🏗 Application Architecture
 
 The application boots from /src/main.tsx, mounting the root App component.
 
--App.tsx sets up:
+- **App.tsx** sets up:
 
--React Query Provider
+- React Query Provider
 
--Theme Provider (light/dark mode)
+- Theme Provider (light/dark mode)
 
--Authentication Context
+- Authentication Context
 
--Currency Context
+- Currency Context
 
--Routing and protected routes
+- Routing and protected routes
 
-#Core Modules
+### Core Modules
 
--AuthContext – Handles authentication state via Supabase
+- AuthContext – Handles authentication state via Supabase
 
--ProtectedRoute – Restricts access to authenticated users
+- ProtectedRoute – Restricts access to authenticated users
 
--Data Hooks – Custom React Query hooks for accounts, transactions, budgets, goals, and subscriptions
+- Data Hooks – Custom React Query hooks for accounts, transactions, budgets, goals, and subscriptions
 
-##📊 Insights & Intelligence
+---
+## 📊 Insights & Intelligence
 
 Finflow provides advanced insights through:
+- Spending forecasts based on habits and upcoming bills
+- Smart insights highlighting unusual spending or income changes
+- AI-driven financial guidance tailored to user data
+- Interactive charts and dashboards for clarity and decision-making
 
-#🧪 Development Workflow
+
+### 🧪 Development Workflow
 ```bash
 npm install
 npm run dev
@@ -159,29 +175,28 @@ Linting support:
 ```bash
 npm run lint
 ```
-
-##🚢 Deployment
+---
+## 🚢 Deployment
 
 Build the production bundle:
-
+```bash
 npm run build
+```
 
-
-The compiled assets will be available in the dist/ directory.
-
+The compiled assets will be available in the **dist/** directory.
 You can deploy using:
 
-Vercel
-
-Netlify
-
-Lovable
+- Vercel
+- Netlify
+-  Lovable
 
 Any static hosting platform
 
 Ensure all environment variables are configured in the deployment environment.
 
-##🤝 Contributing
+---
+
+## 🤝 Contributing
 
 Contributions are welcome.
 
@@ -196,7 +211,8 @@ git checkout -b feature/AmazingFeature
 
 4.Push and open a Pull Request
 
-##📄 License
+---
+## 📄 License
 
 This project is licensed under the MIT License.
 See the LICENSE file for details.
