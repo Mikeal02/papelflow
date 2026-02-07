@@ -24,10 +24,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       {/* Main Content */}
       <main className={`
-        ${isMobile ? 'pt-16' : 'pl-64'}
-        transition-all duration-300
+        ${isMobile ? 'pt-14' : 'pl-64'}
+        transition-all duration-200
       `}>
-        <div className="min-h-screen p-4 md:p-6">{children}</div>
+        <div className="min-h-screen p-4 md:p-6 lg:p-8">{children}</div>
       </main>
       
       <AddTransactionModal
