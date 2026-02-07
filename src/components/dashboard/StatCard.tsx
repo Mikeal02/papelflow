@@ -17,27 +17,27 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.4, ease: 'easeOut' }}
-      className="stat-card glow-effect group"
+      transition={{ delay, duration: 0.3, ease: 'easeOut' }}
+      className="stat-card group"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="space-y-3 min-w-0 flex-1">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-2 min-w-0 flex-1">
           <p className="text-sm font-medium text-muted-foreground truncate">{title}</p>
-          <p className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">{value}</p>
+          <p className="text-xl sm:text-2xl font-bold tracking-tight truncate">{value}</p>
           {change !== undefined && (
-            <div className="flex items-center gap-1 flex-wrap">
+            <div className="flex items-center gap-1.5">
               {isPositive ? (
-                <TrendingUp className="h-4 w-4 text-income" />
+                <TrendingUp className="h-3.5 w-3.5 text-income" />
               ) : isNegative ? (
-                <TrendingDown className="h-4 w-4 text-expense" />
+                <TrendingDown className="h-3.5 w-3.5 text-expense" />
               ) : (
-                <Minus className="h-4 w-4 text-muted-foreground" />
+                <Minus className="h-3.5 w-3.5 text-muted-foreground" />
               )}
               <span
                 className={cn(
-                  'text-sm font-medium',
+                  'text-xs font-medium',
                   isPositive && 'text-income',
                   isNegative && 'text-expense',
                   !isPositive && !isNegative && 'text-muted-foreground'
@@ -51,11 +51,11 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
         </div>
         <div
           className={cn(
-            'flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110 flex-shrink-0',
+            'flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105 flex-shrink-0',
             iconColor || 'bg-primary/10'
           )}
         >
-          <Icon className={cn('h-5 w-5 sm:h-6 sm:w-6', iconColor ? 'text-inherit' : 'text-primary')} />
+          <Icon className={cn('h-5 w-5', iconColor ? 'text-inherit' : 'text-primary')} />
         </div>
       </div>
     </motion.div>
