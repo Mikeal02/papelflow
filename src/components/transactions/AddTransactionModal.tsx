@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Calendar, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -85,28 +85,29 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-card/95 backdrop-blur-xl border-border/50">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold gradient-text">Add Transaction</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">Add Transaction</DialogTitle>
+          <DialogDescription>Record a new transaction for your accounts</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Transaction Type Tabs */}
-          <div className="flex gap-2 p-1.5 bg-muted/50 rounded-xl">
+          <div className="flex gap-1 p-1 bg-muted rounded-lg">
             {transactionTypes.map(({ type: t, label, icon: Icon, color }) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all duration-300',
+                  'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all duration-200',
                   type === t
                     ? color === 'expense'
-                      ? 'bg-expense text-foreground shadow-lg shadow-expense/20'
+                      ? 'bg-expense text-white shadow-sm'
                       : color === 'income'
-                      ? 'bg-income text-primary-foreground shadow-lg shadow-income/20'
-                      : 'bg-transfer text-foreground shadow-lg shadow-transfer/20'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-income text-white shadow-sm'
+                      : 'bg-transfer text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -119,7 +120,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
           <div className="space-y-2">
             <Label htmlFor="amount">Amount</Label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl font-light">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl">
                 $
               </span>
               <Input
@@ -129,7 +130,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="pl-10 text-3xl font-bold h-16 bg-muted/30 border-border/50 focus:border-primary"
+                className="pl-10 text-2xl font-bold h-14"
                 required
               />
             </div>
@@ -140,7 +141,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             <div className="space-y-2">
               <Label>From Account</Label>
               <Select value={accountId} onValueChange={setAccountId} required>
-                <SelectTrigger className="h-11 bg-muted/30">
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent>
@@ -158,7 +159,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               <div className="space-y-2">
                 <Label>To Account</Label>
                 <Select value={toAccountId} onValueChange={setToAccountId} required>
-                  <SelectTrigger className="h-11 bg-muted/30">
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select account" />
                   </SelectTrigger>
                   <SelectContent>
@@ -176,7 +177,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select value={categoryId} onValueChange={setCategoryId} required>
-                  <SelectTrigger className="h-11 bg-muted/30">
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -202,7 +203,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="pl-10 h-11 bg-muted/30"
+                  className="pl-10 h-10"
                   required
                 />
               </div>
@@ -217,7 +218,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                   placeholder={type === 'income' ? 'Source' : 'Merchant name'}
                   value={payee}
                   onChange={(e) => setPayee(e.target.value)}
-                  className="h-11 bg-muted/30"
+                  className="h-10"
                 />
               </div>
             )}
@@ -232,7 +233,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="bg-muted/30 resize-none"
+              className="resize-none"
             />
           </div>
 
@@ -242,13 +243,13 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-11"
+              className="flex-1 h-10"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
-              className="flex-1 h-11 bg-gradient-sunset hover:opacity-90 text-primary-foreground font-semibold"
+              className="flex-1 h-10"
               disabled={createTransaction.isPending}
             >
               {createTransaction.isPending ? (

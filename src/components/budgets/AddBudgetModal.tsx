@@ -59,17 +59,17 @@ export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] bg-card/95 backdrop-blur-xl border-border/50">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Create Budget</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">Create Budget</DialogTitle>
           <DialogDescription>Set a spending limit for a category</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label>Category</Label>
             <Select value={categoryId} onValueChange={setCategoryId} required>
-              <SelectTrigger className="h-11 bg-muted/30">
+              <SelectTrigger className="h-10">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -95,16 +95,16 @@ export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProp
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="pl-10 text-2xl font-bold h-14 bg-muted/30 border-border/50"
+                className="pl-10 text-2xl font-bold h-14"
                 required
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div>
-              <Label htmlFor="rollover">Rollover unused budget</Label>
-              <p className="text-sm text-muted-foreground">
+              <Label htmlFor="rollover" className="font-medium">Rollover unused budget</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Carry over unspent amounts to next month
               </p>
             </div>
@@ -120,13 +120,13 @@ export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProp
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-11"
+              className="flex-1 h-10"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
-              className="flex-1 h-11"
+              className="flex-1 h-10"
               disabled={createBudget.isPending}
             >
               {createBudget.isPending ? (
