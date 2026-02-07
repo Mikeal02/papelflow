@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, Scale, Sparkles } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Scale, Calendar } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { BudgetOverview } from '@/components/dashboard/BudgetOverview';
@@ -42,30 +42,38 @@ const Dashboard = () => {
     return 'Good evening';
   };
 
+  const currentDate = new Date().toLocaleDateString('en-US', { 
+    weekday: 'long',
+    month: 'long', 
+    day: 'numeric',
+    year: 'numeric' 
+  });
+
   return (
     <AppLayout>
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-6 lg:space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
         >
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl md:text-3xl font-bold">
-                {getGreeting()}, <span className="gradient-text">{firstName}</span>
-              </h1>
-              <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-primary animate-pulse" />
-            </div>
-            <p className="text-xs md:text-sm text-muted-foreground">
-              Here's your financial overview for {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              {getGreeting()}, {firstName}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Here's your financial overview
             </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            <span>{currentDate}</span>
           </div>
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid gap-3 md:gap-5 grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Income"
             value={formatCurrency(stats?.income || 0)}
@@ -91,7 +99,7 @@ const Dashboard = () => {
             title="Total Balance"
             value={formatCurrency(totalBalance)}
             icon={Wallet}
-            iconColor="bg-chart-3/10 text-chart-3"
+            iconColor="bg-accent/10 text-accent"
             delay={0.2}
           />
         </div>
@@ -106,22 +114,22 @@ const Dashboard = () => {
         )}
 
         {/* Main Content Grid */}
-        <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
+        <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
           {/* Left Column */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-5">
+          <div className="lg:col-span-2 space-y-5 lg:space-y-6">
             <RecentTransactions />
-            <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2">
               <BudgetOverview />
               <TopCategories />
             </div>
-            <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2">
               <FinancialCalendar />
               <SpendingForecast />
             </div>
           </div>
 
           {/* Right Column */}
-          <div className="space-y-4 md:space-y-5">
+          <div className="space-y-5 lg:space-y-6">
             <FinancialHealthScore />
             <AccountsOverview />
             <UpcomingBills />

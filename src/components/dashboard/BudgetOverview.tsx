@@ -34,27 +34,27 @@ export function BudgetOverview() {
   if (isLoading) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.4 }}
+        transition={{ delay: 0.25, duration: 0.3 }}
         className="stat-card flex items-center justify-center min-h-[200px]"
       >
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </motion.div>
     );
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3, duration: 0.4 }}
+      transition={{ delay: 0.25, duration: 0.3 }}
       className="stat-card"
     >
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-semibold">Budget Status</h3>
-        <span className="text-sm text-muted-foreground">
-          {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold">Budget Status</h3>
+        <span className="text-xs text-muted-foreground">
+          {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
         </span>
       </div>
 
@@ -71,16 +71,16 @@ export function BudgetOverview() {
             return (
               <motion.div
                 key={budget.id}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
+                transition={{ delay: 0.3 + index * 0.04 }}
                 className="space-y-2"
               >
                 <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="font-medium truncate flex-1">{(budget.category as any)?.name || 'Category'}</span>
                   <span
                     className={cn(
-                      'font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-[160px]',
+                      'font-medium text-xs truncate max-w-[100px] sm:max-w-[140px]',
                       isOverBudget && 'text-expense',
                       isNearLimit && 'text-warning',
                       !isOverBudget && !isNearLimit && 'text-muted-foreground'
@@ -90,11 +90,11 @@ export function BudgetOverview() {
                     {formatCurrency(budget.spent)} / {formatCurrency(Number(budget.amount))}
                   </span>
                 </div>
-                <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                <div className="relative h-1.5 overflow-hidden rounded-full bg-muted">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${budget.percentage}%` }}
-                    transition={{ delay: 0.5 + index * 0.05, duration: 0.6, ease: 'easeOut' }}
+                    transition={{ delay: 0.35 + index * 0.04, duration: 0.5, ease: 'easeOut' }}
                     className={cn(
                       'absolute inset-y-0 left-0 rounded-full',
                       isOverBudget && 'bg-expense',

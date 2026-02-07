@@ -33,7 +33,7 @@ const GOAL_ICONS = [
 ];
 
 const COLORS = [
-  '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#EF4444'
+  '#2563eb', '#059669', '#0d9488', '#f59e0b', '#ef4444', '#8b5cf6'
 ];
 
 export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
@@ -42,7 +42,7 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
   const [currentAmount, setCurrentAmount] = useState('');
   const [deadline, setDeadline] = useState('');
   const [icon, setIcon] = useState('target');
-  const [color, setColor] = useState('#10B981');
+  const [color, setColor] = useState('#2563eb');
 
   const createGoal = useCreateGoal();
 
@@ -68,14 +68,14 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
     setCurrentAmount('');
     setDeadline('');
     setIcon('target');
-    setColor('#10B981');
+    setColor('#2563eb');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px] bg-card/95 backdrop-blur-xl border-border/50">
+      <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Create Goal</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">Create Goal</DialogTitle>
           <DialogDescription>Set a savings target to work towards</DialogDescription>
         </DialogHeader>
 
@@ -87,7 +87,7 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
               placeholder="e.g., Emergency Fund"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="h-11 bg-muted/30"
+              className="h-10"
               required
             />
           </div>
@@ -106,7 +106,7 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
                   placeholder="10,000"
                   value={targetAmount}
                   onChange={(e) => setTargetAmount(e.target.value)}
-                  className="pl-7 h-11 bg-muted/30"
+                  className="pl-7 h-10"
                   required
                 />
               </div>
@@ -125,14 +125,14 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
                   placeholder="0"
                   value={currentAmount}
                   onChange={(e) => setCurrentAmount(e.target.value)}
-                  className="pl-7 h-11 bg-muted/30"
+                  className="pl-7 h-10"
                 />
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="deadline">Target Date (Optional)</Label>
+            <Label htmlFor="deadline">Deadline (optional)</Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -140,7 +140,7 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="pl-10 h-11 bg-muted/30"
+                className="pl-10 h-10"
               />
             </div>
           </div>
@@ -148,7 +148,7 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
           <div className="space-y-2">
             <Label>Icon</Label>
             <Select value={icon} onValueChange={setIcon}>
-              <SelectTrigger className="h-11 bg-muted/30">
+              <SelectTrigger className="h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -172,8 +172,8 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    color === c ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110' : ''
+                  className={`h-8 w-8 rounded-lg transition-all duration-200 ${
+                    color === c ? 'ring-2 ring-offset-2 ring-ring' : ''
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -186,13 +186,13 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-11"
+              className="flex-1 h-10"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
-              className="flex-1 h-11"
+              className="flex-1 h-10"
               disabled={createGoal.isPending}
             >
               {createGoal.isPending ? (

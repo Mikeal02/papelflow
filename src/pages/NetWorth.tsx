@@ -82,10 +82,10 @@ const NetWorth = () => {
 
         {/* Main Net Worth Card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="stat-card glow-effect"
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="stat-card"
         >
           <div className="flex flex-col gap-4 md:gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">

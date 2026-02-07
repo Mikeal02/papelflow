@@ -53,26 +53,26 @@ export function TopCategories() {
   if (isLoading) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.4 }}
+        transition={{ delay: 0.3, duration: 0.3 }}
         className="stat-card flex items-center justify-center min-h-[200px]"
       >
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </motion.div>
     );
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.35, duration: 0.4 }}
+      transition={{ delay: 0.3, duration: 0.3 }}
       className="stat-card"
     >
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-semibold">Top Spending</h3>
-        <span className="text-sm text-muted-foreground">This month</span>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold">Top Spending</h3>
+        <span className="text-xs text-muted-foreground">This month</span>
       </div>
 
       {topCategories.length === 0 ? (
@@ -80,29 +80,29 @@ export function TopCategories() {
           <p className="text-sm text-muted-foreground">No spending data yet</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {topCategories.map((item, index) => {
             const percentage = total > 0 ? (item.amount / total) * 100 : 0;
 
             return (
               <motion.div
                 key={item.category!.id}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45 + index * 0.05 }}
+                transition={{ delay: 0.35 + index * 0.04 }}
                 className="flex items-center gap-3"
               >
                 <div
-                  className={`h-10 w-10 rounded-xl flex items-center justify-center ${colors[index]}`}
+                  className={`h-9 w-9 rounded-lg flex items-center justify-center ${colors[index]}`}
                 >
-                  <span className="text-lg">
+                  <span className="text-base">
                     {categoryEmojis[item.category!.name] || '📁'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-medium truncate flex-1">{item.category!.name}</span>
-                    <span className="font-semibold text-sm sm:text-base truncate max-w-[80px] sm:max-w-[120px]" title={formatCurrency(item.amount)}>
+                    <span className="font-medium text-sm truncate flex-1">{item.category!.name}</span>
+                    <span className="font-semibold text-sm truncate max-w-[80px] sm:max-w-[100px]" title={formatCurrency(item.amount)}>
                       {formatCurrency(item.amount)}
                     </span>
                   </div>
@@ -110,7 +110,7 @@ export function TopCategories() {
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${percentage}%` }}
-                      transition={{ delay: 0.55 + index * 0.05, duration: 0.6 }}
+                      transition={{ delay: 0.4 + index * 0.04, duration: 0.5 }}
                       className={`absolute inset-y-0 left-0 rounded-full ${colors[index]}`}
                     />
                   </div>

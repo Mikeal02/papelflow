@@ -219,18 +219,18 @@ export const FinancialHealthScore = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.25 }}
+      transition={{ delay: 0.2, duration: 0.3 }}
     >
-      <Card className="glass-card">
-        <CardHeader className="pb-2">
+      <Card className="stat-card">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base md:text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
               Financial Health
             </CardTitle>
-            <div className={`text-lg md:text-xl font-bold ${color}`}>
+            <div className={`text-lg font-bold ${color}`}>
               {overallScore}/100
             </div>
           </div>
@@ -238,14 +238,14 @@ export const FinancialHealthScore = () => {
         <CardContent className="space-y-4">
           {/* Overall Score Ring */}
           <div className="flex items-center gap-4">
-            <div className="relative h-16 w-16 md:h-20 md:w-20">
+            <div className="relative h-16 w-16">
               <svg className="transform -rotate-90 h-full w-full">
                 <circle
                   cx="50%"
                   cy="50%"
                   r="45%"
                   className="fill-none stroke-muted"
-                  strokeWidth="8"
+                  strokeWidth="6"
                 />
                 <circle
                   cx="50%"
@@ -253,19 +253,19 @@ export const FinancialHealthScore = () => {
                   r="45%"
                   className={`fill-none ${
                     overallScore >= 70 ? 'stroke-income' : 
-                    overallScore >= 50 ? 'stroke-chart-4' : 'stroke-destructive'
+                    overallScore >= 50 ? 'stroke-warning' : 'stroke-destructive'
                   }`}
-                  strokeWidth="8"
+                  strokeWidth="6"
                   strokeDasharray={`${overallScore * 2.83} 283`}
                   strokeLinecap="round"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Target className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
+                <Target className="h-5 w-5 text-muted-foreground" />
               </div>
             </div>
             <div>
-              <p className={`text-lg md:text-xl font-bold ${color}`}>{rating}</p>
+              <p className={`text-lg font-bold ${color}`}>{rating}</p>
               <p className="text-xs text-muted-foreground">
                 {overallScore >= 70 
                   ? "You're doing great!" 
@@ -279,17 +279,17 @@ export const FinancialHealthScore = () => {
             {metrics.map((metric, i) => (
               <motion.div
                 key={metric.name}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.1 }}
-                className="space-y-1"
+                transition={{ delay: 0.25 + i * 0.08 }}
+                className="space-y-1.5"
               >
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     {getStatusIcon(metric.status)}
                     <span className="font-medium">{metric.name}</span>
                   </div>
-                  <span className="text-muted-foreground">{metric.score}%</span>
+                  <span className="text-muted-foreground text-xs">{metric.score}%</span>
                 </div>
                 <Progress 
                   value={metric.score} 
