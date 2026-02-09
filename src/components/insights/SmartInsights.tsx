@@ -9,9 +9,10 @@ import {
   Target,
   ArrowUpRight,
   ArrowDownRight,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, subMonths, startOfMonth, endOfMonth, differenceInDays } from 'date-fns';
+import { subMonths, startOfMonth, endOfMonth, differenceInDays } from 'date-fns';
 
 interface Transaction {
   id: string;
@@ -47,7 +48,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
     const result: InsightData[] = [];
     const now = new Date();
     
-    // Current month data
     const currentMonthStart = startOfMonth(now);
     const currentMonthEnd = endOfMonth(now);
     const daysInMonth = differenceInDays(currentMonthEnd, currentMonthStart) + 1;
@@ -58,7 +58,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       return d >= currentMonthStart && d <= currentMonthEnd;
     });
     
-    // Previous month data
     const prevMonthStart = startOfMonth(subMonths(now, 1));
     const prevMonthEnd = endOfMonth(subMonths(now, 1));
     const prevMonthTx = transactions.filter(t => {
@@ -66,7 +65,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       return d >= prevMonthStart && d <= prevMonthEnd;
     });
     
-    // Calculate spending
     const currentSpending = currentMonthTx
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -83,10 +81,8 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + Number(t.amount), 0);
     
-    // Projected spending (based on current pace)
     const projectedSpending = (currentSpending / daysPassed) * daysInMonth;
     
-    // 1. Spending comparison
     if (prevSpending > 0) {
       const spendingDiff = ((currentSpending - prevSpending) / prevSpending) * 100;
       
@@ -109,7 +105,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       }
     }
     
-    // 2. Projected overspending
     if (projectedSpending > prevSpending * 1.15 && prevSpending > 0) {
       result.push({
         type: 'warning',
@@ -120,7 +115,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       });
     }
     
-    // 3. Income growth
     if (prevIncome > 0 && currentIncome > prevIncome) {
       const incomeGrowth = ((currentIncome - prevIncome) / prevIncome) * 100;
       if (incomeGrowth >= 5) {
@@ -134,7 +128,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       }
     }
     
-    // 4. Category-specific insights
     const categorySpending: Record<string, { current: number; prev: number }> = {};
     
     currentMonthTx.filter(t => t.type === 'expense' && t.category_id).forEach(t => {
@@ -151,7 +144,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       categorySpending[t.category_id!].prev += Number(t.amount);
     });
     
-    // Find biggest spending increase
     let biggestIncrease = { category: '', increase: 0, categoryName: '' };
     Object.entries(categorySpending).forEach(([catId, data]) => {
       if (data.prev > 0) {
@@ -176,7 +168,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       });
     }
     
-    // 5. Savings rate
     if (currentIncome > 0) {
       const savingsRate = ((currentIncome - currentSpending) / currentIncome) * 100;
       if (savingsRate >= 20) {
@@ -198,7 +189,6 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
       }
     }
     
-    // 6. Tips
     if (result.length < 3) {
       result.push({
         type: 'tip',
@@ -218,13 +208,33 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
   const getInsightStyles = (type: InsightData['type']) => {
     switch (type) {
       case 'positive':
-        return 'bg-income/10 border-income/20 text-income';
+        return {
+          bg: 'from-income/15 to-income/5',
+          border: 'border-income/20',
+          iconBg: 'bg-income/20',
+          iconColor: 'text-income',
+        };
       case 'warning':
-        return 'bg-expense/10 border-expense/20 text-expense';
+        return {
+          bg: 'from-expense/15 to-expense/5',
+          border: 'border-expense/20',
+          iconBg: 'bg-expense/20',
+          iconColor: 'text-expense',
+        };
       case 'tip':
-        return 'bg-primary/10 border-primary/20 text-primary';
+        return {
+          bg: 'from-primary/15 to-primary/5',
+          border: 'border-primary/20',
+          iconBg: 'bg-primary/20',
+          iconColor: 'text-primary',
+        };
       default:
-        return 'bg-muted/50 border-border text-foreground';
+        return {
+          bg: 'from-muted/50 to-muted/30',
+          border: 'border-border/50',
+          iconBg: 'bg-muted',
+          iconColor: 'text-muted-foreground',
+        };
     }
   };
 
@@ -232,47 +242,61 @@ export function SmartInsights({ transactions, categories, formatCurrency }: Smar
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.25, duration: 0.5 }}
       className="stat-card"
     >
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="font-semibold">Smart Insights</h3>
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20">
+          <Zap className="h-4 w-4 text-primary" />
+        </div>
+        <h3 className="font-semibold text-base">Smart Insights</h3>
       </div>
       
       <div className="grid gap-3 sm:grid-cols-2">
-        {insights.map((insight, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={cn(
-              'rounded-xl border p-4 transition-all hover:scale-[1.02]',
-              getInsightStyles(insight.type)
-            )}
-          >
-            <div className="flex items-start gap-3">
-              <div className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                insight.type === 'positive' && 'bg-income/20',
-                insight.type === 'warning' && 'bg-expense/20',
-                insight.type === 'tip' && 'bg-primary/20',
-                insight.type === 'neutral' && 'bg-muted'
-              )}>
-                <insight.icon className="h-4 w-4" />
+        {insights.map((insight, index) => {
+          const styles = getInsightStyles(insight.type);
+          
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.3 + index * 0.08, duration: 0.4 }}
+              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+              className={cn(
+                'rounded-xl border p-4 cursor-default transition-all duration-300',
+                'bg-gradient-to-br hover:shadow-md',
+                styles.bg,
+                styles.border
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <div className={cn(
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform',
+                  styles.iconBg
+                )}>
+                  <insight.icon className={cn('h-5 w-5', styles.iconColor)} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-foreground text-sm">{insight.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
+                    {insight.description}
+                  </p>
+                  {insight.value && (
+                    <motion.p 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4 + index * 0.08 }}
+                      className={cn('text-sm font-bold mt-1.5', styles.iconColor)}
+                    >
+                      {insight.value}
+                    </motion.p>
+                  )}
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-foreground text-sm">{insight.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                  {insight.description}
-                </p>
-                {insight.value && (
-                  <p className="text-sm font-semibold mt-1">{insight.value}</p>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
