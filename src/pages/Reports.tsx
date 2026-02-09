@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2 } from 'lucide-react';
+import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2, BarChart3 } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -28,13 +28,14 @@ import {
 } from 'recharts';
 import { useMemo, useState } from 'react';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const COLORS = [
-  'hsl(185, 85%, 50%)',
-  'hsl(160, 84%, 45%)',
-  'hsl(280, 75%, 60%)',
-  'hsl(38, 92%, 50%)',
-  'hsl(0, 72%, 55%)',
+  'hsl(215, 85%, 55%)',
+  'hsl(155, 70%, 45%)',
+  'hsl(170, 75%, 45%)',
+  'hsl(40, 95%, 50%)',
+  'hsl(0, 78%, 58%)',
 ];
 
 const Reports = () => {
@@ -43,7 +44,6 @@ const Reports = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { formatCurrency } = useCurrency();
 
-  // Calculate monthly data based on time range
   const monthlyData = useMemo(() => {
     const months = timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '1year' ? 12 : 6;
     const result = [];
@@ -76,7 +76,6 @@ const Reports = () => {
     return result;
   }, [transactions, timeRange]);
 
-  // Calculate category spending for pie chart
   const categorySpending = useMemo(() => {
     const spending: Record<string, number> = {};
     const monthStart = startOfMonth(new Date());
@@ -105,7 +104,6 @@ const Reports = () => {
       .slice(0, 5);
   }, [transactions, categories]);
 
-  // Calculate averages
   const stats = useMemo(() => {
     const monthCount = monthlyData.length || 1;
     const totalIncome = monthlyData.reduce((sum, m) => sum + m.income, 0);
@@ -118,7 +116,6 @@ const Reports = () => {
     };
   }, [monthlyData]);
 
-  // Top merchants (group by payee)
   const topMerchants = useMemo(() => {
     const merchantSpending: Record<string, { amount: number; category: string }> = {};
     const monthStart = startOfMonth(new Date());
@@ -162,11 +159,31 @@ const Reports = () => {
 
   const isLoading = transactionsLoading || categoriesLoading;
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="glass-panel rounded-xl p-3 shadow-lg border-border/50">
+          <p className="text-xs text-muted-foreground font-semibold mb-1">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm font-bold" style={{ color: entry.color }}>
+              {entry.name}: {formatCurrency(entry.value)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
+            <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
+          </div>
+          <p className="text-muted-foreground animate-pulse">Loading reports...</p>
         </div>
       </AppLayout>
     );
@@ -174,23 +191,22 @@ const Reports = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-5 md:space-y-6">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+          transition={{ duration: 0.5 }}
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Reports</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Analyze your financial trends
-            </p>
+            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Reports</h1>
+            <p className="text-sm text-muted-foreground mt-1">Analyze your financial trends</p>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[130px] sm:w-[160px]">
-                <Calendar className="h-4 w-4 mr-2" />
+              <SelectTrigger className="w-[140px] bg-muted/30 border-border/50">
+                <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -208,53 +224,38 @@ const Reports = () => {
         </motion.div>
 
         {/* Summary Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid gap-3 md:gap-5 grid-cols-1 sm:grid-cols-3"
-        >
-          <div className="stat-card">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-income/10">
-                <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-income" />
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+          {[
+            { icon: TrendingUp, label: 'Average Income', value: formatCurrency(stats.avgIncome), color: 'income', bg: 'from-income/20 to-income/10' },
+            { icon: TrendingDown, label: 'Average Expenses', value: formatCurrency(stats.avgExpenses), color: 'expense', bg: 'from-expense/20 to-expense/10' },
+            { icon: ArrowRight, label: 'Avg. Savings Rate', value: `${stats.savingsRate.toFixed(1)}%`, color: stats.savingsRate >= 0 ? 'income' : 'expense', bg: 'from-primary/20 to-primary/10' },
+          ].map((item, index) => (
+            <motion.div
+              key={item.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              className="stat-card"
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  'flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br',
+                  item.bg
+                )}>
+                  <item.icon className={cn('h-5 w-5', `text-${item.color}`)} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium">{item.label}</p>
+                  <p className={cn('text-xl font-bold', `text-${item.color}`)}>{item.value}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Average Income</p>
-                <p className="text-lg md:text-2xl font-bold">{formatCurrency(stats.avgIncome)}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-expense/10">
-                <TrendingDown className="h-5 w-5 md:h-6 md:w-6 text-expense" />
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Average Expenses</p>
-                <p className="text-lg md:text-2xl font-bold">{formatCurrency(stats.avgExpenses)}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-primary/10">
-                <ArrowRight className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Avg. Savings Rate</p>
-                <p className={`text-lg md:text-2xl font-bold ${stats.savingsRate >= 0 ? 'text-income' : 'text-expense'}`}>
-                  {stats.savingsRate.toFixed(1)}%
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+            </motion.div>
+          ))}
+        </div>
 
         {/* Charts Grid */}
-        <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-2">
           {/* Income vs Expenses Chart */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -262,47 +263,44 @@ const Reports = () => {
             transition={{ delay: 0.2 }}
             className="stat-card"
           >
-            <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Income vs Expenses</h3>
-            <div className="h-[250px] md:h-[300px]">
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10">
+                <BarChart3 className="h-4 w-4 text-primary" />
+              </div>
+              <h3 className="font-semibold">Income vs Expenses</h3>
+            </div>
+            <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={monthlyData}>
                   <defs>
                     <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(160, 84%, 45%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(160, 84%, 45%)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="hsl(var(--income))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--income))" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(0, 72%, 55%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(0, 72%, 55%)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="hsl(var(--expense))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--expense))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
                   <XAxis
                     dataKey="month"
-                    stroke="hsl(215, 25%, 55%)"
-                    fontSize={12}
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
                     tickLine={false}
                   />
                   <YAxis
-                    stroke="hsl(215, 25%, 55%)"
-                    fontSize={11}
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
                     tickLine={false}
                     tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                    width={45}
+                    width={40}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(222, 47%, 10%)',
-                      border: '1px solid hsl(222, 30%, 18%)',
-                      borderRadius: '8px',
-                    }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    formatter={(value: number) => [formatCurrency(value), '']}
-                  />
+                  <Tooltip content={<CustomTooltip />} />
                   <Area
                     type="monotone"
                     dataKey="income"
-                    stroke="hsl(160, 84%, 45%)"
+                    stroke="hsl(var(--income))"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#incomeGradient)"
@@ -311,7 +309,7 @@ const Reports = () => {
                   <Area
                     type="monotone"
                     dataKey="expenses"
-                    stroke="hsl(0, 72%, 55%)"
+                    stroke="hsl(var(--expense))"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#expenseGradient)"
@@ -320,14 +318,14 @@ const Reports = () => {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center gap-4 md:gap-6 mt-3 md:mt-4">
+            <div className="flex justify-center gap-6 mt-4">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-income" />
-                <span className="text-xs md:text-sm text-muted-foreground">Income</span>
+                <span className="text-xs text-muted-foreground font-medium">Income</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-expense" />
-                <span className="text-xs md:text-sm text-muted-foreground">Expenses</span>
+                <span className="text-xs text-muted-foreground font-medium">Expenses</span>
               </div>
             </div>
           </motion.div>
@@ -339,53 +337,49 @@ const Reports = () => {
             transition={{ delay: 0.25 }}
             className="stat-card"
           >
-            <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Spending by Category</h3>
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent/20 to-accent/10">
+                <BarChart3 className="h-4 w-4 text-accent" />
+              </div>
+              <h3 className="font-semibold">Spending by Category</h3>
+            </div>
             {categorySpending.length > 0 ? (
               <>
-                <div className="h-[250px] md:h-[300px]">
+                <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={categorySpending}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={3}
+                        innerRadius={65}
+                        outerRadius={95}
+                        paddingAngle={4}
                         dataKey="value"
+                        strokeWidth={0}
                       >
                         {categorySpending.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'hsl(222, 47%, 10%)',
-                          border: '1px solid hsl(222, 30%, 18%)',
-                          borderRadius: '8px',
-                        }}
-                        formatter={(value: number) => [formatCurrency(value), '']}
-                      />
+                      <Tooltip content={<CustomTooltip />} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-3 md:mt-4">
+                <div className="flex flex-wrap justify-center gap-3 mt-4">
                   {categorySpending.map((item, index) => (
                     <div key={item.name} className="flex items-center gap-2">
                       <div
-                        className="h-2.5 w-2.5 md:h-3 md:w-3 rounded-full"
+                        className="h-2.5 w-2.5 rounded-full"
                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       />
-                      <span className="text-xs md:text-sm text-muted-foreground">{item.name}</span>
+                      <span className="text-xs text-muted-foreground font-medium">{item.name}</span>
                     </div>
                   ))}
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-[250px] md:h-[300px]">
+              <div className="flex flex-col items-center justify-center h-[280px]">
                 <p className="text-sm text-muted-foreground">No expense data for this period</p>
               </div>
             )}
@@ -399,32 +393,36 @@ const Reports = () => {
           transition={{ delay: 0.3 }}
           className="stat-card"
         >
-          <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6">Top Merchants</h3>
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-warning/20 to-warning/10">
+              <TrendingUp className="h-4 w-4 text-warning" />
+            </div>
+            <h3 className="font-semibold">Top Merchants</h3>
+          </div>
           {topMerchants.length > 0 ? (
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-3">
               {topMerchants.map((merchant, index) => (
                 <motion.div
                   key={merchant.name}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 + index * 0.05 }}
-                  className="flex items-center gap-3 md:gap-4"
+                  whileHover={{ x: 4 }}
+                  className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-default"
                 >
-                  <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg bg-muted text-sm md:text-lg font-semibold shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-muted/80 to-muted/60 text-sm font-bold shrink-0">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm md:text-base truncate">{merchant.name}</p>
-                    <p className="text-xs md:text-sm text-muted-foreground">{merchant.category}</p>
+                    <p className="font-semibold truncate">{merchant.name}</p>
+                    <p className="text-xs text-muted-foreground">{merchant.category}</p>
                   </div>
-                  <span className="font-semibold tabular-nums text-sm md:text-base">
-                    {formatCurrency(merchant.amount)}
-                  </span>
+                  <span className="font-bold tabular-nums">{formatCurrency(merchant.amount)}</span>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8">
+            <div className="flex flex-col items-center justify-center py-12">
               <p className="text-sm text-muted-foreground">No expense data to show top merchants</p>
             </div>
           )}
