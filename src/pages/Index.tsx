@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, Scale, Calendar } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Scale, Calendar, Sparkles } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { BudgetOverview } from '@/components/dashboard/BudgetOverview';
@@ -28,7 +28,6 @@ const Dashboard = () => {
   const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
   
-  // Initialize recurring transactions and bill reminders
   useRecurringTransactions();
   useBillReminders();
 
@@ -54,22 +53,38 @@ const Dashboard = () => {
       <div className="space-y-6 lg:space-y-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+          transition={{ duration: 0.5 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              {getGreeting()}, {firstName}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="text-2xl md:text-3xl font-bold"
+            >
+              <span className="gradient-text">{getGreeting()}</span>, {firstName}
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-sm text-muted-foreground mt-1"
+            >
               Here's your financial overview
-            </p>
+            </motion.p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span>{currentDate}</span>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-xl border border-border/30"
+          >
+            <Calendar className="h-4 w-4 text-primary" />
+            <span className="font-medium">{currentDate}</span>
+          </motion.div>
         </motion.div>
 
         {/* Stats Grid */}
@@ -78,28 +93,28 @@ const Dashboard = () => {
             title="Total Income"
             value={formatCurrency(stats?.income || 0)}
             icon={TrendingUp}
-            iconColor="bg-income/10 text-income"
+            iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income"
             delay={0.05}
           />
           <StatCard
             title="Total Expenses"
             value={formatCurrency(stats?.expenses || 0)}
             icon={TrendingDown}
-            iconColor="bg-expense/10 text-expense"
+            iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense"
             delay={0.1}
           />
           <StatCard
             title="Net Cash Flow"
             value={formatCurrency(stats?.netFlow || 0, true)}
             icon={Scale}
-            iconColor="bg-primary/10 text-primary"
+            iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary"
             delay={0.15}
           />
           <StatCard
             title="Total Balance"
             value={formatCurrency(totalBalance)}
             icon={Wallet}
-            iconColor="bg-accent/10 text-accent"
+            iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent"
             delay={0.2}
           />
         </div>
@@ -137,7 +152,7 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* AI Financial Advisor Chat */}
+      {/* AI Financial Advisor */}
       <FinancialAdvisor />
     </AppLayout>
   );
