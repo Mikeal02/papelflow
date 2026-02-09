@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -8,7 +8,7 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 import { cn } from '@/lib/utils';
-import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2, Wallet } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { useState, useMemo, useEffect } from 'react';
 import { AddBudgetModal } from '@/components/budgets/AddBudgetModal';
@@ -25,7 +25,6 @@ const Budgets = () => {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
 
-  // Calculate spending per category for the current month
   const categorySpending = useMemo(() => {
     const spending: Record<string, number> = {};
     transactions
@@ -41,7 +40,6 @@ const Budgets = () => {
     return spending;
   }, [transactions, monthStart, monthEnd]);
 
-  // Filter budgets for current month and enrich with category data
   const monthBudgets = useMemo(() => {
     return budgets
       .filter(b => b.month === currentMonth)
@@ -68,18 +66,16 @@ const Budgets = () => {
   const totalSpent = monthBudgets.reduce((sum, b) => sum + b.spent, 0);
   const budgetProgress = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
-  // Budget alerts - triggers toast and optional email when budgets exceed thresholds
   const { resetAlerts } = useBudgetAlerts(monthBudgets);
 
-  // Reset alerts when month changes
   useEffect(() => {
     resetAlerts();
   }, [currentMonth]);
 
   const getStatusColor = (percentage: number) => {
-    if (percentage >= 100) return 'bg-expense';
-    if (percentage >= 80) return 'bg-warning';
-    return 'bg-primary';
+    if (percentage >= 100) return 'bg-gradient-to-r from-expense to-expense/80';
+    if (percentage >= 80) return 'bg-gradient-to-r from-warning to-warning/80';
+    return 'bg-gradient-to-r from-primary to-primary/80';
   };
 
   const getStatusIcon = (percentage: number) => {
@@ -93,8 +89,12 @@ const Budgets = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
+            <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
+          </div>
+          <p className="text-muted-foreground animate-pulse">Loading budgets...</p>
         </div>
       </AppLayout>
     );
@@ -105,46 +105,50 @@ const Budgets = () => {
       <div className="space-y-6">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-3xl font-bold">Budgets</h1>
-            <p className="text-muted-foreground mt-1">Track your spending limits</p>
+            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Budgets</h1>
+            <p className="text-muted-foreground mt-1 text-sm">Track your spending limits</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-card rounded-lg p-1 border border-border">
+            <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1 border border-border/30">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-lg hover:bg-background"
                 onClick={() => setCurrentDate(subMonths(currentDate, 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="px-3 font-medium">{format(currentDate, 'MMMM yyyy')}</span>
+              <span className="px-3 font-semibold text-sm min-w-[120px] text-center">
+                {format(currentDate, 'MMMM yyyy')}
+              </span>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8"
+                className="h-8 w-8 rounded-lg hover:bg-background"
                 onClick={() => setCurrentDate(addMonths(currentDate, 1))}
               >
-              <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button className="gap-2 btn-premium" onClick={() => setShowAddModal(true)}>
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">New Budget</span>
             </Button>
           </div>
-          <Button className="gap-2" onClick={() => setShowAddModal(true)}>
-            <Plus className="h-4 w-4" />
-            New Budget
-          </Button>
-        </div>
-      </motion.div>
+        </motion.div>
 
         <AddBudgetModal 
           open={showAddModal} 
           onOpenChange={setShowAddModal}
           month={currentMonth}
         />
+
         {/* Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -152,204 +156,202 @@ const Budgets = () => {
           transition={{ delay: 0.1 }}
           className="stat-card"
         >
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="space-y-2 min-w-0">
-                <p className="text-xs sm:text-sm text-muted-foreground">Total Budget Progress</p>
-                <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
-                  <span className="text-xl sm:text-2xl md:text-3xl font-bold truncate" title={formatCurrency(totalSpent)}>
-                    {formatCurrency(totalSpent)}
-                  </span>
-                  <span className="text-xs sm:text-sm text-muted-foreground">
-                    of {formatCurrency(totalBudget)} budgeted
-                  </span>
-                </div>
-              </div>
-              <div className="flex-1 max-w-md">
-                <div className="flex justify-between text-xs sm:text-sm mb-2">
-                  <span className="text-muted-foreground">
-                    {budgetProgress.toFixed(0)}% spent
-                  </span>
-                  <span className="font-medium text-primary truncate ml-2" title={formatCurrency(totalBudget - totalSpent)}>
-                    {formatCurrency(totalBudget - totalSpent)} remaining
-                  </span>
-                </div>
-                <Progress value={Math.min(budgetProgress, 100)} className="h-2 sm:h-3" />
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2 min-w-0">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Budget Progress</p>
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold">{formatCurrency(totalSpent)}</span>
+                <span className="text-sm text-muted-foreground">of {formatCurrency(totalBudget)} budgeted</span>
               </div>
             </div>
+            <div className="flex-1 max-w-md">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-muted-foreground font-medium">{budgetProgress.toFixed(0)}% spent</span>
+                <span className={cn(
+                  'font-bold',
+                  totalBudget - totalSpent < 0 ? 'text-expense' : 'text-income'
+                )}>
+                  {formatCurrency(Math.abs(totalBudget - totalSpent))} {totalBudget - totalSpent < 0 ? 'over' : 'remaining'}
+                </span>
+              </div>
+              <div className="relative h-3 rounded-full bg-muted/50 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(budgetProgress, 100)}%` }}
+                  transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+                  className={cn(
+                    'absolute inset-y-0 left-0 rounded-full',
+                    budgetProgress >= 100 ? 'bg-gradient-to-r from-expense to-expense/80' : 'bg-gradient-to-r from-primary to-accent'
+                  )}
+                />
+              </div>
+            </div>
+          </div>
         </motion.div>
 
-        {monthBudgets.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="stat-card flex flex-col items-center justify-center py-12"
-          >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-              <Plus className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">No budgets for this month</h3>
-            <p className="text-muted-foreground text-center max-w-md mb-4">
-              Create your first budget to start tracking your spending limits and stay on top of your finances.
-            </p>
-            <Button className="gap-2" onClick={() => setShowAddModal(true)}>
-              <Plus className="h-4 w-4" />
-              Create Budget
-            </Button>
-          </motion.div>
-        ) : (
-          <>
-            {/* Needs */}
-            {needsBudgets.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-xl font-semibold">Needs</h2>
-                  <span className="text-sm text-muted-foreground">Essential expenses</span>
+        <AnimatePresence mode="popLayout">
+          {monthBudgets.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="stat-card flex flex-col items-center justify-center py-16"
+            >
+              <div className="relative mb-6">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 blur-2xl" />
+                <div className="relative h-16 w-16 rounded-2xl bg-gradient-to-br from-muted/80 to-muted/60 flex items-center justify-center">
+                  <Wallet className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {needsBudgets.map((budget, index) => (
-                    <motion.div
-                      key={budget.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 + index * 0.05 }}
-                      className="stat-card"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
-                            style={{ backgroundColor: `${budget.category?.color}20` }}
-                          >
-                            {budget.category?.icon === 'home' && '🏠'}
-                            {budget.category?.icon === 'shopping-cart' && '🛒'}
-                            {budget.category?.icon === 'car' && '🚗'}
-                            {budget.category?.icon === 'zap' && '⚡'}
-                            {budget.category?.icon === 'heart-pulse' && '💊'}
+              </div>
+              <h3 className="text-xl font-bold mb-2">No budgets for this month</h3>
+              <p className="text-muted-foreground text-center max-w-md mb-6 text-sm">
+                Create your first budget to start tracking your spending limits
+              </p>
+              <Button className="gap-2 btn-premium" onClick={() => setShowAddModal(true)}>
+                <Plus className="h-4 w-4" />
+                Create Budget
+              </Button>
+            </motion.div>
+          ) : (
+            <>
+              {/* Needs */}
+              {needsBudgets.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <h2 className="text-lg font-bold">Needs</h2>
+                    <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">Essential expenses</span>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {needsBudgets.map((budget, index) => (
+                      <motion.div
+                        key={budget.id}
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ delay: 0.25 + index * 0.05 }}
+                        whileHover={{ scale: 1.02 }}
+                        className="stat-card group cursor-default"
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="flex h-11 w-11 items-center justify-center rounded-xl text-lg transition-transform group-hover:scale-110"
+                              style={{ backgroundColor: `${budget.category?.color}15` }}
+                            >
+                              {budget.category?.icon === 'home' && '🏠'}
+                              {budget.category?.icon === 'shopping-cart' && '🛒'}
+                              {budget.category?.icon === 'car' && '🚗'}
+                              {budget.category?.icon === 'zap' && '⚡'}
+                              {budget.category?.icon === 'heart-pulse' && '💊'}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{budget.category?.name}</h3>
+                              <p className="text-xs text-muted-foreground">
+                                {budget.rollover ? 'Rollover enabled' : 'No rollover'}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold">{budget.category?.name}</h3>
-                            <p className="text-xs text-muted-foreground">
-                              {budget.rollover ? 'Rollover enabled' : 'No rollover'}
-                            </p>
-                          </div>
+                          {getStatusIcon(budget.percentage)}
                         </div>
-                        {getStatusIcon(budget.percentage)}
-                      </div>
 
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            {formatCurrency(budget.spent)} spent
-                          </span>
-                          <span
-                            className={cn(
-                              'font-medium',
-                              budget.remaining < 0 ? 'text-expense' : 'text-foreground'
-                            )}
-                          >
-                            {formatCurrency(Math.abs(budget.remaining))}{' '}
-                            {budget.remaining < 0 ? 'over' : 'left'}
-                          </span>
-                        </div>
-                        <div className="relative h-2 overflow-hidden rounded-full bg-muted">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(budget.percentage, 100)}%` }}
-                            transition={{ delay: 0.3 + index * 0.05, duration: 0.6 }}
-                            className={cn('absolute inset-y-0 left-0 rounded-full', getStatusColor(budget.percentage))}
-                          />
-                        </div>
-                        <p className="text-xs text-center text-muted-foreground">
-                          {formatCurrency(Number(budget.amount))} budgeted
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Wants */}
-            {wantsBudgets.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-xl font-semibold">Wants</h2>
-                  <span className="text-sm text-muted-foreground">Discretionary spending</span>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {wantsBudgets.map((budget, index) => (
-                    <motion.div
-                      key={budget.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.35 + index * 0.05 }}
-                      className="stat-card"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
-                            style={{ backgroundColor: `${budget.category?.color}20` }}
-                          >
-                            {budget.category?.icon === 'utensils' && '🍽️'}
-                            {budget.category?.icon === 'film' && '🎬'}
-                            {budget.category?.icon === 'shopping-bag' && '🛍️'}
-                            {budget.category?.icon === 'repeat' && '📺'}
-                            {budget.category?.icon === 'sparkles' && '✨'}
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{formatCurrency(budget.spent)} spent</span>
+                            <span className={cn('font-bold', budget.remaining < 0 ? 'text-expense' : 'text-foreground')}>
+                              {formatCurrency(Math.abs(budget.remaining))} {budget.remaining < 0 ? 'over' : 'left'}
+                            </span>
                           </div>
-                          <div>
-                            <h3 className="font-semibold">{budget.category?.name}</h3>
-                            <p className="text-xs text-muted-foreground">
-                              {budget.rollover ? 'Rollover enabled' : 'No rollover'}
-                            </p>
+                          <div className="relative h-2 overflow-hidden rounded-full bg-muted/50">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min(budget.percentage, 100)}%` }}
+                              transition={{ delay: 0.3 + index * 0.05, duration: 0.6 }}
+                              className={cn('absolute inset-y-0 left-0 rounded-full', getStatusColor(budget.percentage))}
+                            />
                           </div>
+                          <p className="text-xs text-center text-muted-foreground font-medium">
+                            {formatCurrency(Number(budget.amount))} budgeted
+                          </p>
                         </div>
-                        {getStatusIcon(budget.percentage)}
-                      </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            {formatCurrency(budget.spent)} spent
-                          </span>
-                          <span
-                            className={cn(
-                              'font-medium',
-                              budget.remaining < 0 ? 'text-expense' : 'text-foreground'
-                            )}
-                          >
-                            {formatCurrency(Math.abs(budget.remaining))}{' '}
-                            {budget.remaining < 0 ? 'over' : 'left'}
-                          </span>
+              {/* Wants */}
+              {wantsBudgets.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <h2 className="text-lg font-bold">Wants</h2>
+                    <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">Discretionary spending</span>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {wantsBudgets.map((budget, index) => (
+                      <motion.div
+                        key={budget.id}
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ delay: 0.35 + index * 0.05 }}
+                        whileHover={{ scale: 1.02 }}
+                        className="stat-card group cursor-default"
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="flex h-11 w-11 items-center justify-center rounded-xl text-lg transition-transform group-hover:scale-110"
+                              style={{ backgroundColor: `${budget.category?.color}15` }}
+                            >
+                              {budget.category?.icon === 'utensils' && '🍽️'}
+                              {budget.category?.icon === 'film' && '🎬'}
+                              {budget.category?.icon === 'shopping-bag' && '🛍️'}
+                              {budget.category?.icon === 'repeat' && '📺'}
+                              {budget.category?.icon === 'sparkles' && '✨'}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{budget.category?.name}</h3>
+                              <p className="text-xs text-muted-foreground">
+                                {budget.rollover ? 'Rollover enabled' : 'No rollover'}
+                              </p>
+                            </div>
+                          </div>
+                          {getStatusIcon(budget.percentage)}
                         </div>
-                        <div className="relative h-2 overflow-hidden rounded-full bg-muted">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(budget.percentage, 100)}%` }}
-                            transition={{ delay: 0.4 + index * 0.05, duration: 0.6 }}
-                            className={cn('absolute inset-y-0 left-0 rounded-full', getStatusColor(budget.percentage))}
-                          />
+
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{formatCurrency(budget.spent)} spent</span>
+                            <span className={cn('font-bold', budget.remaining < 0 ? 'text-expense' : 'text-foreground')}>
+                              {formatCurrency(Math.abs(budget.remaining))} {budget.remaining < 0 ? 'over' : 'left'}
+                            </span>
+                          </div>
+                          <div className="relative h-2 overflow-hidden rounded-full bg-muted/50">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min(budget.percentage, 100)}%` }}
+                              transition={{ delay: 0.4 + index * 0.05, duration: 0.6 }}
+                              className={cn('absolute inset-y-0 left-0 rounded-full', getStatusColor(budget.percentage))}
+                            />
+                          </div>
+                          <p className="text-xs text-center text-muted-foreground font-medium">
+                            {formatCurrency(Number(budget.amount))} budgeted
+                          </p>
                         </div>
-                        <p className="text-xs text-center text-muted-foreground">
-                          {formatCurrency(Number(budget.amount))} budgeted
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </>
-        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </AppLayout>
   );

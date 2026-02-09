@@ -14,6 +14,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Subtle background pattern */}
+      <div className="fixed inset-0 subtle-grid pointer-events-none opacity-50" />
+      
       {/* Mobile Navigation */}
       <MobileNav onAddTransaction={() => setIsAddModalOpen(true)} />
       
@@ -25,7 +28,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <main className={`
         ${isMobile ? 'pt-14' : 'pl-64'}
-        transition-all duration-200
+        transition-all duration-300 ease-out relative
       `}>
         <div className="min-h-screen p-4 md:p-6 lg:p-8">{children}</div>
       </main>

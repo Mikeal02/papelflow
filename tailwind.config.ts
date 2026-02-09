@@ -7,7 +7,7 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "1.5rem",
+      padding: "2rem",
       screens: {
         "2xl": "1400px",
       },
@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "IBM Plex Sans", "system-ui", "sans-serif"],
+        display: ["Inter", "IBM Plex Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
@@ -133,11 +134,19 @@ export default {
         "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
       },
       boxShadow: {
-        'soft': '0 2px 8px -2px hsl(var(--foreground) / 0.08)',
-        'medium': '0 4px 16px -4px hsl(var(--foreground) / 0.12)',
-        'strong': '0 8px 32px -8px hsl(var(--foreground) / 0.16)',
-        'card': '0 1px 3px 0 hsl(var(--foreground) / 0.06), 0 1px 2px -1px hsl(var(--foreground) / 0.06)',
-        'card-hover': '0 4px 12px -2px hsl(var(--foreground) / 0.1)',
+        'soft': '0 2px 8px -2px hsl(var(--foreground) / 0.06)',
+        'medium': '0 4px 20px -4px hsl(var(--foreground) / 0.1)',
+        'strong': '0 8px 40px -8px hsl(var(--foreground) / 0.15)',
+        'card': '0 1px 3px 0 hsl(var(--foreground) / 0.04), 0 1px 2px -1px hsl(var(--foreground) / 0.04)',
+        'card-hover': '0 8px 30px -4px hsl(var(--foreground) / 0.1)',
+        'glow': '0 0 20px -5px hsl(var(--primary) / 0.3)',
+        'glow-lg': '0 0 40px -10px hsl(var(--primary) / 0.4)',
+        'inner-glow': 'inset 0 1px 0 0 hsl(0 0% 100% / 0.1)',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'shimmer': 'linear-gradient(90deg, transparent 0%, hsl(var(--foreground) / 0.05) 50%, transparent 100%)',
       },
     },
   },

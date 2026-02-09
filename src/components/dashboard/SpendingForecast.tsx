@@ -8,7 +8,7 @@ import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { format, startOfMonth, endOfMonth, subMonths, differenceInDays, addDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, differenceInDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import {
   LineChart,
@@ -18,6 +18,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  Area,
+  AreaChart,
 } from 'recharts';
 
 interface ForecastData {
@@ -41,20 +43,17 @@ export function SpendingForecast() {
     const dayOfMonth = today.getDate();
     const daysRemaining = daysInMonth - dayOfMonth;
 
-    // Get current month expenses
     const currentMonthExpenses = transactions.filter(t => {
       const txDate = new Date(t.date);
       return t.type === 'expense' && txDate >= monthStart && txDate <= today;
     });
 
-    // Calculate daily spending for current month
     const dailySpending: Record<number, number> = {};
     currentMonthExpenses.forEach(t => {
       const day = new Date(t.date).getDate();
       dailySpending[day] = (dailySpending[day] || 0) + Number(t.amount);
     });
 
-    // Calculate cumulative spending
     let cumulative = 0;
     const actualData: ForecastData[] = [];
     for (let day = 1; day <= dayOfMonth; day++) {
@@ -65,7 +64,6 @@ export function SpendingForecast() {
       });
     }
 
-    // Get last 3 months average daily spending
     const past3MonthsExpenses: number[] = [];
     for (let i = 1; i <= 3; i++) {
       const pastMonth = subMonths(today, i);
@@ -87,7 +85,6 @@ export function SpendingForecast() {
       ? past3MonthsExpenses.reduce((a, b) => a + b, 0) / past3MonthsExpenses.length
       : cumulative / dayOfMonth;
 
-    // Get upcoming bills
     const upcomingBills = subscriptions
       .filter(s => s.is_active)
       .filter(s => {
@@ -96,16 +93,13 @@ export function SpendingForecast() {
       })
       .reduce((sum, s) => sum + Number(s.amount), 0);
 
-    // Calculate projected spending for rest of month
     const projectedRemaining = (avgDailySpending * daysRemaining) + upcomingBills;
     const projectedTotal = cumulative + projectedRemaining;
 
-    // Create projection data
     const projectionData: ForecastData[] = [];
     let projectedCumulative = cumulative;
     for (let day = dayOfMonth + 1; day <= daysInMonth; day++) {
       projectedCumulative += avgDailySpending;
-      // Add bill spikes on specific days if applicable
       subscriptions
         .filter(s => s.is_active && new Date(s.next_due).getDate() === day)
         .forEach(s => {
@@ -117,16 +111,13 @@ export function SpendingForecast() {
       });
     }
 
-    // Combine actual and projected data
     const chartData = [...actualData, ...projectionData];
 
-    // Get total budget for the month
     const currentMonth = format(today, 'yyyy-MM');
     const totalBudget = budgets
       .filter(b => b.month === currentMonth)
       .reduce((sum, b) => sum + Number(b.amount), 0);
 
-    // Calculate category forecasts
     const categorySpending: Record<string, number> = {};
     currentMonthExpenses.forEach(t => {
       if (t.category_id) {
@@ -173,10 +164,10 @@ export function SpendingForecast() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-popover border border-border rounded-lg p-2 shadow-lg">
-          <p className="text-xs text-muted-foreground">Day {label}</p>
+        <div className="glass-panel rounded-xl p-3 shadow-lg border-border/50">
+          <p className="text-xs text-muted-foreground font-medium">Day {label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm font-medium" style={{ color: entry.color }}>
+            <p key={index} className="text-sm font-bold mt-1" style={{ color: entry.color }}>
               {entry.name}: {formatCurrency(entry.value)}
             </p>
           ))}
@@ -190,76 +181,117 @@ export function SpendingForecast() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.35 }}
+      transition={{ delay: 0.35, duration: 0.5 }}
     >
-      <Card className="stat-card">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base md:text-lg flex items-center gap-2">
-            <Zap className="h-5 w-5 text-warning" />
-            <span>Spending Forecast</span>
+      <Card className="stat-card group">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base md:text-lg flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-warning/20 to-warning/10 group-hover:scale-110 transition-transform duration-300">
+              <Zap className="h-4 w-4 text-warning" />
+            </div>
+            <span className="font-semibold">Spending Forecast</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Summary */}
+          {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-lg bg-muted/30">
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Current Spending</p>
-              <p className="text-sm sm:text-lg font-bold truncate" title={formatCurrency(forecast.currentSpending)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="p-3 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30"
+            >
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Current</p>
+              <p className="text-base sm:text-xl font-bold mt-0.5 truncate">
                 {formatCurrency(forecast.currentSpending)}
               </p>
-            </div>
-            <div className={cn(
-              'p-3 rounded-lg',
-              forecast.isOverBudget ? 'bg-expense/10' : 'bg-income/10'
-            )}>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Projected Total</p>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.45 }}
+              className={cn(
+                'p-3 rounded-xl border transition-all',
+                forecast.isOverBudget 
+                  ? 'bg-gradient-to-br from-expense/15 to-expense/5 border-expense/20' 
+                  : 'bg-gradient-to-br from-income/15 to-income/5 border-income/20'
+              )}
+            >
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Projected</p>
               <p className={cn(
-                'text-sm sm:text-lg font-bold truncate',
+                'text-base sm:text-xl font-bold mt-0.5 truncate',
                 forecast.isOverBudget ? 'text-expense' : 'text-income'
-              )} title={formatCurrency(forecast.projectedTotal)}>
+              )}>
                 {formatCurrency(forecast.projectedTotal)}
               </p>
-            </div>
+            </motion.div>
           </div>
 
           {/* Budget Progress */}
           {forecast.totalBudget > 0 && (
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs sm:text-sm">
-                <span className="text-muted-foreground">vs Budget</span>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="space-y-2"
+            >
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground font-medium">vs Budget</span>
                 <span className={cn(
-                  'font-medium',
+                  'font-bold',
                   forecast.percentOfBudget > 100 ? 'text-expense' : 'text-foreground'
                 )}>
-                  {Math.round(forecast.percentOfBudget)}% of {formatCurrency(forecast.totalBudget)}
+                  {Math.round(forecast.percentOfBudget)}%
                 </span>
               </div>
-              <Progress 
-                value={Math.min(forecast.percentOfBudget, 100)} 
-                className={cn('h-2', forecast.percentOfBudget > 100 && '[&>div]:bg-expense')}
-              />
+              <div className="relative h-2 rounded-full bg-muted/50 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(forecast.percentOfBudget, 100)}%` }}
+                  transition={{ delay: 0.55, duration: 0.8, ease: "easeOut" }}
+                  className={cn(
+                    'absolute inset-y-0 left-0 rounded-full',
+                    forecast.percentOfBudget > 100 ? 'bg-gradient-to-r from-expense to-expense/80' : 'bg-gradient-to-r from-primary to-primary/80'
+                  )}
+                />
+              </div>
               {forecast.isOverBudget && (
-                <div className="flex items-center gap-1 text-xs text-expense">
+                <motion.div 
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1.5 text-xs text-expense bg-expense/10 rounded-lg px-2 py-1.5"
+                >
                   <AlertTriangle className="h-3 w-3" />
-                  <span>Projected to exceed budget by {formatCurrency(forecast.projectedTotal - forecast.totalBudget)}</span>
-                </div>
+                  <span className="font-medium">Over budget by {formatCurrency(forecast.projectedTotal - forecast.totalBudget)}</span>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           )}
 
-          {/* Spending Chart */}
-          <div className="h-[140px] sm:h-[180px]">
+          {/* Chart */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="h-[160px]"
+          >
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={forecast.chartData}>
+              <AreaChart data={forecast.chartData}>
+                <defs>
+                  <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <XAxis 
                   dataKey="day" 
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                   tickLine={false}
                   axisLine={false}
                   interval="preserveStartEnd"
                 />
                 <YAxis 
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
@@ -271,15 +303,15 @@ export function SpendingForecast() {
                     y={forecast.totalBudget} 
                     stroke="hsl(var(--muted-foreground))" 
                     strokeDasharray="5 5"
-                    label={{ value: 'Budget', fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                    strokeOpacity={0.5}
                   />
                 )}
-                <Line
+                <Area
                   type="monotone"
                   dataKey="actual"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
-                  dot={false}
+                  fill="url(#actualGradient)"
                   name="Actual"
                 />
                 <Line
@@ -291,63 +323,73 @@ export function SpendingForecast() {
                   dot={false}
                   name="Projected"
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2 rounded-lg bg-muted/20">
-              <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mx-auto text-muted-foreground mb-1" />
-              <p className="text-[10px] text-muted-foreground">Days Left</p>
-              <p className="text-xs sm:text-sm font-semibold">{forecast.daysRemaining}</p>
-            </div>
-            <div className="p-2 rounded-lg bg-muted/20">
-              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 mx-auto text-muted-foreground mb-1" />
-              <p className="text-[10px] text-muted-foreground">Daily Avg</p>
-              <p className="text-xs sm:text-sm font-semibold truncate" title={formatCurrency(forecast.avgDailySpending)}>
-                {formatCurrency(forecast.avgDailySpending)}
-              </p>
-            </div>
-            <div className="p-2 rounded-lg bg-warning/10">
-              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mx-auto text-warning mb-1" />
-              <p className="text-[10px] text-muted-foreground">Bills Due</p>
-              <p className="text-xs sm:text-sm font-semibold text-warning truncate" title={formatCurrency(forecast.upcomingBills)}>
-                {formatCurrency(forecast.upcomingBills)}
-              </p>
-            </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { icon: Calendar, label: 'Days Left', value: forecast.daysRemaining, color: 'text-muted-foreground' },
+              { icon: ArrowRight, label: 'Daily Avg', value: formatCurrency(forecast.avgDailySpending), color: 'text-foreground' },
+              { icon: AlertTriangle, label: 'Bills Due', value: formatCurrency(forecast.upcomingBills), color: 'text-warning' },
+            ].map((item, index) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 + index * 0.05 }}
+                className="p-2 rounded-xl bg-muted/30 text-center"
+              >
+                <item.icon className={cn('h-3 w-3 mx-auto mb-1', item.color)} />
+                <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                <p className={cn('text-xs font-bold truncate', item.color)}>{item.value}</p>
+              </motion.div>
+            ))}
           </div>
 
-          {/* Category Forecasts */}
+          {/* Category Projections */}
           {forecast.categoryForecasts.length > 0 && (
-            <div className="space-y-2 pt-2 border-t border-border/50">
-              <p className="text-xs font-medium text-muted-foreground">Category Projections</p>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="space-y-2 pt-3 border-t border-border/50"
+            >
+              <p className="text-xs font-semibold text-muted-foreground">Category Projections</p>
               <div className="space-y-2">
                 {forecast.categoryForecasts.map((cat, index) => (
                   <motion.div
                     key={cat.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.05 }}
+                    transition={{ delay: 0.85 + index * 0.05 }}
                     className="space-y-1"
                   >
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="truncate flex-1">{cat.name}</span>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="truncate font-medium">{cat.name}</span>
                       <span className={cn(
-                        'font-medium ml-2',
+                        'font-bold',
                         cat.overBudget ? 'text-expense' : 'text-foreground'
                       )}>
                         {Math.round(cat.percentProjected)}%
                       </span>
                     </div>
-                    <Progress 
-                      value={Math.min(cat.percentProjected, 100)} 
-                      className={cn('h-1', cat.overBudget && '[&>div]:bg-expense')}
-                    />
+                    <div className="relative h-1.5 rounded-full bg-muted/50 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(cat.percentProjected, 100)}%` }}
+                        transition={{ delay: 0.9 + index * 0.05, duration: 0.6 }}
+                        className={cn(
+                          'absolute inset-y-0 left-0 rounded-full',
+                          cat.overBudget ? 'bg-expense' : 'bg-primary'
+                        )}
+                      />
+                    </div>
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
         </CardContent>
       </Card>
