@@ -18,6 +18,8 @@ import Goals from "./pages/Goals";
 import NetWorth from "./pages/NetWorth";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Categories from "./pages/Categories";
+import DebtTracker from "./pages/DebtTracker";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,8 @@ const App = () => (
                 <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
                 <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
                 <Route path="/net-worth" element={<ProtectedRoute><NetWorth /></ProtectedRoute>} />
+                <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+                <Route path="/debt" element={<ProtectedRoute><DebtTracker /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
