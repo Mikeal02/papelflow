@@ -15,6 +15,8 @@ import {
   LogOut,
   Menu,
   ChevronRight,
+  Tag,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,10 +28,12 @@ const navItems = [
   { icon: ArrowLeftRight, label: 'Transactions', path: '/transactions' },
   { icon: Wallet, label: 'Accounts', path: '/accounts' },
   { icon: PieChart, label: 'Budgets', path: '/budgets' },
+  { icon: Tag, label: 'Categories', path: '/categories' },
   { icon: BarChart3, label: 'Reports', path: '/reports' },
   { icon: CalendarClock, label: 'Subscriptions', path: '/subscriptions' },
   { icon: Target, label: 'Goals', path: '/goals' },
   { icon: TrendingUp, label: 'Net Worth', path: '/net-worth' },
+  { icon: CreditCard, label: 'Debt Tracker', path: '/debt' },
 ];
 
 interface MobileNavProps {

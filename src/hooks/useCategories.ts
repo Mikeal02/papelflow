@@ -67,3 +67,21 @@ export function useCreateCategory() {
     },
   });
 }
+
+export function useDeleteCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast({ title: 'Category deleted' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to delete category', description: error.message, variant: 'destructive' });
+    },
+  });
+}

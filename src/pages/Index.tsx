@@ -12,6 +12,10 @@ import { FinancialHealthScore } from '@/components/dashboard/FinancialHealthScor
 import { FinancialCalendar } from '@/components/dashboard/FinancialCalendar';
 import { SpendingForecast } from '@/components/dashboard/SpendingForecast';
 import { FinancialAdvisor } from '@/components/ai/FinancialAdvisor';
+import { CashFlowChart } from '@/components/dashboard/CashFlowChart';
+import { SavingsRateGauge } from '@/components/dashboard/SavingsRateGauge';
+import { DailySpendingTracker } from '@/components/dashboard/DailySpendingTracker';
+import { QuickStats } from '@/components/dashboard/QuickStats';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useProfile } from '@/hooks/useProfile';
@@ -119,6 +123,9 @@ const Dashboard = () => {
           />
         </div>
 
+        {/* Quick Stats Row */}
+        <QuickStats />
+
         {/* Smart Insights */}
         {transactions.length > 0 && (
           <SmartInsights
@@ -134,6 +141,10 @@ const Dashboard = () => {
           <div className="lg:col-span-2 space-y-5 lg:space-y-6">
             <RecentTransactions />
             <div className="grid gap-5 sm:grid-cols-2">
+              <CashFlowChart />
+              <SavingsRateGauge />
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
               <BudgetOverview />
               <TopCategories />
             </div>
@@ -146,6 +157,7 @@ const Dashboard = () => {
           {/* Right Column */}
           <div className="space-y-5 lg:space-y-6">
             <FinancialHealthScore />
+            <DailySpendingTracker />
             <AccountsOverview />
             <UpcomingBills />
           </div>
