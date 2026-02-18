@@ -99,6 +99,7 @@ const Dashboard = () => {
             icon={TrendingUp}
             iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income"
             delay={0.05}
+            autoCompare="income"
           />
           <StatCard
             title="Total Expenses"
@@ -106,6 +107,7 @@ const Dashboard = () => {
             icon={TrendingDown}
             iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense"
             delay={0.1}
+            autoCompare="expense"
           />
           <StatCard
             title="Net Cash Flow"
@@ -113,6 +115,7 @@ const Dashboard = () => {
             icon={Scale}
             iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary"
             delay={0.15}
+            autoCompare="net"
           />
           <StatCard
             title="Total Balance"
