@@ -542,6 +542,7 @@ const Transactions = () => {
           )}
         </AnimatePresence>
       </div>
+      <CSVImportModal open={isImportOpen} onOpenChange={setIsImportOpen} />
     </AppLayout>
   );
 };
