@@ -37,6 +37,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
+import { CSVImportModal } from '@/components/transactions/CSVImportModal';
+import { Upload } from 'lucide-react';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
@@ -66,6 +69,7 @@ const Transactions = () => {
   const [dateRange, setDateRange] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
@@ -231,8 +235,12 @@ const Transactions = () => {
               {filteredStats.count} transactions found
             </p>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <ReceiptScanner />
+            <Button variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={() => setIsImportOpen(true)}>
+              <Upload className="h-4 w-4" />
+              <span className="hidden sm:inline">Import</span>
+            </Button>
             <Button variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={handleExport}>
               <Download className="h-4 w-4" />
               <span className="hidden sm:inline">Export</span>
@@ -534,6 +542,7 @@ const Transactions = () => {
           )}
         </AnimatePresence>
       </div>
+      <CSVImportModal open={isImportOpen} onOpenChange={setIsImportOpen} />
     </AppLayout>
   );
 };
