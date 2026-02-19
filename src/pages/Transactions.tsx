@@ -37,6 +37,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
+import { CSVImportModal } from '@/components/transactions/CSVImportModal';
+import { Upload } from 'lucide-react';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
