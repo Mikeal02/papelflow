@@ -69,6 +69,7 @@ const Transactions = () => {
   const [dateRange, setDateRange] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
