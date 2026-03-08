@@ -91,7 +91,7 @@ function calculateTax(taxableIncome: number, brackets: typeof TAX_BRACKETS_SINGL
 
 export default function TaxEstimator() {
   const { data: transactions = [] } = useTransactions();
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, currencySymbol } = useCurrency();
   const [filingStatus, setFilingStatus] = useState<'single' | 'married'>('single');
   const [deductions, setDeductions] = useState<Deduction[]>(DEFAULT_DEDUCTIONS);
   const [additionalIncome, setAdditionalIncome] = useState(0);

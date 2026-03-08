@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp, TrendingDown, BarChart3, PieChart as PieIcon, Plus, Trash2,
   DollarSign, Percent, Calendar, ArrowUpRight, ArrowDownRight, Briefcase,
-  LineChart as LineIcon, Layers, Coins, RefreshCw, Info, Target
+  LineChart as LineIcon, Layers, Coins, RefreshCw, Info, Target, FileText
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageTransition } from '@/components/layout/PageTransition';
@@ -17,6 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { generatePortfolioStatementPDF } from '@/lib/pdf-generator';
+import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis,
