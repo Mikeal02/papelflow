@@ -46,6 +46,7 @@ const Dashboard = () => {
 
   useRecurringTransactions();
   useBillReminders();
+  useRealtimeTransactions();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
 
