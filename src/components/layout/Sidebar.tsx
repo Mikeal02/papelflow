@@ -22,6 +22,7 @@ import {
   Sun,
   Moon,
   Trophy,
+  Brain,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ const navItems = [
   { icon: Wallet, label: 'Accounts', path: '/accounts', badge: null },
   { icon: PieChart, label: 'Budgets', path: '/budgets', badge: null },
   { icon: Tag, label: 'Categories', path: '/categories', badge: null },
+  { icon: Brain, label: 'Analytics', path: '/analytics', badge: 'NEW' },
   { icon: BarChart3, label: 'Reports', path: '/reports', badge: null },
   { icon: CalendarClock, label: 'Subscriptions', path: '/subscriptions', badge: null },
   { icon: Target, label: 'Goals', path: '/goals', badge: null },
