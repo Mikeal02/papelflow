@@ -22,6 +22,7 @@ import {
   Sun,
   Moon,
   Trophy,
+  Brain,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ const navItems = [
   { icon: Wallet, label: 'Accounts', path: '/accounts', badge: null },
   { icon: PieChart, label: 'Budgets', path: '/budgets', badge: null },
   { icon: Tag, label: 'Categories', path: '/categories', badge: null },
+  { icon: Brain, label: 'Analytics', path: '/analytics', badge: 'NEW' },
   { icon: BarChart3, label: 'Reports', path: '/reports', badge: null },
   { icon: CalendarClock, label: 'Subscriptions', path: '/subscriptions', badge: null },
   { icon: Target, label: 'Goals', path: '/goals', badge: null },
@@ -150,8 +152,14 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
                   )}
                   <item.icon className={cn('h-4 w-4 shrink-0', isActive && 'text-primary')} />
                   <span className="flex-1 truncate">{item.label}</span>
-                  {item.badge !== null && item.badge > 0 && (
-                    <Badge variant="destructive" className="h-5 min-w-[20px] flex items-center justify-center text-[10px] px-1.5">
+                  {item.badge !== null && (
+                    <Badge 
+                      variant={typeof item.badge === 'string' ? 'secondary' : 'destructive'} 
+                      className={cn(
+                        'h-5 min-w-[20px] flex items-center justify-center text-[10px] px-1.5',
+                        typeof item.badge === 'string' && 'bg-primary/10 text-primary border-primary/20'
+                      )}
+                    >
                       {item.badge}
                     </Badge>
                   )}
