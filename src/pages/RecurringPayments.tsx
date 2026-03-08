@@ -103,7 +103,7 @@ export default function RecurringPayments() {
           frequency: sub.frequency,
           categoryName: cat?.name,
           accountName: acc?.name,
-          isAutoPay: sub.is_recurring !== false,
+          isAutoPay: true,
         });
 
         current = sub.frequency === 'weekly'
