@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -16,13 +16,13 @@ import {
   Tag,
   CreditCard,
   Sparkles,
-  HelpCircle,
   Repeat,
   Briefcase,
   Sun,
   Moon,
   Trophy,
   Brain,
+  Command,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -31,9 +31,10 @@ import { Badge } from '@/components/ui/badge';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useTransactions } from '@/hooks/useTransactions';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
 import { useTheme } from 'next-themes';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/', badge: null },
@@ -65,12 +66,12 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   const { data: subscriptions = [] } = useSubscriptions();
   const { data: budgets = [] } = useBudgets();
   const { data: transactions = [] } = useTransactions();
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
   const alerts = useMemo(() => {
     const now = new Date();
     const overdueSubs = subscriptions.filter(s => s.is_active && differenceInDays(new Date(s.next_due), now) < 0).length;
     
-    const currentMonth = now.toISOString().slice(0, 7);
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
     const monthExpenses = transactions
@@ -105,12 +106,20 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/50 bg-sidebar/80 backdrop-blur-xl">
-      <div className="flex h-full flex-col">
+      {/* Ambient glow behind sidebar */}
+      <div className="absolute -right-20 top-1/3 w-40 h-40 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute -right-10 bottom-1/4 w-32 h-32 bg-accent/5 rounded-full blur-[60px] pointer-events-none" />
+      
+      <div className="flex h-full flex-col relative">
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm shadow-primary/20">
+          <motion.div 
+            whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+            transition={{ duration: 0.5 }}
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-md shadow-primary/25"
+          >
             <TrendingUp className="h-5 w-5 text-primary-foreground" />
-          </div>
+          </motion.div>
           <div className="min-w-0">
             <span className="text-xl font-bold tracking-tight">Finflow</span>
             <p className="text-[9px] text-muted-foreground font-medium tracking-wider uppercase -mt-0.5">Finance Platform</p>
@@ -118,53 +127,111 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
         </div>
 
         {/* Quick Add Button */}
-        <div className="p-4">
+        <div className="p-4 space-y-2">
           <Button
             onClick={onAddTransaction}
-            className="w-full gap-2 h-10 btn-premium"
+            className="w-full gap-2 h-10 btn-premium group"
           >
-            <Plus className="h-4 w-4" />
-            Add Transaction
+            <motion.div
+              className="flex items-center gap-2"
+              whileHover={{ scale: 1.02 }}
+            >
+              <Plus className="h-4 w-4 transition-transform group-hover:rotate-90 duration-300" />
+              Add Transaction
+            </motion.div>
           </Button>
+          
+          {/* Command Palette Hint */}
+          <button
+            onClick={() => {
+              const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true });
+              document.dispatchEvent(event);
+            }}
+            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50 transition-all"
+          >
+            <Command className="h-3 w-3" />
+            <span>Search & Navigate</span>
+            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-border/50 bg-muted/50 px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              ⌘K
+            </kbd>
+          </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
-          {enrichedNavItems.map((item) => {
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2 sidebar-scrollbar">
+          {enrichedNavItems.map((item, index) => {
             const isActive = location.pathname === item.path;
+            const isHovered = hoveredPath === item.path;
             return (
               <Link key={item.path} to={item.path}>
                 <motion.div
-                  whileHover={{ x: 2 }}
-                  whileTap={{ scale: 0.98 }}
+                  onHoverStart={() => setHoveredPath(item.path)}
+                  onHoverEnd={() => setHoveredPath(null)}
+                  whileTap={{ scale: 0.97 }}
                   className={cn(
                     'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      ? 'text-primary'
+                      : 'text-sidebar-foreground hover:text-sidebar-accent-foreground'
                   )}
                 >
+                  {/* Active background with glow */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="sidebar-active-bg"
+                      className="absolute inset-0 rounded-lg bg-primary/10"
+                      style={{
+                        boxShadow: '0 0 20px -5px hsl(var(--primary) / 0.15)',
+                      }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  
+                  {/* Hover background */}
+                  {isHovered && !isActive && (
+                    <motion.div
+                      layoutId="sidebar-hover-bg"
+                      className="absolute inset-0 rounded-lg bg-sidebar-accent/60"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                    />
+                  )}
+
+                  {/* Active indicator pill */}
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-indicator"
-                      className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary"
+                      className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary"
+                      style={{
+                        boxShadow: '2px 0 8px hsl(var(--primary) / 0.4)',
+                      }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                     />
                   )}
-                  <item.icon className={cn('h-4 w-4 shrink-0', isActive && 'text-primary')} />
-                  <span className="flex-1 truncate">{item.label}</span>
+                  
+                  <motion.div
+                    className="relative z-10"
+                    animate={isActive ? { scale: [1, 1.15, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <item.icon className={cn('h-4 w-4 shrink-0 transition-colors', isActive && 'text-primary')} />
+                  </motion.div>
+                  <span className="relative z-10 flex-1 truncate">{item.label}</span>
                   {item.badge !== null && (
                     <Badge 
                       variant={typeof item.badge === 'string' ? 'secondary' : 'destructive'} 
                       className={cn(
-                        'h-5 min-w-[20px] flex items-center justify-center text-[10px] px-1.5',
-                        typeof item.badge === 'string' && 'bg-primary/10 text-primary border-primary/20'
+                        'relative z-10 h-5 min-w-[20px] flex items-center justify-center text-[10px] px-1.5',
+                        typeof item.badge === 'string' && 'bg-primary/10 text-primary border-primary/20 animate-pulse-subtle'
                       )}
                     >
                       {item.badge}
                     </Badge>
                   )}
                   {isActive && !item.badge && (
-                    <ChevronRight className="h-3.5 w-3.5 text-primary/60 shrink-0" />
+                    <ChevronRight className="relative z-10 h-3.5 w-3.5 text-primary/60 shrink-0" />
                   )}
                 </motion.div>
               </Link>
@@ -203,14 +270,20 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
                 className="absolute top-0.5 h-4 w-4 rounded-full bg-primary shadow-sm"
                 animate={{ left: theme === 'dark' ? '18px' : '2px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                style={{
+                  boxShadow: theme === 'dark' ? '0 0 6px hsl(var(--primary) / 0.5)' : 'none',
+                }}
               />
             </div>
           </motion.button>
 
           {user && (
-            <div className="px-3 py-2.5 mb-2 rounded-lg bg-sidebar-accent/30 backdrop-blur-sm border border-border/10">
+            <motion.div 
+              whileHover={{ scale: 1.01 }}
+              className="px-3 py-2.5 mb-2 rounded-lg bg-sidebar-accent/30 backdrop-blur-sm border border-border/10"
+            >
               <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-primary/10">
                   <span className="text-xs font-bold text-primary">
                     {user.email?.charAt(0).toUpperCase()}
                   </span>
@@ -219,8 +292,9 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
                   <p className="text-xs text-muted-foreground">Signed in as</p>
                   <p className="text-sm font-medium truncate">{user.email}</p>
                 </div>
+                <div className="h-2 w-2 rounded-full bg-income animate-pulse" title="Online" />
               </div>
-            </div>
+            </motion.div>
           )}
           <Link to="/settings">
             <motion.div
