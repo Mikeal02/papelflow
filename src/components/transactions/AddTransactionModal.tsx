@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateTransaction } from '@/hooks/useTransactions';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from 'lucide-react';
 
@@ -50,6 +51,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
   const createTransaction = useCreateTransaction();
+  const { currencySymbol } = useCurrency();
 
   const filteredCategories = categories.filter(
     (cat) => cat.type === (type === 'income' ? 'income' : 'expense')
@@ -121,7 +123,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             <Label htmlFor="amount">Amount</Label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl">
-                $
+                {currencySymbol}
               </span>
               <Input
                 id="amount"
