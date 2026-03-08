@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, TrendingDown, Scale, Sparkles } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -21,6 +22,10 @@ import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
 import { NetWorthMini } from '@/components/dashboard/NetWorthMini';
 import { GoalsMini } from '@/components/dashboard/GoalsMini';
 import { SpendingByTimeOfDay } from '@/components/dashboard/SpendingByTimeOfDay';
+import { SmartNudges } from '@/components/dashboard/SmartNudges';
+import { WhatIfScenario } from '@/components/dashboard/WhatIfScenario';
+import { FutureYouSimulator } from '@/components/dashboard/FutureYouSimulator';
+import { SmartTransactionEntry } from '@/components/transactions/SmartTransactionEntry';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
@@ -28,6 +33,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
 import { useBillReminders } from '@/hooks/useBillReminders';
+import { AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
@@ -35,6 +41,7 @@ const Dashboard = () => {
   const { data: transactions = [] } = useTransactions();
   const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
 
   useRecurringTransactions();
   useBillReminders();
@@ -47,6 +54,28 @@ const Dashboard = () => {
         <div className="space-y-5 lg:space-y-7">
           {/* Header */}
           <WelcomeHeader />
+
+          {/* Smart Quick Add */}
+          <AnimatePresence>
+            {showQuickAdd && (
+              <SmartTransactionEntry onClose={() => setShowQuickAdd(false)} />
+            )}
+          </AnimatePresence>
+
+          {!showQuickAdd && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onClick={() => setShowQuickAdd(true)}
+              className="w-full rounded-xl border border-dashed border-primary/30 p-3 text-sm text-muted-foreground hover:border-primary/60 hover:text-foreground hover:bg-primary/5 transition-all text-center"
+            >
+              <Sparkles className="h-4 w-4 inline mr-2" />
+              Quick add: type naturally e.g. "Spent $50 at Starbucks"
+            </motion.button>
+          )}
+
+          {/* Smart Nudges */}
+          <SmartNudges />
 
           {/* Stats Grid */}
           <div className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4">
@@ -120,6 +149,8 @@ const Dashboard = () => {
             {/* Right Column */}
             <div className="space-y-4 lg:space-y-5">
               <FinancialHealthScore />
+              <WhatIfScenario />
+              <FutureYouSimulator />
               <DailySpendingTracker />
               <GoalsMini />
               <SpendingByTimeOfDay />

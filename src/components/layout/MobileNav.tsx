@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Tag,
   CreditCard,
+  Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ const navItems = [
   { icon: BarChart3, label: 'Recurring', path: '/recurring' },
   { icon: BarChart3, label: 'Tax Estimator', path: '/tax' },
   { icon: TrendingUp, label: 'Investments', path: '/investments' },
+  { icon: Trophy, label: 'Challenges', path: '/challenges' },
 ];
 
 interface MobileNavProps {

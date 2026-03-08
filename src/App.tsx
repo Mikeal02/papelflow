@@ -23,6 +23,7 @@ import DebtTracker from "./pages/DebtTracker";
 import TaxEstimator from "./pages/TaxEstimator";
 import Investments from "./pages/Investments";
 import RecurringPayments from "./pages/RecurringPayments";
+import Challenges from "./pages/Challenges";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/recurring" element={<ProtectedRoute><RecurringPayments /></ProtectedRoute>} />
                 <Route path="/tax" element={<ProtectedRoute><TaxEstimator /></ProtectedRoute>} />
                 <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
+                <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

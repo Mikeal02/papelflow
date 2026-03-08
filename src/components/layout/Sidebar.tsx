@@ -21,6 +21,7 @@ import {
   Briefcase,
   Sun,
   Moon,
+  Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,7 @@ const navItems = [
   { icon: Repeat, label: 'Recurring', path: '/recurring', badge: null },
   { icon: Sparkles, label: 'Tax Estimator', path: '/tax', badge: null },
   { icon: Briefcase, label: 'Investments', path: '/investments', badge: null },
+  { icon: Trophy, label: 'Challenges', path: '/challenges', badge: null },
 ];
 
 interface SidebarProps {
