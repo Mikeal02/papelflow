@@ -27,6 +27,7 @@ import { WhatIfScenario } from '@/components/dashboard/WhatIfScenario';
 import { FutureYouSimulator } from '@/components/dashboard/FutureYouSimulator';
 import { SmartTransactionEntry } from '@/components/transactions/SmartTransactionEntry';
 import { MoneyFlowSankey } from '@/components/dashboard/MoneyFlowSankey';
+import { SpendingHeatmapCalendar } from '@/components/dashboard/SpendingHeatmapCalendar';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
