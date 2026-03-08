@@ -123,6 +123,36 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-20px)" },
+        },
+        "aurora": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
+        "border-dance": {
+          "0%, 100%": { borderColor: "hsl(var(--primary) / 0.3)" },
+          "33%": { borderColor: "hsl(var(--accent) / 0.3)" },
+          "66%": { borderColor: "hsl(var(--chart-6) / 0.3)" },
+        },
+        "text-shimmer": {
+          "0%": { backgroundPosition: "-200% center" },
+          "100%": { backgroundPosition: "200% center" },
+        },
+        "number-slide": {
+          from: { transform: "translateY(-100%)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 20px -5px hsl(var(--primary) / 0.3)" },
+          "50%": { boxShadow: "0 0 40px -5px hsl(var(--primary) / 0.5)" },
+        },
+        "gradient-x": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -132,6 +162,13 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
+        "aurora": "aurora 8s ease-in-out infinite",
+        "border-dance": "border-dance 4s ease-in-out infinite",
+        "text-shimmer": "text-shimmer 3s ease-in-out infinite",
+        "number-slide": "number-slide 0.3s ease-out",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "gradient-x": "gradient-x 3s ease-in-out infinite",
       },
       boxShadow: {
         'soft': '0 2px 8px -2px hsl(var(--foreground) / 0.06)',
