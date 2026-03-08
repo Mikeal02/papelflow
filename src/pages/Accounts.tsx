@@ -13,8 +13,10 @@ import {
   Loader2,
   BarChart3,
   Search,
+  Link as LinkIcon,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PlaidLinkModal } from '@/components/banking/PlaidLinkModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -76,6 +78,7 @@ const Accounts = () => {
   const deleteAccount = useDeleteAccount();
   const { formatCurrency } = useCurrency();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isPlaidOpen, setIsPlaidOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [newAccount, setNewAccount] = useState({
     name: '', type: 'bank' as const, balance: '', color: accountColors[0],
@@ -204,12 +207,20 @@ const Accounts = () => {
             <h1 className="text-2xl md:text-3xl font-bold gradient-text">Accounts</h1>
             <p className="text-sm text-muted-foreground mt-1">{accounts.length} accounts • Net worth: <span className={cn('font-semibold', netWorth >= 0 ? 'text-income' : 'text-expense')}>{formatCurrency(netWorth)}</span></p>
           </div>
-          <Button onClick={() => setIsCreateOpen(true)} className="gap-2 btn-premium">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Add Account</span>
-            <span className="sm:hidden">Add</span>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsPlaidOpen(true)} className="gap-2">
+              <LinkIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">Connect Bank</span>
+            </Button>
+            <Button onClick={() => setIsCreateOpen(true)} className="gap-2 btn-premium">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Add Manual</span>
+              <span className="sm:hidden">Add</span>
+            </Button>
+          </div>
         </motion.div>
+
+        <PlaidLinkModal open={isPlaidOpen} onOpenChange={setIsPlaidOpen} />
 
         {/* Summary + Distribution */}
         <div className="grid gap-4 lg:grid-cols-4">
