@@ -45,6 +45,7 @@ export function useCreateAccount() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({ title: 'Account created successfully' });
     },
     onError: (error: Error) => {
@@ -70,6 +71,7 @@ export function useUpdateAccount() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({ title: 'Account updated successfully' });
     },
     onError: (error: Error) => {
@@ -88,6 +90,8 @@ export function useDeleteAccount() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
       toast({ title: 'Account deleted successfully' });
     },
     onError: (error: Error) => {

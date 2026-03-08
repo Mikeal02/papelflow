@@ -113,6 +113,8 @@ export function useCreateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
       toast({ title: 'Transaction added successfully' });
     },
     onError: (error: Error) => {
@@ -132,6 +134,8 @@ export function useDeleteTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
       toast({ title: 'Transaction deleted successfully' });
     },
     onError: (error: Error) => {

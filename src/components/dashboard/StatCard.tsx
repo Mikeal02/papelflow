@@ -6,6 +6,7 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { subMonths, startOfMonth, endOfMonth, eachDayOfInterval, format } from 'date-fns';
 import { TiltCard } from '@/components/ui/tilt-card';
 import { Sparkline } from '@/components/ui/animated-counter';
+import { CountUpValue } from '@/components/ui/CountUpValue';
 
 interface StatCardProps {
   title: string;
@@ -97,7 +98,7 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2 min-w-0 flex-1">
             <p className="text-[11px] sm:text-xs font-medium text-muted-foreground">{title}</p>
-            <p className="text-base sm:text-2xl font-bold tracking-tight">{value}</p>
+            <CountUpValue value={value} className="text-base sm:text-2xl font-bold tracking-tight" />
             
             {/* Sparkline + Change indicator */}
             <div className="flex items-center gap-3">
