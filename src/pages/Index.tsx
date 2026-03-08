@@ -33,6 +33,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
 import { useBillReminders } from '@/hooks/useBillReminders';
+import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
