@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, TrendingUp, Shield, BarChart3, Wallet, Sparkles, PieChart, Target, CreditCard, Globe, Zap, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, TrendingUp, Shield, BarChart3, Wallet, Sparkles, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,6 +40,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -101,29 +102,38 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background relative overflow-hidden">
+      {/* Global ambient effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[120px] animate-float" />
+        <div className="absolute -bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-accent/[0.03] rounded-full blur-[100px]" style={{ animationDelay: '3s', animationDuration: '20s' }} />
+      </div>
+
       {/* Left Panel - Branding */}
       <motion.div
-        initial={{ opacity: 0, x: -30 }}
+        initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-[55%] xl:w-1/2 relative bg-gradient-to-br from-muted via-muted/80 to-background p-8 xl:p-12 flex-col justify-between overflow-hidden"
+        transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="hidden lg:flex lg:w-[55%] xl:w-1/2 relative p-8 xl:p-12 flex-col justify-between overflow-hidden aurora-bg"
       >
-        <div className="absolute inset-0 subtle-grid opacity-40" />
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/8 rounded-full blur-3xl" />
+        <div className="absolute inset-0 subtle-grid opacity-30" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-float" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent/8 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-[100px]" />
 
         <div className="relative z-10">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="flex items-center gap-3 mb-2"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/25">
+            <motion.div
+              whileHover={{ rotate: [0, -5, 5, 0], scale: 1.05 }}
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg"
+              style={{ boxShadow: '0 8px 30px hsl(var(--primary) / 0.3)' }}
+            >
               <TrendingUp className="h-6 w-6 text-primary-foreground" />
-            </div>
+            </motion.div>
             <div>
               <span className="text-2xl font-bold tracking-tight">Finflow</span>
               <p className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Enterprise Finance Platform</p>
@@ -132,8 +142,8 @@ const Auth = () => {
         </div>
 
         <div className="relative z-10 space-y-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-4">
-            <h1 className="text-3xl xl:text-4xl font-bold leading-tight tracking-tight">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-4">
+            <h1 className="text-3xl xl:text-5xl font-bold leading-tight tracking-tight">
               The most powerful way to
               <br />
               <span className="gradient-text">manage your finances</span>
@@ -147,16 +157,17 @@ const Auth = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
+            transition={{ delay: 0.5 }}
             className="grid grid-cols-4 gap-3"
           >
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                className="text-center p-3 rounded-xl bg-card/40 border border-border/30 backdrop-blur-sm"
+                transition={{ delay: 0.55 + index * 0.08, type: 'spring', stiffness: 200 }}
+                whileHover={{ y: -3, scale: 1.03 }}
+                className="text-center p-3 rounded-xl frosted-glass"
               >
                 <p className="text-lg font-bold text-primary">{stat.value}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{stat.label}</p>
@@ -171,11 +182,11 @@ const Auth = () => {
                 key={feature.title}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45 + index * 0.06 }}
-                whileHover={{ x: 4, backgroundColor: 'hsl(var(--card) / 0.8)' }}
-                className="flex items-start gap-3 p-3 rounded-xl bg-card/50 border border-border/40 backdrop-blur-sm transition-colors"
+                transition={{ delay: 0.6 + index * 0.07 }}
+                whileHover={{ x: 6, scale: 1.02 }}
+                className="flex items-start gap-3 p-3 rounded-xl frosted-glass group cursor-default"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 group-hover:from-primary/25 group-hover:to-primary/10 transition-colors">
                   <feature.icon className="h-4 w-4 text-primary" />
                 </div>
                 <div className="min-w-0">
@@ -190,7 +201,7 @@ const Auth = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 1.2 }}
           className="relative z-10 flex items-center justify-between text-xs text-muted-foreground"
         >
           <span>© 2026 Finflow. All rights reserved.</span>
@@ -203,45 +214,69 @@ const Auth = () => {
 
       {/* Right Panel - Form */}
       <motion.div
-        initial={{ opacity: 0, x: 30 }}
+        initial={{ opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="flex-1 flex items-center justify-center p-6 md:p-8"
+        transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="flex-1 flex items-center justify-center p-6 md:p-8 relative"
       >
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
+            <motion.div
+              whileHover={{ rotate: [0, -5, 5, 0] }}
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg"
+            >
               <TrendingUp className="h-5 w-5 text-primary-foreground" />
-            </div>
+            </motion.div>
             <span className="text-2xl font-bold">Finflow</span>
           </div>
 
           <div className="text-center lg:text-left space-y-2">
-            <h2 className="text-2xl font-bold">{isLogin ? 'Welcome back' : 'Create your account'}</h2>
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={isLogin ? 'login' : 'signup'}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-2xl font-bold"
+              >
+                {isLogin ? 'Welcome back' : 'Create your account'}
+              </motion.h2>
+            </AnimatePresence>
             <p className="text-muted-foreground text-sm">{isLogin ? 'Sign in to access your financial dashboard' : 'Start your journey to financial freedom'}</p>
           </div>
 
-          {/* Mode toggle */}
-          <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
+          {/* Mode toggle with animated indicator */}
+          <div className="relative flex bg-muted/50 rounded-xl p-1 gap-1">
+            <motion.div
+              className="absolute top-1 bottom-1 rounded-lg bg-background shadow-sm"
+              animate={{ left: isLogin ? '4px' : '50%', width: 'calc(50% - 6px)' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            />
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-                isLogin ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              className={`relative z-10 flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-                !isLogin ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              className={`relative z-10 flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                !isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Sign Up
             </button>
           </div>
 
-          <Button type="button" variant="outline" className="w-full h-11 font-medium gap-3" onClick={handleGoogleSignIn} disabled={googleLoading || loading}>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11 font-medium gap-3 hover-gradient-border"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading || loading}
+          >
             {googleLoading ? (
               <div className="h-4 w-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
             ) : (
@@ -252,7 +287,14 @@ const Auth = () => {
             )}
           </Button>
 
-          <div className="relative"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div><div className="relative flex justify-center text-xs"><span className="bg-background px-4 text-muted-foreground">Or continue with email</span></div></div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-4 text-muted-foreground">Or continue with email</span>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <AnimatePresence mode="wait">
@@ -262,29 +304,58 @@ const Auth = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.25 }}
                   className="space-y-2 overflow-hidden"
                 >
                   <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="fullName" type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="pl-10 h-11" />
+                  <div className={cn('relative rounded-lg transition-shadow duration-300', focusedField === 'name' && 'shadow-[0_0_0_2px_hsl(var(--primary)/0.15)]')}>
+                    <User className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors', focusedField === 'name' ? 'text-primary' : 'text-muted-foreground')} />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      onFocus={() => setFocusedField('name')}
+                      onBlur={() => setFocusedField(null)}
+                      className="pl-10 h-11"
+                    />
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" required />
+              <div className={cn('relative rounded-lg transition-shadow duration-300', focusedField === 'email' && 'shadow-[0_0_0_2px_hsl(var(--primary)/0.15)]')}>
+                <Mail className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors', focusedField === 'email' ? 'text-primary' : 'text-muted-foreground')} />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
+                  className="pl-10 h-11"
+                  required
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10 h-11" required />
+              <div className={cn('relative rounded-lg transition-shadow duration-300', focusedField === 'password' && 'shadow-[0_0_0_2px_hsl(var(--primary)/0.15)]')}>
+                <Lock className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors', focusedField === 'password' ? 'text-primary' : 'text-muted-foreground')} />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField(null)}
+                  className="pl-10 pr-10 h-11"
+                  required
+                />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -294,37 +365,61 @@ const Auth = () => {
                 </button>
               </div>
               {!isLogin && (
-                <div className="flex gap-1 mt-1">
-                  {[1,2,3,4].map(i => (
-                    <div
+                <div className="flex gap-1 mt-1.5">
+                  {[1, 2, 3, 4].map(i => (
+                    <motion.div
                       key={i}
-                      className={`h-1 flex-1 rounded-full transition-colors ${
-                        password.length >= i * 3 ? (password.length >= 12 ? 'bg-income' : password.length >= 8 ? 'bg-warning' : 'bg-expense') : 'bg-muted'
-                      }`}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      className={cn(
+                        'h-1.5 flex-1 rounded-full origin-left',
+                        password.length >= i * 3
+                          ? password.length >= 12 ? 'bg-income' : password.length >= 8 ? 'bg-warning' : 'bg-expense'
+                          : 'bg-muted'
+                      )}
                     />
                   ))}
                 </div>
               )}
             </div>
-            <Button type="submit" className="w-full h-11 font-semibold gap-2 btn-premium" disabled={loading}>
-              {loading ? <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" /> : <>{isLogin ? 'Sign In' : 'Create Account'}<ArrowRight className="h-4 w-4" /></>}
-            </Button>
+
+            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+              <Button type="submit" className="w-full h-12 font-semibold gap-2 btn-premium text-base" disabled={loading}>
+                {loading ? (
+                  <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                ) : (
+                  <>
+                    {isLogin ? 'Sign In' : 'Create Account'}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </motion.div>
           </form>
 
-          {!isLogin && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-2"
-            >
-              {['Free 14-day trial', 'No credit card required', 'Cancel anytime'].map((item) => (
-                <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-income shrink-0" />
-                  <span>{item}</span>
-                </div>
-              ))}
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {!isLogin && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-2 overflow-hidden"
+              >
+                {['Free 14-day trial', 'No credit card required', 'Cancel anytime'].map((item, i) => (
+                  <motion.div
+                    key={item}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-2 text-xs text-muted-foreground"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5 text-income shrink-0" />
+                    <span>{item}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="flex items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
             <Shield className="h-3.5 w-3.5" />
