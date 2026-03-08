@@ -20,6 +20,8 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Categories from "./pages/Categories";
 import DebtTracker from "./pages/DebtTracker";
+import TaxEstimator from "./pages/TaxEstimator";
+import Investments from "./pages/Investments";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
                 <Route path="/net-worth" element={<ProtectedRoute><NetWorth /></ProtectedRoute>} />
                 <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
                 <Route path="/debt" element={<ProtectedRoute><DebtTracker /></ProtectedRoute>} />
+                <Route path="/tax" element={<ProtectedRoute><TaxEstimator /></ProtectedRoute>} />
+                <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
