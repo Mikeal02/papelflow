@@ -50,7 +50,7 @@ const Reports = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, currencySymbol } = useCurrency();
 
   const months = timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '1year' ? 12 : 6;
 
