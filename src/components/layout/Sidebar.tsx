@@ -33,7 +33,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useMemo, useState } from 'react';
 import { differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
-import { useTheme } from 'next-themes';
+import { useThemeTransition } from '@/hooks/useThemeTransition';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navItems = [
@@ -62,7 +62,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useThemeTransition();
   const { data: subscriptions = [] } = useSubscriptions();
   const { data: budgets = [] } = useBudgets();
   const { data: transactions = [] } = useTransactions();
