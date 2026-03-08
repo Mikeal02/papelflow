@@ -12,6 +12,7 @@ import { FinancialHealthScore } from '@/components/dashboard/FinancialHealthScor
 import { FinancialCalendar } from '@/components/dashboard/FinancialCalendar';
 import { SpendingForecast } from '@/components/dashboard/SpendingForecast';
 import { FinancialAdvisor } from '@/components/ai/FinancialAdvisor';
+import { CurrencyConverter } from '@/components/dashboard/CurrencyConverter';
 import { CashFlowChart } from '@/components/dashboard/CashFlowChart';
 import { SavingsRateGauge } from '@/components/dashboard/SavingsRateGauge';
 import { DailySpendingTracker } from '@/components/dashboard/DailySpendingTracker';
@@ -123,6 +124,7 @@ const Dashboard = () => {
               <GoalsMini />
               <SpendingByTimeOfDay />
               <AccountsOverview />
+              <CurrencyConverter />
               <UpcomingBills />
             </div>
           </div>
