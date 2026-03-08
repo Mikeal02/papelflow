@@ -154,10 +154,11 @@ const Dashboard = () => {
             {/* Right Column */}
             <div className="space-y-4 lg:space-y-5">
               <FinancialHealthScore />
+              <SpendingHeatmapCalendar />
               <WhatIfScenario />
               <FutureYouSimulator />
-              <DailySpendingTracker />
               <GoalsMini />
+              <DailySpendingTracker />
               <SpendingByTimeOfDay />
               <AccountsOverview />
               <CurrencyConverter />
