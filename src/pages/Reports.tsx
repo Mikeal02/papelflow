@@ -11,11 +11,12 @@ import {
 import {
   Tabs, TabsContent, TabsList, TabsTrigger,
 } from '@/components/ui/tabs';
-import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2, BarChart3, PieChart as PieChartIcon, Activity, DollarSign } from 'lucide-react';
+import { Download, Calendar, TrendingUp, TrendingDown, ArrowRight, Loader2, BarChart3, PieChart as PieChartIcon, Activity, DollarSign, FileText } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { exportReportToCSV } from '@/lib/export-utils';
+import { generateFinancialReportPDF } from '@/lib/pdf-generator';
 import { toast } from '@/hooks/use-toast';
 import {
   AreaChart,
@@ -49,7 +50,7 @@ const Reports = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, currencySymbol } = useCurrency();
 
   const months = timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '1year' ? 12 : 6;
 
@@ -176,6 +177,22 @@ const Reports = () => {
     toast({ title: 'Report exported!' });
   };
 
+  const handlePDFExport = () => {
+    if (monthlyData.length === 0) {
+      toast({ title: 'No data to export', variant: 'destructive' });
+      return;
+    }
+    generateFinancialReportPDF(
+      monthlyData,
+      categorySpending,
+      incomeByCategory,
+      topMerchants,
+      stats,
+      currencySymbol
+    );
+    toast({ title: 'PDF report generated!', description: 'Check your downloads folder' });
+  };
+
   const isLoading = transactionsLoading || categoriesLoading;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -229,9 +246,13 @@ const Reports = () => {
                 <SelectItem value="1year">Last Year</SelectItem>
               </SelectContent>
             </Select>
+            <Button variant="outline" className="gap-2" onClick={handlePDFExport}>
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
             <Button variant="outline" className="gap-2" onClick={handleExport}>
               <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">CSV</span>
             </Button>
           </div>
         </motion.div>

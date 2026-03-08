@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp, TrendingDown, BarChart3, PieChart as PieIcon, Plus, Trash2,
   DollarSign, Percent, Calendar, ArrowUpRight, ArrowDownRight, Briefcase,
-  LineChart as LineIcon, Layers, Coins, RefreshCw, Info, Target
+  LineChart as LineIcon, Layers, Coins, RefreshCw, Info, Target, FileText
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageTransition } from '@/components/layout/PageTransition';
@@ -17,6 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { generatePortfolioStatementPDF } from '@/lib/pdf-generator';
+import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis,
@@ -100,7 +102,7 @@ function generateDividendHistory(): Dividend[] {
 }
 
 export default function Investments() {
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, currencySymbol } = useCurrency();
   const [holdings, setHoldings] = useState<Holding[]>(DEMO_HOLDINGS);
   const [timeRange, setTimeRange] = useState('1Y');
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -195,10 +197,26 @@ export default function Investments() {
               </h1>
               <p className="text-muted-foreground mt-1">Track asset allocation, performance, and dividends</p>
             </div>
-            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-              <DialogTrigger asChild>
-                <Button><Plus className="h-4 w-4 mr-1" /> Add Holding</Button>
-              </DialogTrigger>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => {
+                generatePortfolioStatementPDF(
+                  analytics.holdingsWithGain.map(h => ({
+                    ticker: h.ticker, name: h.name, shares: h.shares,
+                    avgCost: h.avgCost, currentPrice: h.currentPrice,
+                    marketValue: h.marketValue, gain: h.gain, returnPct: h.returnPct,
+                  })),
+                  analytics.totalValue, analytics.totalCost, analytics.totalGain,
+                  analytics.totalReturn, analytics.annualDividends, analytics.portfolioYield,
+                  analytics.allocation, currencySymbol
+                );
+                toast({ title: 'Portfolio statement generated!' });
+              }}>
+                <FileText className="h-4 w-4 mr-1" /> Export PDF
+              </Button>
+              <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+                <DialogTrigger asChild>
+                  <Button><Plus className="h-4 w-4 mr-1" /> Add Holding</Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add Investment Holding</DialogTitle>
@@ -229,6 +247,7 @@ export default function Investments() {
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
 
           {/* KPIs */}
