@@ -34,6 +34,7 @@ const navItems = [
   { icon: Target, label: 'Goals', path: '/goals' },
   { icon: TrendingUp, label: 'Net Worth', path: '/net-worth' },
   { icon: CreditCard, label: 'Debt Tracker', path: '/debt' },
+  { icon: BarChart3, label: 'Recurring', path: '/recurring' },
   { icon: BarChart3, label: 'Tax Estimator', path: '/tax' },
   { icon: TrendingUp, label: 'Investments', path: '/investments' },
 ];

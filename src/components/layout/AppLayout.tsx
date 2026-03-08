@@ -13,7 +13,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background/95 backdrop-blur-[2px]">
       {/* Subtle background pattern */}
       <div className="fixed inset-0 subtle-grid pointer-events-none opacity-50" />
       
