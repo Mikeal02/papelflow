@@ -247,6 +247,7 @@ export default function Investments() {
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
 
           {/* KPIs */}
