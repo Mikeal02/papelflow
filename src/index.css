@@ -174,6 +174,33 @@
     transform: translateY(-2px);
   }
   
+  /* Holographic hover effect on cards */
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      hsl(var(--primary) / 0.06) 45%,
+      hsl(var(--accent) / 0.06) 50%,
+      transparent 55%
+    );
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .stat-card:hover::after {
+    opacity: 1;
+    animation: card-shine 0.8s ease forwards;
+  }
+  
+  @keyframes card-shine {
+    to { transform: translateX(100%); }
+  }
+  
   /* Glass Card Effect */
   .glass-card {
     @apply rounded-2xl border border-border/40 p-5 shadow-lg;
@@ -203,6 +230,28 @@
   @keyframes shimmer {
     0%, 100% { background-position: 0% center; }
     50% { background-position: 100% center; }
+  }
+
+  /* Rainbow text on hover */
+  .rainbow-hover:hover {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--chart-1)),
+      hsl(var(--chart-3)),
+      hsl(var(--chart-4)),
+      hsl(var(--chart-6)),
+      hsl(var(--chart-1))
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: rainbow-flow 2s linear infinite;
+  }
+
+  @keyframes rainbow-flow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
   }
   
   /* Glowing Border Effect */
@@ -424,18 +473,10 @@
   }
 
   @keyframes blob-morph {
-    0%, 100% {
-      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    }
-    25% {
-      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-    }
-    50% {
-      border-radius: 50% 60% 30% 60% / 40% 30% 70% 50%;
-    }
-    75% {
-      border-radius: 60% 40% 60% 30% / 70% 50% 40% 60%;
-    }
+    0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+    50% { border-radius: 50% 60% 30% 60% / 40% 30% 70% 50%; }
+    75% { border-radius: 60% 40% 60% 30% / 70% 50% 40% 60%; }
   }
 
   /* Holographic effect */
@@ -565,12 +606,157 @@
   }
 
   @keyframes breathe {
-    0%, 100% {
-      box-shadow: 0 0 20px 0 hsl(var(--primary) / 0.2);
-    }
-    50% {
-      box-shadow: 0 0 40px 10px hsl(var(--primary) / 0.4);
-    }
+    0%, 100% { box-shadow: 0 0 20px 0 hsl(var(--primary) / 0.2); }
+    50% { box-shadow: 0 0 40px 10px hsl(var(--primary) / 0.4); }
+  }
+
+  /* ===== NEW CRAZY EFFECTS ===== */
+
+  /* Magnetic hover - elements slightly attract towards cursor direction */
+  .magnetic-hover {
+    @apply transition-transform duration-300;
+  }
+  .magnetic-hover:hover {
+    transform: scale(1.02) translateY(-2px);
+  }
+
+  /* Frosted glass with noise texture */
+  .frosted-glass {
+    @apply backdrop-blur-xl rounded-2xl border border-border/30;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.7) 0%,
+      hsl(var(--card) / 0.5) 100%
+    );
+    box-shadow:
+      0 8px 32px hsl(var(--primary) / 0.08),
+      inset 0 1px 0 hsl(0 0% 100% / 0.1),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.05);
+  }
+
+  /* Animated underline for links */
+  .animated-underline {
+    position: relative;
+  }
+  .animated-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .animated-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Glitch effect for special text */
+  .glitch-text {
+    position: relative;
+  }
+  .glitch-text:hover {
+    animation: glitch-anim 0.3s ease;
+  }
+  @keyframes glitch-anim {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+  }
+
+  /* Gradient border on hover */
+  .hover-gradient-border {
+    position: relative;
+    @apply rounded-xl;
+  }
+  .hover-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      var(--gradient-angle, 135deg),
+      hsl(var(--primary) / 0.5),
+      hsl(var(--accent) / 0.5),
+      hsl(var(--chart-6) / 0.5),
+      hsl(var(--primary) / 0.5)
+    );
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .hover-gradient-border:hover::before {
+    opacity: 1;
+    animation: gradient-rotate 3s linear infinite;
+  }
+
+  /* Sidebar custom scrollbar */
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.15);
+    border-radius: 4px;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  /* Data cell glow on hover */
+  .data-cell-glow:hover {
+    @apply bg-primary/5;
+    box-shadow: inset 0 0 20px hsl(var(--primary) / 0.05);
+  }
+
+  /* Stagger animation for lists */
+  .stagger-item {
+    animation: fade-in 0.4s ease-out both;
+  }
+  .stagger-item:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-item:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-item:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-item:nth-child(4) { animation-delay: 0.2s; }
+  .stagger-item:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-item:nth-child(6) { animation-delay: 0.3s; }
+  .stagger-item:nth-child(7) { animation-delay: 0.35s; }
+  .stagger-item:nth-child(8) { animation-delay: 0.4s; }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Aurora background for special sections */
+  .aurora-bg {
+    background: linear-gradient(
+      -45deg,
+      hsl(var(--primary) / 0.08) 0%,
+      hsl(var(--accent) / 0.05) 25%,
+      hsl(var(--chart-6) / 0.05) 50%,
+      hsl(var(--primary) / 0.08) 75%,
+      hsl(var(--accent) / 0.05) 100%
+    );
+    background-size: 400% 400%;
+    animation: aurora-flow 12s ease infinite;
+  }
+
+  @keyframes aurora-flow {
+    0%, 100% { background-position: 0% 50%; }
+    25% { background-position: 50% 0%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 100%; }
   }
 }
 
