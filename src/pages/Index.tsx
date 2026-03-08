@@ -33,6 +33,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
 import { useBillReminders } from '@/hooks/useBillReminders';
+import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
@@ -45,6 +46,7 @@ const Dashboard = () => {
 
   useRecurringTransactions();
   useBillReminders();
+  useRealtimeTransactions();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
 

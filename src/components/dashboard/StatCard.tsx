@@ -96,8 +96,8 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
       <TiltCard intensity={8} className="stat-card group h-full">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2 min-w-0 flex-1">
-            <p className="text-[11px] sm:text-sm font-medium text-muted-foreground truncate">{title}</p>
-            <p className="text-lg sm:text-2xl font-bold tracking-tight truncate">{value}</p>
+            <p className="text-[11px] sm:text-xs font-medium text-muted-foreground">{title}</p>
+            <p className="text-base sm:text-2xl font-bold tracking-tight">{value}</p>
             
             {/* Sparkline + Change indicator */}
             <div className="flex items-center gap-3">
