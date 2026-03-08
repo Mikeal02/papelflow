@@ -49,6 +49,7 @@ export function useCreateBudget() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
       toast({ title: 'Budget created successfully' });
     },
     onError: (error: Error) => {
@@ -74,6 +75,7 @@ export function useUpdateBudget() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
       toast({ title: 'Budget updated successfully' });
     },
     onError: (error: Error) => {

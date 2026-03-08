@@ -11,6 +11,7 @@ import { startOfWeek, endOfWeek, differenceInDays, format, isToday, subDays, eac
 import { cn } from '@/lib/utils';
 import { TiltCard } from '@/components/ui/tilt-card';
 import { ProgressRing } from '@/components/ui/progress-ring';
+import { CountUpValue } from '@/components/ui/CountUpValue';
 
 export function QuickStats() {
   const { data: transactions = [] } = useTransactions();
@@ -189,7 +190,7 @@ export function QuickStats() {
                   <span className="text-xs animate-pulse">{stat.trend}</span>
                 )}
               </div>
-              <p className="text-lg font-bold truncate">{stat.value}</p>
+              <CountUpValue value={stat.value} className="text-lg font-bold truncate" duration={1000} />
               <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
             </div>
           </TiltCard>

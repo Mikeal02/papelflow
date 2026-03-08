@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TiltCard } from '@/components/ui/tilt-card';
 import { GradientBadge, ShineEffect } from '@/components/ui/glowing-border';
+import { CountUpValue } from '@/components/ui/CountUpValue';
 import {
   AreaChart,
   Area,
@@ -108,7 +109,7 @@ export function NetWorthMini() {
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <ShineEffect>
-              <p className="text-2xl md:text-3xl font-bold truncate">{formatCurrency(currentNetWorth)}</p>
+              <CountUpValue value={formatCurrency(currentNetWorth)} className="text-2xl md:text-3xl font-bold truncate" duration={1800} />
             </ShineEffect>
             <div className="flex items-center gap-2 mt-2">
               <GradientBadge variant={change >= 0 ? 'success' : 'warning'}>

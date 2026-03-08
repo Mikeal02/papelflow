@@ -49,6 +49,7 @@ export function useCreateSubscription() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
       toast({ title: 'Subscription added successfully' });
     },
     onError: (error: Error) => {
@@ -92,6 +93,7 @@ export function useDeleteSubscription() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
       toast({ title: 'Subscription deleted successfully' });
     },
     onError: (error: Error) => {

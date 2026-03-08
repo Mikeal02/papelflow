@@ -58,6 +58,7 @@ export function useUpdateGoal() {
 
   return useMutation({
     mutationFn: async ({ id, ...goal }: GoalUpdate & { id: string }) => {
+      if (!id) throw new Error('Goal ID is required');
       const { data, error } = await supabase
         .from('goals')
         .update(goal)
