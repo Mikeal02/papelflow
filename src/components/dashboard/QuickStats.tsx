@@ -1,28 +1,94 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, CreditCard, Receipt, ArrowUpDown } from 'lucide-react';
-import { useTransactions } from '@/hooks/useTransactions';
+import { Zap, TrendingUp, Calendar, Flame, Target, Coins, Receipt, CreditCard, ArrowUpDown } from 'lucide-react';
+import { useTransactions, useMonthlyStats } from '@/hooks/useTransactions';
+import { useGoals } from '@/hooks/useGoals';
+import { useBudgets } from '@/hooks/useBudgets';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { useMemo } from 'react';
-import { startOfMonth, endOfMonth } from 'date-fns';
+import { startOfWeek, endOfWeek, differenceInDays, format, isToday, subDays, eachDayOfInterval, startOfMonth, endOfMonth } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { TiltCard } from '@/components/ui/tilt-card';
+import { ProgressRing } from '@/components/ui/progress-ring';
 
 export function QuickStats() {
   const { data: transactions = [] } = useTransactions();
+  const { data: stats } = useMonthlyStats();
+  const { data: goals = [] } = useGoals();
+  const { data: budgets = [] } = useBudgets();
   const { data: accounts = [] } = useAccounts();
   const { data: subscriptions = [] } = useSubscriptions();
   const { formatCurrency } = useCurrency();
 
-  const stats = useMemo(() => {
+  const quickStats = useMemo(() => {
     const now = new Date();
-    const start = startOfMonth(now);
-    const end = endOfMonth(now);
+    const weekStart = startOfWeek(now);
+    const weekEnd = endOfWeek(now);
+    const currentMonth = format(now, 'yyyy-MM');
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+
+    // This week's spending
+    const weekSpending = transactions
+      .filter(t => {
+        const d = new Date(t.date);
+        return t.type === 'expense' && d >= weekStart && d <= weekEnd;
+      })
+      .reduce((s, t) => s + Number(t.amount), 0);
+
+    // Savings rate
+    const savingsRate = stats?.income ? Math.round(((stats.income - stats.expenses) / stats.income) * 100) : 0;
+
+    // Streak - consecutive days with transactions
+    const last30Days = eachDayOfInterval({
+      start: subDays(now, 30),
+      end: now,
+    });
+    
+    let streak = 0;
+    for (let i = last30Days.length - 1; i >= 0; i--) {
+      const dayStr = format(last30Days[i], 'yyyy-MM-dd');
+      const hasTransaction = transactions.some(t => t.date?.startsWith(dayStr));
+      if (hasTransaction || isToday(last30Days[i])) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    // Budget health
+    const monthExpenses = transactions
+      .filter(t => t.type === 'expense' && t.date?.startsWith(currentMonth))
+      .reduce((acc, t) => {
+        if (t.category_id) {
+          acc[t.category_id] = (acc[t.category_id] || 0) + Number(t.amount);
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+    const onTrackBudgets = budgets.filter(b => {
+      const spent = monthExpenses[b.category_id] || 0;
+      return spent <= Number(b.amount);
+    }).length;
+    
+    const budgetHealth = budgets.length > 0 ? Math.round((onTrackBudgets / budgets.length) * 100) : 100;
+
+    // Goal deadline
+    const upcomingGoal = goals
+      .filter(g => g.deadline)
+      .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())[0];
+    const daysUntilGoal = upcomingGoal?.deadline
+      ? differenceInDays(new Date(upcomingGoal.deadline), now)
+      : null;
+
+    // Month transactions
     const monthTx = transactions.filter(t => {
       const d = new Date(t.date);
-      return d >= start && d <= end;
+      return d >= monthStart && d <= monthEnd;
     });
 
-    const txCount = monthTx.length;
+    // Active accounts & subs
     const activeAccounts = accounts.filter(a => a.is_active).length;
     const activeSubs = subscriptions.filter(s => s.is_active).length;
     const monthlySubs = subscriptions
@@ -34,41 +100,99 @@ export function QuickStats() {
         return sum;
       }, 0);
 
-    const avgTxSize = txCount > 0
-      ? monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0) / Math.max(monthTx.filter(t => t.type === 'expense').length, 1)
-      : 0;
-
     return [
-      { icon: Receipt, label: 'Transactions', value: txCount.toString(), sub: 'this month', color: 'primary' },
-      { icon: CreditCard, label: 'Active Accounts', value: activeAccounts.toString(), sub: `of ${accounts.length}`, color: 'accent' },
-      { icon: ArrowUpDown, label: 'Avg. Expense', value: formatCurrency(avgTxSize), sub: 'per transaction', color: 'expense' },
-      { icon: Zap, label: 'Subscriptions', value: formatCurrency(monthlySubs), sub: `${activeSubs} active`, color: 'warning' },
+      {
+        label: 'Week Spending',
+        value: formatCurrency(weekSpending),
+        icon: Coins,
+        color: 'from-chart-5/20 to-chart-5/5',
+        iconColor: 'text-chart-5',
+      },
+      {
+        label: 'Savings Rate',
+        value: `${savingsRate}%`,
+        icon: TrendingUp,
+        color: savingsRate >= 20 ? 'from-income/20 to-income/5' : 'from-warning/20 to-warning/5',
+        iconColor: savingsRate >= 20 ? 'text-income' : 'text-warning',
+        progress: savingsRate,
+        progressColor: savingsRate >= 20 ? 'income' as const : 'warning' as const,
+      },
+      {
+        label: 'Active Streak',
+        value: `${streak} days`,
+        icon: Flame,
+        color: streak >= 7 ? 'from-chart-4/20 to-chart-4/5' : 'from-muted/20 to-muted/5',
+        iconColor: streak >= 7 ? 'text-chart-4' : 'text-muted-foreground',
+        trend: streak >= 7 ? '🔥' : null,
+      },
+      {
+        label: 'Budget Health',
+        value: `${budgetHealth}%`,
+        icon: Target,
+        color: budgetHealth >= 80 ? 'from-income/20 to-income/5' : 'from-warning/20 to-warning/5',
+        iconColor: budgetHealth >= 80 ? 'text-income' : 'text-warning',
+        progress: budgetHealth,
+        progressColor: budgetHealth >= 80 ? 'income' as const : 'warning' as const,
+      },
+      {
+        label: 'Transactions',
+        value: monthTx.length.toString(),
+        icon: Receipt,
+        color: 'from-primary/20 to-primary/5',
+        iconColor: 'text-primary',
+        sub: 'this month',
+      },
+      {
+        label: 'Subscriptions',
+        value: formatCurrency(monthlySubs),
+        icon: Zap,
+        color: 'from-accent/20 to-accent/5',
+        iconColor: 'text-accent',
+        sub: `${activeSubs} active`,
+      },
     ];
-  }, [transactions, accounts, subscriptions, formatCurrency]);
+  }, [transactions, stats, goals, budgets, accounts, subscriptions, formatCurrency]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.25 }}
-      className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+      transition={{ delay: 0.15 }}
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
     >
-      {stats.map((stat, i) => (
+      {quickStats.map((stat, i) => (
         <motion.div
           key={stat.label}
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 + i * 0.05 }}
-          className="stat-card p-3"
+          transition={{ delay: 0.2 + i * 0.05 }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-${stat.color}/10`}>
-              <stat.icon className={`h-3.5 w-3.5 text-${stat.color}`} />
+          <TiltCard intensity={5} borderGlow={false} className="h-full">
+            <div
+              className={cn(
+                'rounded-xl p-3 bg-gradient-to-br border border-border/30 h-full',
+                stat.color
+              )}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
+                {stat.progress !== undefined && (
+                  <ProgressRing
+                    progress={stat.progress}
+                    size={24}
+                    strokeWidth={3}
+                    color={stat.progressColor}
+                    showGlow={false}
+                  />
+                )}
+                {stat.trend && (
+                  <span className="text-xs animate-pulse">{stat.trend}</span>
+                )}
+              </div>
+              <p className="text-lg font-bold truncate">{stat.value}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
             </div>
-            <span className="text-[10px] text-muted-foreground font-medium">{stat.label}</span>
-          </div>
-          <p className="text-lg font-bold">{stat.value}</p>
-          <p className="text-[10px] text-muted-foreground">{stat.sub}</p>
+          </TiltCard>
         </motion.div>
       ))}
     </motion.div>

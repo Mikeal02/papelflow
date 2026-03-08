@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Flame, Star, Zap, Target, Lock, CheckCircle2, Clock, TrendingUp, Gift, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,10 @@ import { useAccounts } from '@/hooks/useAccounts';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { differenceInDays, subDays, format, startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
-
+import { useConfetti, Confetti } from '@/components/ui/confetti';
+import { ProgressRing } from '@/components/ui/progress-ring';
+import { GlowingBorder, GradientBadge } from '@/components/ui/glowing-border';
+import { TiltCard } from '@/components/ui/tilt-card';
 interface Challenge {
   id: string;
   title: string;
@@ -52,12 +55,29 @@ const tierBg = {
 
 export const FinancialChallenges = () => {
   const [activeTab, setActiveTab] = useState<'challenges' | 'badges' | 'streaks'>('challenges');
+  const [showCelebration, setShowCelebration] = useState(false);
+  const { fire, particles, isActive } = useConfetti();
   const { data: transactions = [] } = useTransactions();
   const { data: stats } = useMonthlyStats();
   const { data: goals = [] } = useGoals();
   const { data: budgets = [] } = useBudgets();
   const { data: accounts = [] } = useAccounts();
   const { formatCurrency } = useCurrency();
+
+  // Fire confetti when a challenge is completed
+  const completedCount = useMemo(() => {
+    return goals.filter(g => Number(g.current_amount) >= Number(g.target_amount)).length;
+  }, [goals]);
+
+  useEffect(() => {
+    if (completedCount > 0) {
+      const lastCount = parseInt(localStorage.getItem('lastCompletedCount') || '0');
+      if (completedCount > lastCount) {
+        fire({ x: 0.5, y: 0.3 });
+        localStorage.setItem('lastCompletedCount', completedCount.toString());
+      }
+    }
+  }, [completedCount, fire]);
 
   // Calculate streaks
   const { currentStreak, longestStreak, totalXP } = useMemo(() => {
@@ -206,48 +226,64 @@ export const FinancialChallenges = () => {
 
   return (
     <div className="space-y-5">
+      {/* Confetti celebration */}
+      <Confetti particles={particles} isActive={isActive} />
+
       {/* Level & XP Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="stat-card glow-effect"
       >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-2xl font-black text-primary-foreground">{level}</span>
+        <GlowingBorder glowColor="rainbow" intensity="medium">
+          <div className="p-5">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <ProgressRing progress={levelProgress} size={72} strokeWidth={6} color="accent" showGlow>
+                    <div className="flex flex-col items-center">
+                      <span className="text-2xl font-black">{level}</span>
+                      <span className="text-[8px] text-muted-foreground uppercase tracking-wider">Level</span>
+                    </div>
+                  </ProgressRing>
+                  <motion.div 
+                    className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-gradient-to-br from-warning to-chart-4 flex items-center justify-center shadow-lg"
+                    animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  >
+                    <Star className="h-3 w-3 text-warning-foreground" />
+                  </motion.div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-lg">Level {level}</h3>
+                    <GradientBadge variant="premium">
+                      <Sparkles className="h-3 w-3" />
+                      {totalXP} XP
+                    </GradientBadge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{xpToNext} XP to next level</p>
+                </div>
               </div>
-              <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-warning flex items-center justify-center">
-                <Star className="h-3 w-3 text-warning-foreground" />
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg">Level {level}</h3>
-              <p className="text-xs text-muted-foreground">{totalXP} XP total • {xpToNext} XP to next level</p>
-              <div className="mt-1.5 w-40">
-                <Progress value={levelProgress} className="h-2" />
-              </div>
-            </div>
-          </div>
 
-          <div className="flex gap-4 text-center">
-            <div>
-              <div className="flex items-center gap-1 justify-center">
-                <Flame className="h-4 w-4 text-warning" />
-                <span className="text-xl font-bold">{currentStreak}</span>
+              <div className="flex gap-6 text-center">
+                <TiltCard intensity={10} className="p-3 rounded-xl bg-warning/5 border border-warning/20">
+                  <div className="flex items-center gap-1 justify-center">
+                    <Flame className="h-5 w-5 text-warning" />
+                    <span className="text-2xl font-bold">{currentStreak}</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Day Streak</p>
+                </TiltCard>
+                <TiltCard intensity={10} className="p-3 rounded-xl bg-primary/5 border border-primary/20">
+                  <div className="flex items-center gap-1 justify-center">
+                    <Trophy className="h-5 w-5 text-primary" />
+                    <span className="text-2xl font-bold">{earnedBadges}</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Badges</p>
+                </TiltCard>
               </div>
-              <p className="text-[10px] text-muted-foreground">Day Streak</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-1 justify-center">
-                <Trophy className="h-4 w-4 text-primary" />
-                <span className="text-xl font-bold">{earnedBadges}</span>
-              </div>
-              <p className="text-[10px] text-muted-foreground">Badges</p>
             </div>
           </div>
-        </div>
+        </GlowingBorder>
       </motion.div>
 
       {/* Tab Nav */}
