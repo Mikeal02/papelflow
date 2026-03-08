@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -33,7 +33,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useMemo, useState } from 'react';
 import { differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
-import { useTheme } from 'next-themes';
+import { useThemeTransition } from '@/hooks/useThemeTransition';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navItems = [
@@ -62,7 +62,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useThemeTransition();
   const { data: subscriptions = [] } = useSubscriptions();
   const { data: budgets = [] } = useBudgets();
   const { data: transactions = [] } = useTransactions();
@@ -245,7 +245,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
           <motion.button
             whileHover={{ x: 2 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={(e) => toggleTheme(e)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
           >
             <div className="relative h-4 w-4">
