@@ -57,6 +57,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const { data: subscriptions = [] } = useSubscriptions();
   const { data: budgets = [] } = useBudgets();
   const { data: transactions = [] } = useTransactions();
@@ -162,9 +163,42 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
         </nav>
 
         {/* User & Actions */}
-        <div className="border-t border-sidebar-border p-3 space-y-0.5">
+        <div className="border-t border-sidebar-border/50 p-3 space-y-0.5">
+          {/* Dark Mode Toggle */}
+          <motion.button
+            whileHover={{ x: 2 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
+          >
+            <div className="relative h-4 w-4">
+              <motion.div
+                animate={{ rotate: theme === 'dark' ? 0 : 180, opacity: theme === 'dark' ? 1 : 0 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                className="absolute inset-0"
+              >
+                <Moon className="h-4 w-4" />
+              </motion.div>
+              <motion.div
+                animate={{ rotate: theme === 'dark' ? -180 : 0, opacity: theme === 'dark' ? 0 : 1 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                className="absolute inset-0"
+              >
+                <Sun className="h-4 w-4" />
+              </motion.div>
+            </div>
+            <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+            <div className="ml-auto relative h-5 w-9 rounded-full bg-muted border border-border/50 transition-colors">
+              <motion.div
+                className="absolute top-0.5 h-4 w-4 rounded-full bg-primary shadow-sm"
+                animate={{ left: theme === 'dark' ? '18px' : '2px' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </div>
+          </motion.button>
+
           {user && (
-            <div className="px-3 py-2.5 mb-2 rounded-lg bg-sidebar-accent/50">
+            <div className="px-3 py-2.5 mb-2 rounded-lg bg-sidebar-accent/30 backdrop-blur-sm border border-border/10">
               <div className="flex items-center gap-2">
                 <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
                   <span className="text-xs font-bold text-primary">
