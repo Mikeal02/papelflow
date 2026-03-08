@@ -39,6 +39,8 @@ const navItems = [
   { icon: Target, label: 'Goals', path: '/goals', badge: null },
   { icon: TrendingUp, label: 'Net Worth', path: '/net-worth', badge: null },
   { icon: CreditCard, label: 'Debt Tracker', path: '/debt', badge: null },
+  { icon: Sparkles, label: 'Tax Estimator', path: '/tax', badge: null },
+  { icon: TrendingUp, label: 'Investments', path: '/investments', badge: null },
 ];
 
 interface SidebarProps {
