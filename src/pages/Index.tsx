@@ -135,6 +135,7 @@ const Dashboard = () => {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-4 lg:space-y-5">
               <RecentTransactions />
+              <MoneyFlowSankey />
               <div className="grid gap-4 sm:grid-cols-2">
                 <CashFlowChart />
                 <SavingsRateGauge />
