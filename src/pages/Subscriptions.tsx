@@ -41,6 +41,7 @@ import { cn } from '@/lib/utils';
 import { AddSubscriptionModal } from '@/components/subscriptions/AddSubscriptionModal';
 import { EditSubscriptionModal } from '@/components/subscriptions/EditSubscriptionModal';
 import { toast } from '@/hooks/use-toast';
+import { SubscriptionOptimizer } from '@/components/subscriptions/SubscriptionOptimizer';
 import {
   PieChart,
   Pie,
@@ -269,6 +270,9 @@ const Subscriptions = () => {
             </motion.div>
           </div>
         )}
+
+        {/* AI Subscription Optimizer */}
+        {activeSubscriptions.length > 0 && <SubscriptionOptimizer />}
 
         {/* Search and Filters */}
         <motion.div
