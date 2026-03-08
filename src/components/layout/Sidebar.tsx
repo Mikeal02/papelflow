@@ -17,6 +17,10 @@ import {
   CreditCard,
   Sparkles,
   HelpCircle,
+  Repeat,
+  Briefcase,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -27,6 +31,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useMemo } from 'react';
 import { differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
+import { useTheme } from 'next-themes';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/', badge: null },
@@ -93,7 +98,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   });
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/50 bg-sidebar/80 backdrop-blur-xl">
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
