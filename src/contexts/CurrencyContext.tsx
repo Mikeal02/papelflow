@@ -1,10 +1,14 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useProfile } from '@/hooks/useProfile';
+import { useExchangeRates, convertCurrency } from '@/hooks/useExchangeRates';
 
 interface CurrencyContextType {
   currency: string;
   formatCurrency: (amount: number, showSign?: boolean) => string;
   currencySymbol: string;
+  convert: (amount: number, fromCurrency: string) => number;
+  rates: Record<string, number> | null;
+  ratesLoading: boolean;
 }
 
 const currencySymbols: Record<string, string> = {
@@ -31,6 +35,12 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   const { data: profile } = useProfile();
   const currency = profile?.preferred_currency || 'USD';
   const currencySymbol = currencySymbols[currency] || '$';
+  const { data: ratesData, isLoading: ratesLoading } = useExchangeRates(currency);
+
+  const convert = (amount: number, fromCurrency: string): number => {
+    if (!ratesData?.rates || fromCurrency === currency) return amount;
+    return convertCurrency(amount, fromCurrency, currency, ratesData.rates, ratesData.base);
+  };
 
   const formatCurrency = (amount: number, showSign?: boolean): string => {
     const absAmount = Math.abs(amount);
@@ -44,7 +54,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CurrencyContext.Provider value={{ currency, formatCurrency, currencySymbol }}>
+    <CurrencyContext.Provider value={{ currency, formatCurrency, currencySymbol, convert, rates: ratesData?.rates || null, ratesLoading }}>
       {children}
     </CurrencyContext.Provider>
   );
