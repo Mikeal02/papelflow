@@ -17,6 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { generateTaxDocumentPDF } from '@/lib/pdf-generator';
+import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -219,6 +221,16 @@ export default function TaxEstimator() {
                   <SelectItem value="married">Married Filing Jointly</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" size="sm" onClick={() => {
+                generateTaxDocumentPDF(
+                  projectedGross, projectedTax.total, effectiveRate, marginalRate,
+                  deductions, projectedTax.breakdown, quarterlyPayment,
+                  filingStatus, currencySymbol, withheld
+                );
+                toast({ title: 'Tax document generated!' });
+              }}>
+                <FileText className="h-4 w-4 mr-1" /> Export PDF
+              </Button>
               <Badge variant="outline" className="text-xs">
                 <Calendar className="h-3 w-3 mr-1" />
                 Tax Year {now.getFullYear()}
