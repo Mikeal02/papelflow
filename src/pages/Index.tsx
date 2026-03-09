@@ -28,6 +28,7 @@ import { FutureYouSimulator } from '@/components/dashboard/FutureYouSimulator';
 import { SmartTransactionEntry } from '@/components/transactions/SmartTransactionEntry';
 import { MoneyFlowSankey } from '@/components/dashboard/MoneyFlowSankey';
 import { SpendingHeatmapCalendar } from '@/components/dashboard/SpendingHeatmapCalendar';
+import { AISpendingInsights } from '@/components/dashboard/AISpendingInsights';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
@@ -154,6 +155,7 @@ const Dashboard = () => {
             {/* Right Column */}
             <div className="space-y-4 lg:space-y-5">
               <FinancialHealthScore />
+              <AISpendingInsights />
               <SpendingHeatmapCalendar />
               <WhatIfScenario />
               <FutureYouSimulator />
