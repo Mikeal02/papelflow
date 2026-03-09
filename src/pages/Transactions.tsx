@@ -497,16 +497,16 @@ const Transactions = () => {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center justify-between pt-4"
+                  className="flex items-center justify-between pt-6 border-t border-border/20"
                 >
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground font-medium">
                     Page {currentPage} of {totalPages} • {filteredTransactions.length} total
                   </p>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9 rounded-xl border-border/30"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(p => p - 1)}
                     >
@@ -520,7 +520,12 @@ const Transactions = () => {
                           key={page}
                           variant={page === currentPage ? 'default' : 'outline'}
                           size="icon"
-                          className="h-8 w-8"
+                          className={cn(
+                            "h-9 w-9 rounded-xl",
+                            page === currentPage 
+                              ? "bg-primary shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.4)]" 
+                              : "border-border/30"
+                          )}
                           onClick={() => setCurrentPage(page)}
                         >
                           {page}
@@ -530,7 +535,7 @@ const Transactions = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9 rounded-xl border-border/30"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage(p => p + 1)}
                     >

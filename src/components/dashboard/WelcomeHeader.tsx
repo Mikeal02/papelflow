@@ -46,12 +46,13 @@ export function WelcomeHeader() {
       initial={{ opacity: 0, y: -15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-      className="relative overflow-hidden rounded-2xl p-6 aurora-bg border border-border/40"
+      className="relative overflow-hidden rounded-3xl p-6 md:p-7 border border-border/30"
       style={{
-        background: `linear-gradient(135deg, 
-          hsl(var(--card) / 0.95) 0%, 
-          hsl(var(--card) / 0.9) 50%,
-          hsl(var(--card) / 0.95) 100%)`,
+        background: `linear-gradient(145deg, 
+          hsl(var(--card) / 0.98) 0%, 
+          hsl(var(--card) / 0.92) 40%,
+          hsl(var(--card) / 0.88) 100%)`,
+        boxShadow: '0 12px 40px -12px hsl(var(--primary) / 0.08), 0 4px 16px -4px hsl(var(--foreground) / 0.03), inset 0 1px 0 hsl(0 0% 100% / 0.08)',
       }}
     >
       {/* Layered animated gradient orbs */}
