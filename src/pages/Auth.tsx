@@ -133,14 +133,14 @@ const Auth = () => {
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               transition={{ delay: 0.4, type: 'spring', stiffness: 200, damping: 15 }}
               whileHover={{ rotate: [0, -5, 5, 0], scale: 1.05 }}
-              className="h-12 w-12 rounded-2xl overflow-hidden shadow-lg"
+              className="h-16 w-16 rounded-2xl overflow-hidden shadow-lg"
               style={{ boxShadow: '0 8px 30px hsl(var(--primary) / 0.3)' }}
             >
-              <img src="/logo.png" alt="Finflow" className="h-full w-full object-cover" />
+              <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
             </motion.div>
             <div>
-              <span className="text-2xl font-bold tracking-tight">Finflow</span>
-              <p className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Enterprise Finance Platform</p>
+              <span className="text-3xl font-bold tracking-tight">Finflow</span>
+              <p className="text-[11px] text-muted-foreground font-medium tracking-wider uppercase">Enterprise Finance Platform</p>
             </div>
           </motion.div>
         </div>
@@ -230,11 +230,11 @@ const Auth = () => {
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
               whileHover={{ rotate: [0, -5, 5, 0] }}
-              className="h-11 w-11 rounded-xl overflow-hidden shadow-lg"
+              className="h-14 w-14 rounded-xl overflow-hidden shadow-lg"
             >
-              <img src="/logo.png" alt="Finflow" className="h-full w-full object-cover" />
+              <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
             </motion.div>
-            <span className="text-2xl font-bold">Finflow</span>
+            <span className="text-3xl font-bold">Finflow</span>
           </div>
 
           <div className="text-center lg:text-left space-y-2">
