@@ -1,20 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#1e293b"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <linearGradient id="fGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#3B82F6"/>
-      <stop offset="50%" style="stop-color:#06B6D4"/>
+      <stop offset="40%" style="stop-color:#06B6D4"/>
       <stop offset="100%" style="stop-color:#8B5CF6"/>
     </linearGradient>
-    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.2"/>
-      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:0.2"/>
-    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Rounded square background -->
-  <rect width="512" height="512" rx="108" fill="url(#grad2)"/>
-  <rect width="512" height="512" rx="108" fill="none" stroke="url(#grad)" stroke-width="3" opacity="0.3"/>
-  <!-- Stylized F letterform -->
-  <path d="M160 120 L352 120 C362 120 370 128 370 138 L370 148 C370 158 362 166 352 166 L220 166 L220 236 L320 236 C330 236 338 244 338 254 L338 264 C338 274 330 282 320 282 L220 282 L220 374 C220 384 212 392 202 392 L180 392 C170 392 162 384 162 374 L162 138 C162 128 168 120 178 120 Z" fill="url(#grad)"/>
-  <!-- Flow wave accent -->
-  <path d="M180 392 C240 392 280 360 340 340 C380 326 400 340 400 340" stroke="url(#grad)" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.7"/>
+  
+  <!-- Rounded square background with subtle inner glow -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)"/>
+  <rect x="8" y="8" width="496" height="496" rx="100" fill="none" stroke="url(#fGrad)" stroke-width="1.5" opacity="0.2"/>
+  
+  <!-- Cursive F letterform -->
+  <g filter="url(#glow)">
+    <path 
+      d="M180 400 
+         C160 400 145 380 145 360 
+         L145 220 
+         C145 180 160 150 200 130 
+         C240 110 290 100 340 100 
+         C360 100 375 110 375 130 
+         C375 150 360 160 340 160 
+         C300 160 260 170 235 185 
+         C215 198 205 215 205 235 
+         L205 255 
+         L300 255 
+         C320 255 335 268 335 288 
+         C335 308 320 320 300 320 
+         L205 320 
+         L205 360 
+         C205 380 195 400 175 400 
+         Z
+         M120 85 
+         C130 65 155 55 175 65 
+         C195 75 205 100 195 120 
+         C185 140 160 150 140 140 
+         C120 130 110 105 120 85
+         Z"
+      fill="url(#fGrad)"
+    />
+  </g>
+  
+  <!-- Decorative curl accent -->
+  <path 
+    d="M340 160 C380 155 400 180 395 210 C390 240 360 250 340 240"
+    stroke="url(#fGrad)" 
+    stroke-width="12" 
+    stroke-linecap="round" 
+    fill="none" 
+    opacity="0.7"
+  />
 </svg>
