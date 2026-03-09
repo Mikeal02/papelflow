@@ -253,19 +253,19 @@ const Transactions = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="grid grid-cols-3 gap-3"
+          className="grid grid-cols-3 gap-4"
         >
-          <div className="stat-card p-3 text-center">
-            <p className="text-[10px] text-muted-foreground">Income</p>
-            <p className="text-sm font-bold text-income">{formatCurrency(filteredStats.income)}</p>
+          <div className="stat-card p-4 text-center">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</p>
+            <p className="text-base font-bold text-income mt-1">{formatCurrency(filteredStats.income)}</p>
           </div>
-          <div className="stat-card p-3 text-center">
-            <p className="text-[10px] text-muted-foreground">Expenses</p>
-            <p className="text-sm font-bold text-expense">{formatCurrency(filteredStats.expenses)}</p>
+          <div className="stat-card p-4 text-center">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expenses</p>
+            <p className="text-base font-bold text-expense mt-1">{formatCurrency(filteredStats.expenses)}</p>
           </div>
-          <div className="stat-card p-3 text-center">
-            <p className="text-[10px] text-muted-foreground">Net</p>
-            <p className={cn('text-sm font-bold', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
+          <div className="stat-card p-4 text-center">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Net</p>
+            <p className={cn('text-base font-bold mt-1', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
               {formatCurrency(filteredStats.net)}
             </p>
           </div>
@@ -408,8 +408,9 @@ const Transactions = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: dateIndex * 0.02 + index * 0.02 }}
                           className={cn(
-                            'flex items-center gap-3 md:gap-4 rounded-xl bg-card/50 p-3.5 md:p-4 border border-border/30 hover:border-primary/30 hover:shadow-md transition-all duration-300 group cursor-default',
-                            isSelected && 'border-primary/50 bg-primary/5'
+                            'flex items-center gap-3 md:gap-4 rounded-2xl bg-card/60 backdrop-blur-sm p-3.5 md:p-4 border border-border/20 hover:border-primary/25 hover:bg-card/90 transition-all duration-300 group cursor-default',
+                            'hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.15)]',
+                            isSelected && 'border-primary/40 bg-primary/5 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]'
                           )}
                         >
                           <Checkbox
@@ -496,16 +497,16 @@ const Transactions = () => {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center justify-between pt-4"
+                  className="flex items-center justify-between pt-6 border-t border-border/20"
                 >
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground font-medium">
                     Page {currentPage} of {totalPages} • {filteredTransactions.length} total
                   </p>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9 rounded-xl border-border/30"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(p => p - 1)}
                     >
@@ -519,7 +520,12 @@ const Transactions = () => {
                           key={page}
                           variant={page === currentPage ? 'default' : 'outline'}
                           size="icon"
-                          className="h-8 w-8"
+                          className={cn(
+                            "h-9 w-9 rounded-xl",
+                            page === currentPage 
+                              ? "bg-primary shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.4)]" 
+                              : "border-border/30"
+                          )}
                           onClick={() => setCurrentPage(page)}
                         >
                           {page}
@@ -529,7 +535,7 @@ const Transactions = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9 rounded-xl border-border/30"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage(p => p + 1)}
                     >

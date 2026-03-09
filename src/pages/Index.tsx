@@ -56,7 +56,7 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <PageTransition>
-        <div className="space-y-5 lg:space-y-7">
+        <div className="space-y-6 lg:space-y-8">
           {/* Header */}
           <WelcomeHeader />
 
@@ -72,9 +72,9 @@ const Dashboard = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               onClick={() => setShowQuickAdd(true)}
-              className="w-full rounded-xl border border-dashed border-primary/30 p-3 text-sm text-muted-foreground hover:border-primary/60 hover:text-foreground hover:bg-primary/5 transition-all text-center"
+              className="w-full rounded-2xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground hover:bg-primary/5 transition-all text-center group"
             >
-              <Sparkles className="h-4 w-4 inline mr-2" />
+              <Sparkles className="h-4 w-4 inline mr-2 group-hover:text-primary transition-colors" />
               Quick add: type naturally e.g. "Spent $50 at Starbucks"
             </motion.button>
           )}
@@ -82,8 +82,8 @@ const Dashboard = () => {
           {/* Smart Nudges */}
           <SmartNudges />
 
-          {/* Stats Grid */}
-          <div className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4">
+          {/* Stats Grid - Premium 4-col */}
+          <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
             <StatCard
               title="Total Income"
               value={formatCurrency(stats?.income || 0)}
@@ -120,8 +120,8 @@ const Dashboard = () => {
           {/* Quick Stats Row */}
           <QuickStats />
 
-          {/* Net Worth Trend + Smart Insights */}
-          <div className="grid gap-4 lg:grid-cols-2">
+          {/* Net Worth Trend + Smart Insights - Equal height */}
+          <div className="grid gap-5 lg:grid-cols-2">
             <NetWorthMini />
             {transactions.length > 0 && (
               <SmartInsights
@@ -132,28 +132,28 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
+          {/* Main Content Grid - 2/3 + 1/3 */}
+          <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
             {/* Left Column */}
-            <div className="lg:col-span-2 space-y-4 lg:space-y-5">
+            <div className="lg:col-span-2 space-y-5 lg:space-y-6">
               <RecentTransactions />
               <MoneyFlowSankey />
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <CashFlowChart />
                 <SavingsRateGauge />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <BudgetOverview />
                 <TopCategories />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <FinancialCalendar />
                 <SpendingForecast />
               </div>
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-4 lg:space-y-5">
+            {/* Right Column - Sidebar widgets */}
+            <div className="space-y-5 lg:space-y-6">
               <FinancialHealthScore />
               <AISpendingInsights />
               <SpendingHeatmapCalendar />
