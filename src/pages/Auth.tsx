@@ -104,12 +104,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex bg-background relative overflow-hidden">
-      {/* Global ambient effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[120px]" />
-        <div className="absolute -bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-accent/[0.03] rounded-full blur-[100px]" />
-      </div>
-
       {/* Left Panel - Branding */}
       <motion.div
         initial={{ opacity: 0, x: -40 }}
@@ -117,9 +111,6 @@ const Auth = () => {
         transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="hidden lg:flex lg:w-[55%] xl:w-1/2 relative p-8 xl:p-12 flex-col justify-between overflow-hidden bg-muted/30"
       >
-        <div className="absolute inset-0 subtle-grid opacity-20" />
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
         <div className="relative z-10">
           <motion.div
@@ -129,18 +120,16 @@ const Auth = () => {
             className="flex items-center gap-3 mb-2"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.5, rotate: -15 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, type: 'spring', stiffness: 200, damping: 15 }}
-              whileHover={{ rotate: [0, -5, 5, 0], scale: 1.05 }}
-              className="h-16 w-16 rounded-2xl overflow-hidden shadow-lg"
-              style={{ boxShadow: '0 8px 30px hsl(var(--primary) / 0.3)' }}
+              className="h-20 w-20 rounded-2xl overflow-hidden shrink-0"
             >
-              <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
+              <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
             </motion.div>
             <div>
-              <span className="text-3xl font-bold tracking-tight">Finflow</span>
-              <p className="text-[11px] text-muted-foreground font-medium tracking-wider uppercase">Enterprise Finance Platform</p>
+              <span className="text-4xl font-bold tracking-tight">Finflow</span>
+              <p className="text-xs text-muted-foreground font-medium tracking-wider uppercase">Enterprise Finance Platform</p>
             </div>
           </motion.div>
         </div>
@@ -226,13 +215,12 @@ const Auth = () => {
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
             <motion.div
-              initial={{ opacity: 0, scale: 0.5, rotate: -15 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
-              whileHover={{ rotate: [0, -5, 5, 0] }}
-              className="h-14 w-14 rounded-xl overflow-hidden shadow-lg"
+              className="h-16 w-16 rounded-xl overflow-hidden"
             >
-              <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
+              <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
             </motion.div>
             <span className="text-3xl font-bold">Finflow</span>
           </div>
