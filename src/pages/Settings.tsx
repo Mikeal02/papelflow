@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
   User, Shield, Download, Trash2, Moon, Globe, Calendar, ChevronRight, Loader2, LogOut,
-  Database, Clock, Activity, HardDrive, FileJson, FileSpreadsheet, BarChart3,
+  Database, Clock, Activity, HardDrive, FileJson, FileSpreadsheet, BarChart3, Mail, Send,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -27,6 +27,7 @@ import { toast } from '@/hooks/use-toast';
 import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useTransactions } from '@/hooks/useTransactions';
+import { triggerWeeklySummary } from '@/lib/email-service';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useCategories } from '@/hooks/useCategories';
@@ -54,6 +55,8 @@ const Settings = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSendingSummary, setIsSendingSummary] = useState(false);
+  const [weeklyEmailEnabled, setWeeklyEmailEnabled] = useState(true);
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (profile) setFullName(profile.full_name || ''); }, [profile]);
@@ -209,6 +212,42 @@ const Settings = () => {
 
         {/* Notifications */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}><NotificationSettings /></motion.div>
+
+        {/* Email Reports */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }} className="stat-card">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10"><Mail className="h-5 w-5 text-primary" /></div>
+            <div><h3 className="font-semibold">Email Reports</h3><p className="text-xs text-muted-foreground">Automated weekly financial summaries with AI insights</p></div>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div><p className="font-medium text-sm">Weekly Summary</p><p className="text-xs text-muted-foreground">Get AI-powered spending insights every Monday</p></div>
+              <Switch checked={weeklyEmailEnabled} onCheckedChange={setWeeklyEmailEnabled} />
+            </div>
+            <Separator className="bg-border/50" />
+            <div className="flex items-center justify-between">
+              <div><p className="text-sm text-muted-foreground">Delivers to: <span className="text-foreground font-medium">{user?.email}</span></p></div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={isSendingSummary}
+                onClick={async () => {
+                  setIsSendingSummary(true);
+                  try {
+                    await triggerWeeklySummary();
+                    toast({ title: '📊 Summary sent!', description: 'Check your inbox for the weekly report.' });
+                  } catch {
+                    toast({ title: 'Could not send summary', description: 'Email delivery may not be configured yet.', variant: 'destructive' });
+                  } finally { setIsSendingSummary(false); }
+                }}
+              >
+                {isSendingSummary ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                Send Now
+              </Button>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Security */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="stat-card">
