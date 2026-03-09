@@ -16,6 +16,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -157,7 +158,8 @@ const Subscriptions = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
+      <AmbientBackground variant="purple" />
+      <div className="space-y-8 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -15 }}
