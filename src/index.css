@@ -353,74 +353,84 @@
     @apply text-muted-foreground font-semibold;
   }
   
-  /* Elite Premium Button */
+  /* Elite Premium Button - Ultra Polished */
   .btn-premium {
-    @apply relative font-semibold overflow-hidden;
+    @apply relative font-semibold overflow-hidden text-primary-foreground;
     background: linear-gradient(
       135deg,
       hsl(var(--primary)) 0%,
-      hsl(var(--primary-glow)) 50%,
+      hsl(var(--primary-glow)) 35%,
+      hsl(var(--accent)) 65%,
       hsl(var(--primary)) 100%
     );
-    background-size: 200% auto;
+    background-size: 300% 100%;
+    background-position: 0% 50%;
     box-shadow: 
-      0 4px 15px -3px hsl(var(--primary) / 0.4),
-      inset 0 1px 0 hsl(0 0% 100% / 0.2);
+      0 4px 20px -4px hsl(var(--primary) / 0.45),
+      0 8px 30px -8px hsl(var(--primary) / 0.25),
+      inset 0 1px 0 hsl(0 0% 100% / 0.25),
+      inset 0 -1px 0 hsl(var(--primary) / 0.3);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: btn-gradient-flow 4s ease infinite;
   }
   
+  @keyframes btn-gradient-flow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* Glossy highlight overlay */
   .btn-premium::before {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(
-      135deg,
-      hsl(0 0% 100% / 0.25) 0%,
-      transparent 40%,
-      transparent 60%,
-      hsl(0 0% 100% / 0.1) 100%
+      180deg,
+      hsl(0 0% 100% / 0.3) 0%,
+      transparent 50%,
+      hsl(var(--primary) / 0.1) 100%
     );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .btn-premium::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent 30%,
-      hsl(0 0% 100% / 0.15) 50%,
-      transparent 70%
-    );
-    transform: translateX(-100%) rotate(45deg);
-    transition: transform 0.6s ease;
+    opacity: 1;
     pointer-events: none;
   }
   
-  .btn-premium:hover::before {
-    opacity: 1;
+  /* Shine sweep effect */
+  .btn-premium::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(0 0% 100% / 0.35) 50%,
+      transparent 100%
+    );
+    transform: skewX(-15deg);
+    transition: left 0.6s ease;
+    pointer-events: none;
   }
   
   .btn-premium:hover::after {
-    transform: translateX(100%) rotate(45deg);
+    left: 100%;
   }
   
   .btn-premium:hover {
-    transform: translateY(-2px) scale(1.02);
-    background-position: right center;
+    transform: translateY(-3px) scale(1.03);
     box-shadow: 
-      0 12px 35px -8px hsl(var(--primary) / 0.5),
-      0 4px 15px -3px hsl(var(--primary) / 0.3),
-      inset 0 1px 0 hsl(0 0% 100% / 0.25);
+      0 8px 30px -6px hsl(var(--primary) / 0.55),
+      0 16px 45px -10px hsl(var(--primary) / 0.35),
+      0 24px 60px -15px hsl(var(--accent) / 0.25),
+      inset 0 1px 0 hsl(0 0% 100% / 0.35);
   }
   
   .btn-premium:active {
-    transform: translateY(0) scale(0.98);
+    transform: translateY(-1px) scale(0.99);
+    box-shadow: 
+      0 4px 15px -4px hsl(var(--primary) / 0.4),
+      inset 0 1px 0 hsl(0 0% 100% / 0.2);
   }
   
   /* Card Hover Animation Enhanced */
