@@ -10,8 +10,11 @@
       <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:0.2"/>
     </linearGradient>
   </defs>
+  <!-- Rounded square background -->
   <rect width="512" height="512" rx="108" fill="url(#grad2)"/>
   <rect width="512" height="512" rx="108" fill="none" stroke="url(#grad)" stroke-width="3" opacity="0.3"/>
+  <!-- Stylized F letterform -->
   <path d="M160 120 L352 120 C362 120 370 128 370 138 L370 148 C370 158 362 166 352 166 L220 166 L220 236 L320 236 C330 236 338 244 338 254 L338 264 C338 274 330 282 320 282 L220 282 L220 374 C220 384 212 392 202 392 L180 392 C170 392 162 384 162 374 L162 138 C162 128 168 120 178 120 Z" fill="url(#grad)"/>
+  <!-- Flow wave accent -->
   <path d="M180 392 C240 392 280 360 340 340 C380 326 400 340 400 340" stroke="url(#grad)" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.7"/>
 </svg>
