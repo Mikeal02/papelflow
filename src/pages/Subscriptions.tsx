@@ -157,7 +157,7 @@ const Subscriptions = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-5 md:space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -186,7 +186,7 @@ const Subscriptions = () => {
         />
 
         {/* Summary Cards */}
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
           {[
             { icon: CreditCard, label: 'Active', value: `${activeSubscriptions.length}`, sub: 'subscriptions', color: 'primary' },
             { icon: DollarSign, label: 'Monthly Cost', value: formatCurrency(totalMonthly), sub: `${formatCurrency(totalDaily)}/day`, color: 'expense' },
@@ -214,7 +214,7 @@ const Subscriptions = () => {
 
         {/* Analytics Row */}
         {activeSubscriptions.length > 0 && (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-5 lg:grid-cols-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -366,10 +366,10 @@ const Subscriptions = () => {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.03 }}
                       className={cn(
-                        'flex items-center gap-3 md:gap-4 rounded-xl p-3 md:p-4 border transition-colors group',
+                        'flex items-center gap-3 md:gap-4 rounded-2xl p-3.5 md:p-4 border backdrop-blur-sm transition-all duration-200 group hover:shadow-md',
                         subscription.is_active
-                          ? 'bg-card/50 border-border/50 hover:border-border'
-                          : 'bg-muted/30 border-border/30 opacity-60',
+                          ? 'bg-card/60 border-border/40 hover:border-border/70 hover:bg-card/80'
+                          : 'bg-muted/20 border-border/20 opacity-60',
                         isUrgent && 'border-warning/30 bg-warning/5',
                         isPast && 'border-expense/30 bg-expense/5'
                       )}

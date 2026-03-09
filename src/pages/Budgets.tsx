@@ -178,7 +178,7 @@ const Budgets = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -216,7 +216,7 @@ const Budgets = () => {
 
         {/* Stats Row */}
         {monthBudgets.length > 0 && (
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
             {[
               { label: 'Total Budget', value: formatCurrency(totalBudget), icon: Wallet, color: 'text-primary' },
               { label: 'Total Spent', value: formatCurrency(totalSpent), icon: TrendingDown, color: budgetProgress > 100 ? 'text-expense' : 'text-foreground' },
@@ -374,7 +374,7 @@ const Budgets = () => {
                   </div>
                   <div className="space-y-2">
                     {unbudgetedSpending.slice(0, 5).map((item, i) => (
-                      <div key={i} className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-muted/30">
+                      <div key={i} className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted/20 border border-border/30 backdrop-blur-sm hover:bg-muted/30 transition-all duration-200">
                         <div className="flex items-center gap-2 min-w-0">
                           <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                           <span className="text-sm font-medium truncate">{item.name}</span>
