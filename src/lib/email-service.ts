@@ -82,3 +82,16 @@ export async function sendMonthlySummary(
 
   return response;
 }
+
+export async function triggerWeeklySummary() {
+  const { data: response, error } = await supabase.functions.invoke('weekly-summary', {
+    body: {},
+  });
+
+  if (error) {
+    console.error('Failed to trigger weekly summary:', error);
+    throw error;
+  }
+
+  return response;
+}
