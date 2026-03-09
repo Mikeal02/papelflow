@@ -245,7 +245,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
           <motion.button
             whileHover={{ x: 2 }}
             whileTap={{ scale: 0.98 }}
-            onClick={(e) => toggleTheme(e)}
+            onClick={() => toggleTheme()}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
           >
             <div className="relative h-4 w-4">
