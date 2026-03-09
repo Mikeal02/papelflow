@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Shield, BarChart3, Wallet, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Shield, BarChart3, Wallet, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff, Sparkles, Zap, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
+import { ParticleField, MeshGradient } from '@/components/ui/particle-field';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -18,19 +19,19 @@ const authSchema = z.object({
 });
 
 const stats = [
-  { value: '50K+', label: 'Active Users' },
-  { value: '$2.4B', label: 'Tracked' },
-  { value: '99.9%', label: 'Uptime' },
-  { value: '4.9★', label: 'Rating' },
+  { value: '50K+', label: 'Active Users', icon: Crown },
+  { value: '$2.4B', label: 'Tracked', icon: Sparkles },
+  { value: '99.9%', label: 'Uptime', icon: Zap },
+  { value: '4.9★', label: 'Rating', icon: Target },
 ];
 
 const features = [
-  { icon: BarChart3, title: 'Smart Analytics', description: 'AI-powered insights and spending forecasts' },
-  { icon: Shield, title: 'Bank-Level Security', description: '256-bit encryption & SOC 2 compliance' },
-  { icon: Wallet, title: 'Multi-Account', description: 'Track bank, credit, investment & crypto' },
-  { icon: PieChart, title: 'Budget Engine', description: 'Automated budgets with smart alerts' },
-  { icon: Target, title: 'Goal Tracking', description: 'Savings goals with milestone tracking' },
-  { icon: Globe, title: 'Multi-Currency', description: 'Support for 150+ global currencies' },
+  { icon: BarChart3, title: 'Smart Analytics', description: 'AI-powered insights and spending forecasts', gradient: 'from-primary to-accent' },
+  { icon: Shield, title: 'Bank-Level Security', description: '256-bit encryption & SOC 2 compliance', gradient: 'from-income to-chart-3' },
+  { icon: Wallet, title: 'Multi-Account', description: 'Track bank, credit, investment & crypto', gradient: 'from-chart-4 to-warning' },
+  { icon: PieChart, title: 'Budget Engine', description: 'Automated budgets with smart alerts', gradient: 'from-chart-6 to-primary' },
+  { icon: Target, title: 'Goal Tracking', description: 'Savings goals with milestone tracking', gradient: 'from-accent to-income' },
+  { icon: Globe, title: 'Multi-Currency', description: 'Support for 150+ global currencies', gradient: 'from-primary to-chart-6' },
 ];
 
 const Auth = () => {
