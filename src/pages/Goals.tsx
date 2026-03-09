@@ -98,7 +98,7 @@ const Goals = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -144,7 +144,7 @@ const Goals = () => {
 
         {/* Summary Stats */}
         {goals.length > 0 && (
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
             {[
               { label: 'Total Saved', value: formatCurrency(totalSaved), sub: `of ${formatCurrency(totalTarget)}`, icon: Target, color: 'text-income' },
               { label: 'Active Goals', value: String(activeCount), sub: `${overdueCount} overdue`, icon: Flame, color: 'text-primary' },
@@ -238,7 +238,7 @@ const Goals = () => {
         )}
 
         {/* Goals Grid */}
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
             {processedGoals.map((goal, index) => (
               <motion.div
@@ -319,27 +319,27 @@ const Goals = () => {
                 </div>
 
                 {/* Detailed Metrics */}
-                <div className="mt-3 pt-3 border-t border-border/50 grid grid-cols-2 gap-2">
+                <div className="mt-3 pt-3 border-t border-border/30 grid grid-cols-2 gap-2">
                   {goal.monthlyNeeded && goal.monthlyNeeded > 0 && (
-                    <div className="p-2 rounded-lg bg-muted/30 text-center">
+                    <div className="p-2.5 rounded-xl bg-muted/20 border border-border/20 backdrop-blur-sm text-center">
                       <p className="text-[10px] text-muted-foreground">Monthly</p>
                       <p className="text-xs font-bold truncate">{formatCurrency(goal.monthlyNeeded)}</p>
                     </div>
                   )}
                   {goal.weeklyNeeded && goal.weeklyNeeded > 0 && (
-                    <div className="p-2 rounded-lg bg-muted/30 text-center">
+                    <div className="p-2.5 rounded-xl bg-muted/20 border border-border/20 backdrop-blur-sm text-center">
                       <p className="text-[10px] text-muted-foreground">Weekly</p>
                       <p className="text-xs font-bold truncate">{formatCurrency(goal.weeklyNeeded)}</p>
                     </div>
                   )}
                   {(!goal.monthlyNeeded || goal.monthlyNeeded <= 0) && (
-                    <div className="p-2 rounded-lg bg-muted/30 text-center">
+                    <div className="p-2.5 rounded-xl bg-muted/20 border border-border/20 backdrop-blur-sm text-center">
                       <p className="text-[10px] text-muted-foreground">Remaining</p>
                       <p className="text-xs font-bold truncate">{formatCurrency(goal.remaining)}</p>
                     </div>
                   )}
                   {(!goal.weeklyNeeded || goal.weeklyNeeded <= 0) && (
-                    <div className="p-2 rounded-lg bg-muted/30 text-center">
+                    <div className="p-2.5 rounded-xl bg-muted/20 border border-border/20 backdrop-blur-sm text-center">
                       <p className="text-[10px] text-muted-foreground">Status</p>
                       <p className="text-xs font-bold">{goal.isCompleted ? '✅ Done' : '🔄 Active'}</p>
                     </div>
