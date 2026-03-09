@@ -191,6 +191,11 @@ const Budgets = () => {
               <span className="px-3 font-semibold text-sm min-w-[120px] text-center">{format(currentDate, 'MMMM yyyy')}</span>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-background" onClick={() => setCurrentDate(addMonths(currentDate, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
+            {monthBudgets.length >= 2 && (
+              <Button variant="outline" className="gap-2" onClick={() => setShowReallocation(true)}>
+                <ArrowLeftRight className="h-4 w-4" /><span className="hidden sm:inline">Reallocate</span>
+              </Button>
+            )}
             <Button className="gap-2 btn-premium" onClick={() => setShowAddModal(true)}>
               <Plus className="h-4 w-4" /><span className="hidden sm:inline">New Budget</span>
             </Button>
@@ -198,6 +203,16 @@ const Budgets = () => {
         </motion.div>
 
         <AddBudgetModal open={showAddModal} onOpenChange={setShowAddModal} month={currentMonth} />
+
+        {/* Budget Reallocation Panel */}
+        <AnimatePresence>
+          {showReallocation && monthBudgets.length >= 2 && (
+            <BudgetReallocation 
+              budgets={monthBudgets} 
+              onClose={() => setShowReallocation(false)} 
+            />
+          )}
+        </AnimatePresence>
 
         {/* Stats Row */}
         {monthBudgets.length > 0 && (
