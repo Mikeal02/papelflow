@@ -353,7 +353,7 @@
     @apply text-muted-foreground font-semibold;
   }
   
-  /* Elite Premium Button - Ultra Polished */
+  /* Elite Premium Button - Stable (no flicker) */
   .btn-premium {
     @apply relative font-semibold overflow-hidden text-primary-foreground;
     background: linear-gradient(
@@ -363,20 +363,15 @@
       hsl(var(--accent)) 65%,
       hsl(var(--primary)) 100%
     );
-    background-size: 300% 100%;
-    background-position: 0% 50%;
+    background-size: 100% 100%;
+    background-position: 50% 50%;
     box-shadow: 
       0 4px 20px -4px hsl(var(--primary) / 0.45),
       0 8px 30px -8px hsl(var(--primary) / 0.25),
       inset 0 1px 0 hsl(0 0% 100% / 0.25),
       inset 0 -1px 0 hsl(var(--primary) / 0.3);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    animation: btn-gradient-flow 4s ease infinite;
-  }
-  
-  @keyframes btn-gradient-flow {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    animation: none;
   }
   
   /* Glossy highlight overlay */
