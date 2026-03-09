@@ -19,6 +19,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis
 const Budgets = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showReallocation, setShowReallocation] = useState(false);
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
