@@ -9,10 +9,11 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 import { cn } from '@/lib/utils';
-import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2, Wallet, TrendingUp, TrendingDown, PieChart as PieChartIcon, BarChart3, ShieldAlert, Percent } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2, Wallet, TrendingUp, TrendingDown, PieChart as PieChartIcon, BarChart3, ShieldAlert, Percent, ArrowLeftRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { useState, useMemo, useEffect } from 'react';
 import { AddBudgetModal } from '@/components/budgets/AddBudgetModal';
+import { BudgetReallocation } from '@/components/budgets/BudgetReallocation';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, RadialBarChart, RadialBar } from 'recharts';
 
 const Budgets = () => {
