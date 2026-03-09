@@ -94,8 +94,8 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
                 {/* Header */}
                 <div className="flex items-center justify-between h-14 px-4 border-b border-sidebar-border">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm">
-                      <TrendingUp className="h-4 w-4 text-primary-foreground" />
+                    <div className="h-8 w-8 rounded-lg overflow-hidden shadow-sm">
+                      <img src="/logo.png" alt="Finflow" className="h-full w-full object-cover" />
                     </div>
                     <span className="text-lg font-bold tracking-tight">Finflow</span>
                   </div>
