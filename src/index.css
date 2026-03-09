@@ -162,10 +162,19 @@
 }
 
 @layer components {
-  /* Premium Stat Card */
+  /* Elite Premium Stat Card */
   .stat-card {
-    @apply relative rounded-2xl border border-border/50 bg-card p-5 shadow-sm overflow-hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply relative rounded-2xl border border-border/40 bg-card p-5 overflow-hidden;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--card) / 0.95) 100%
+    );
+    box-shadow: 
+      0 1px 3px hsl(var(--foreground) / 0.04),
+      0 4px 6px -2px hsl(var(--foreground) / 0.03),
+      inset 0 1px 0 hsl(0 0% 100% / 0.06);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   
   .stat-card::before {
@@ -174,43 +183,49 @@
     inset: 0;
     background: linear-gradient(
       135deg,
-      hsl(var(--primary) / 0.03) 0%,
-      transparent 50%,
-      hsl(var(--accent) / 0.02) 100%
+      hsl(var(--primary) / 0.04) 0%,
+      transparent 40%,
+      transparent 60%,
+      hsl(var(--accent) / 0.03) 100%
     );
     pointer-events: none;
   }
   
   .stat-card:hover {
-    @apply border-primary/20 shadow-lg;
-    transform: translateY(-2px);
+    @apply border-primary/30;
+    transform: translateY(-3px);
+    box-shadow: 
+      0 8px 25px -8px hsl(var(--primary) / 0.2),
+      0 20px 40px -15px hsl(var(--foreground) / 0.1),
+      inset 0 1px 0 hsl(0 0% 100% / 0.1);
   }
   
-  /* Holographic hover effect on cards */
+  /* Premium holographic sweep effect */
   .stat-card::after {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(
       105deg,
-      transparent 40%,
-      hsl(var(--primary) / 0.06) 45%,
-      hsl(var(--accent) / 0.06) 50%,
-      transparent 55%
+      transparent 35%,
+      hsl(var(--primary) / 0.08) 42%,
+      hsl(var(--accent) / 0.08) 48%,
+      hsl(var(--chart-6) / 0.06) 52%,
+      transparent 60%
     );
     opacity: 0;
-    transform: translateX(-100%);
+    transform: translateX(-120%);
     transition: opacity 0.3s ease;
     pointer-events: none;
   }
   
   .stat-card:hover::after {
     opacity: 1;
-    animation: card-shine 0.8s ease forwards;
+    animation: card-shine 1s ease forwards;
   }
   
   @keyframes card-shine {
-    to { transform: translateX(100%); }
+    to { transform: translateX(120%); }
   }
   
   /* Glass Card Effect */
