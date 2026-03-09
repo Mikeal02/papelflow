@@ -129,6 +129,9 @@ const Auth = () => {
             className="flex items-center gap-3 mb-2"
           >
             <motion.div
+              initial={{ opacity: 0, scale: 0.5, rotate: -15 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ delay: 0.4, type: 'spring', stiffness: 200, damping: 15 }}
               whileHover={{ rotate: [0, -5, 5, 0], scale: 1.05 }}
               className="h-12 w-12 rounded-2xl overflow-hidden shadow-lg"
               style={{ boxShadow: '0 8px 30px hsl(var(--primary) / 0.3)' }}
@@ -223,6 +226,9 @@ const Auth = () => {
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
             <motion.div
+              initial={{ opacity: 0, scale: 0.5, rotate: -15 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
               whileHover={{ rotate: [0, -5, 5, 0] }}
               className="h-11 w-11 rounded-xl overflow-hidden shadow-lg"
             >
