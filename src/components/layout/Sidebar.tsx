@@ -119,7 +119,7 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
             transition={{ duration: 0.5 }}
             className="h-11 w-11 rounded-lg overflow-hidden shadow-md shadow-primary/25"
           >
-            <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
+            <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
           </motion.div>
           <div className="min-w-0">
             <span className="text-xl font-bold tracking-tight">Finflow</span>

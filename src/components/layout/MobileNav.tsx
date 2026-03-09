@@ -67,7 +67,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-lg overflow-hidden shadow-sm">
-            <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
+            <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
           </div>
           <span className="text-xl font-bold tracking-tight">Finflow</span>
         </Link>
@@ -95,7 +95,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
                 <div className="flex items-center justify-between h-14 px-4 border-b border-sidebar-border">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 rounded-lg overflow-hidden shadow-sm">
-                      <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
+                      <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
                     </div>
                     <span className="text-xl font-bold tracking-tight">Finflow</span>
                   </div>

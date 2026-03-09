@@ -125,7 +125,7 @@ const Auth = () => {
               transition={{ delay: 0.4, type: 'spring', stiffness: 200, damping: 15 }}
               className="h-20 w-20 rounded-2xl overflow-hidden shrink-0"
             >
-              <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
+              <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
             </motion.div>
             <div>
               <span className="text-4xl font-bold tracking-tight">Finflow</span>
@@ -220,7 +220,7 @@ const Auth = () => {
               transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
               className="h-16 w-16 rounded-xl overflow-hidden"
             >
-              <img src="/logo.svg" alt="Finflow" className="h-full w-full" />
+              <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
             </motion.div>
             <span className="text-3xl font-bold">Finflow</span>
           </div>
