@@ -9,15 +9,17 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 import { cn } from '@/lib/utils';
-import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2, Wallet, TrendingUp, TrendingDown, PieChart as PieChartIcon, BarChart3, ShieldAlert, Percent } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, Loader2, Wallet, TrendingUp, TrendingDown, PieChart as PieChartIcon, BarChart3, ShieldAlert, Percent, ArrowLeftRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { useState, useMemo, useEffect } from 'react';
 import { AddBudgetModal } from '@/components/budgets/AddBudgetModal';
+import { BudgetReallocation } from '@/components/budgets/BudgetReallocation';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, RadialBarChart, RadialBar } from 'recharts';
 
 const Budgets = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showReallocation, setShowReallocation] = useState(false);
   const { data: budgets = [], isLoading: budgetsLoading } = useBudgets();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
@@ -189,6 +191,11 @@ const Budgets = () => {
               <span className="px-3 font-semibold text-sm min-w-[120px] text-center">{format(currentDate, 'MMMM yyyy')}</span>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-background" onClick={() => setCurrentDate(addMonths(currentDate, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
+            {monthBudgets.length >= 2 && (
+              <Button variant="outline" className="gap-2" onClick={() => setShowReallocation(true)}>
+                <ArrowLeftRight className="h-4 w-4" /><span className="hidden sm:inline">Reallocate</span>
+              </Button>
+            )}
             <Button className="gap-2 btn-premium" onClick={() => setShowAddModal(true)}>
               <Plus className="h-4 w-4" /><span className="hidden sm:inline">New Budget</span>
             </Button>
@@ -196,6 +203,16 @@ const Budgets = () => {
         </motion.div>
 
         <AddBudgetModal open={showAddModal} onOpenChange={setShowAddModal} month={currentMonth} />
+
+        {/* Budget Reallocation Panel */}
+        <AnimatePresence>
+          {showReallocation && monthBudgets.length >= 2 && (
+            <BudgetReallocation 
+              budgets={monthBudgets} 
+              onClose={() => setShowReallocation(false)} 
+            />
+          )}
+        </AnimatePresence>
 
         {/* Stats Row */}
         {monthBudgets.length > 0 && (
