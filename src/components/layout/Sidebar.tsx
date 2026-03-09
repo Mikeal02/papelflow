@@ -116,9 +116,9 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
           <motion.div 
             whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
             transition={{ duration: 0.5 }}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-md shadow-primary/25"
+            className="h-9 w-9 rounded-lg overflow-hidden shadow-md shadow-primary/25"
           >
-            <TrendingUp className="h-5 w-5 text-primary-foreground" />
+            <img src="/logo.png" alt="Finflow" className="h-full w-full object-cover" />
           </motion.div>
           <div className="min-w-0">
             <span className="text-xl font-bold tracking-tight">Finflow</span>

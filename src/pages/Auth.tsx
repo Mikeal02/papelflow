@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, TrendingUp, Shield, BarChart3, Wallet, Sparkles, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Shield, BarChart3, Wallet, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -106,8 +106,8 @@ const Auth = () => {
     <div className="min-h-screen flex bg-background relative overflow-hidden">
       {/* Global ambient effects */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[120px] animate-float" />
-        <div className="absolute -bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-accent/[0.03] rounded-full blur-[100px]" style={{ animationDelay: '3s', animationDuration: '20s' }} />
+        <div className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute -bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-accent/[0.03] rounded-full blur-[100px]" />
       </div>
 
       {/* Left Panel - Branding */}
@@ -115,11 +115,11 @@ const Auth = () => {
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="hidden lg:flex lg:w-[55%] xl:w-1/2 relative p-8 xl:p-12 flex-col justify-between overflow-hidden aurora-bg"
+        className="hidden lg:flex lg:w-[55%] xl:w-1/2 relative p-8 xl:p-12 flex-col justify-between overflow-hidden bg-muted/30"
       >
-        <div className="absolute inset-0 subtle-grid opacity-30" />
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-float" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent/8 rounded-full blur-3xl" />
+        <div className="absolute inset-0 subtle-grid opacity-20" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
         <div className="relative z-10">
           <motion.div
@@ -130,10 +130,10 @@ const Auth = () => {
           >
             <motion.div
               whileHover={{ rotate: [0, -5, 5, 0], scale: 1.05 }}
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg"
+              className="h-12 w-12 rounded-2xl overflow-hidden shadow-lg"
               style={{ boxShadow: '0 8px 30px hsl(var(--primary) / 0.3)' }}
             >
-              <TrendingUp className="h-6 w-6 text-primary-foreground" />
+              <img src="/logo.png" alt="Finflow" className="h-full w-full object-cover" />
             </motion.div>
             <div>
               <span className="text-2xl font-bold tracking-tight">Finflow</span>
@@ -224,9 +224,9 @@ const Auth = () => {
           <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
             <motion.div
               whileHover={{ rotate: [0, -5, 5, 0] }}
-              className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg"
+              className="h-11 w-11 rounded-xl overflow-hidden shadow-lg"
             >
-              <TrendingUp className="h-5 w-5 text-primary-foreground" />
+              <img src="/logo.png" alt="Finflow" className="h-full w-full object-cover" />
             </motion.div>
             <span className="text-2xl font-bold">Finflow</span>
           </div>
