@@ -105,10 +105,11 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   });
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/50 bg-sidebar/80 backdrop-blur-xl">
-      {/* Ambient glow behind sidebar */}
-      <div className="absolute -right-20 top-1/3 w-40 h-40 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute -right-10 bottom-1/4 w-32 h-32 bg-accent/5 rounded-full blur-[60px] pointer-events-none" />
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/30 bg-sidebar/70 backdrop-blur-2xl">
+      {/* Ambient depth orbs */}
+      <div className="absolute -right-24 top-1/4 w-48 h-48 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -right-16 bottom-1/3 w-36 h-36 bg-accent/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute left-1/2 top-1/2 w-24 h-24 bg-chart-6/3 rounded-full blur-[60px] pointer-events-none" />
       
       <div className="flex h-full flex-col relative">
         {/* Logo */}
