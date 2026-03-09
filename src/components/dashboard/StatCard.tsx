@@ -103,23 +103,31 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
     >
-      <TiltCard intensity={10} className="stat-card group h-full relative overflow-hidden">
-        {/* Ambient glow */}
+      <TiltCard intensity={12} className="stat-card group h-full relative overflow-hidden elite-3d-card">
+        {/* Multi-layer ambient glow */}
         <div className={cn(
-          "absolute -top-20 -right-20 h-40 w-40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-          autoCompare === 'income' && "bg-income/20",
-          autoCompare === 'expense' && "bg-expense/20",
-          autoCompare === 'net' && "bg-primary/20",
-          !autoCompare && "bg-accent/20"
+          "absolute -top-24 -right-24 h-48 w-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-700",
+          autoCompare === 'income' && "bg-income/25",
+          autoCompare === 'expense' && "bg-expense/25",
+          autoCompare === 'net' && "bg-primary/25",
+          !autoCompare && "bg-accent/25"
         )} />
         
-        {/* Grid pattern overlay */}
+        {/* Secondary glow layer */}
+        <motion.div 
+          className={cn(
+            "absolute -bottom-16 -left-16 h-32 w-32 rounded-full blur-2xl",
+            autoCompare === 'income' && "bg-income/10",
+            autoCompare === 'expense' && "bg-expense/10",
+            !autoCompare && "bg-primary/10"
+          )}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+        
+        {/* Cyber grid pattern overlay */}
         <div 
-          className="absolute inset-0 opacity-[0.02] pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 1px)`,
-            backgroundSize: '24px 24px',
-          }}
+          className="absolute inset-0 opacity-[0.015] pointer-events-none cyber-grid"
         />
 
         <div className="relative flex items-start justify-between gap-3">

@@ -105,21 +105,43 @@ export function Sidebar({ onAddTransaction }: SidebarProps) {
   });
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/30 bg-sidebar/70 backdrop-blur-2xl">
-      {/* Ambient depth orbs */}
-      <div className="absolute -right-24 top-1/4 w-48 h-48 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute -right-16 bottom-1/3 w-36 h-36 bg-accent/5 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute left-1/2 top-1/2 w-24 h-24 bg-chart-6/3 rounded-full blur-[60px] pointer-events-none" />
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/30 bg-sidebar/70 backdrop-blur-2xl overflow-hidden">
+      {/* Animated ambient depth orbs */}
+      <motion.div 
+        className="absolute -right-24 top-1/4 w-48 h-48 bg-primary/5 rounded-full blur-[100px] pointer-events-none"
+        animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.08, 0.05] }}
+        transition={{ duration: 8, repeat: Infinity }}
+      />
+      <motion.div 
+        className="absolute -right-16 bottom-1/3 w-36 h-36 bg-accent/5 rounded-full blur-[80px] pointer-events-none"
+        animate={{ scale: [1.2, 1, 1.2], opacity: [0.04, 0.07, 0.04] }}
+        transition={{ duration: 10, repeat: Infinity }}
+      />
+      <motion.div 
+        className="absolute left-0 top-1/2 w-24 h-24 bg-chart-6/5 rounded-full blur-[60px] pointer-events-none morphing-blob"
+        animate={{ x: [-10, 10, -10] }}
+        transition={{ duration: 12, repeat: Infinity }}
+      />
+      
+      {/* Subtle scan line effect */}
+      <div className="absolute inset-0 scan-line opacity-30 pointer-events-none" />
       
       <div className="flex h-full flex-col relative">
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
+        {/* Logo with enhanced glow */}
+        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border/50 px-6 relative">
           <motion.div 
-            whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+            whileHover={{ rotate: [0, -10, 10, 0], scale: 1.15 }}
             transition={{ duration: 0.5 }}
-            className="h-11 w-11 rounded-lg overflow-hidden shadow-md shadow-primary/25"
+            className="h-11 w-11 rounded-lg overflow-hidden relative"
+            style={{ boxShadow: '0 4px 20px -4px hsl(var(--primary) / 0.4)' }}
           >
-            <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
+            <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain relative z-10" />
+            {/* Logo glow pulse */}
+            <motion.div 
+              className="absolute inset-0 bg-primary/30 blur-md"
+              animate={{ opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </motion.div>
           <div className="min-w-0">
             <span className="text-xl font-bold tracking-tight">Finflow</span>
