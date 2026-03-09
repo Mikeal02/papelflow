@@ -10,14 +10,14 @@ const containerVariants = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.1,
+      staggerChildren: 0.04,
+      delayChildren: 0.08,
     },
   },
   exit: {
     opacity: 0,
-    y: -8,
-    transition: { duration: 0.2 },
+    y: -6,
+    transition: { duration: 0.15 },
   },
 };
 
@@ -30,10 +30,10 @@ export function PageTransition({ children }: PageTransitionProps) {
       exit="exit"
     >
       <motion.div
-        initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        exit={{ opacity: 0, y: -12, filter: 'blur(4px)' }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        initial={{ opacity: 0, y: 16, filter: 'blur(6px)', scale: 0.99 }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
+        exit={{ opacity: 0, y: -10, filter: 'blur(4px)', scale: 0.99 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
         {children}
       </motion.div>
