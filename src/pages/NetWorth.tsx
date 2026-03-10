@@ -109,7 +109,7 @@ const NetWorth = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading net worth...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
