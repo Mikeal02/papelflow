@@ -93,7 +93,7 @@ const Goals = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading goals...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
