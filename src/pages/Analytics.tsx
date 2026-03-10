@@ -14,7 +14,7 @@ import { GradientBadge } from '@/components/ui/glowing-border';
 
 const Analytics = () => {
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6 relative">
           {/* Ambient background effects */}
