@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Target, Calendar, MoreHorizontal, TrendingUp, Loader2, Sparkles, Trophy, Clock, Flame, Filter, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
