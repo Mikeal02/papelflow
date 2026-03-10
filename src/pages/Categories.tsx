@@ -153,7 +153,7 @@ const Categories = () => {
   );
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -15 }}
