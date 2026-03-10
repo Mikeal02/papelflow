@@ -130,7 +130,7 @@ const Accounts = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
