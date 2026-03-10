@@ -98,7 +98,7 @@ const Goals = () => {
   }
 
   return (
-    <AppLayout>
+    <>
       <AmbientBackground variant="cool" />
       <div className="space-y-8 relative z-10">
         {/* Header */}
