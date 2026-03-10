@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, TrendingDown, Calculator, Flame, Snowflake, Loader2, AlertTriangle, DollarSign, Calendar, Target, ArrowRight } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
