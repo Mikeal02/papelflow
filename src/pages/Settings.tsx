@@ -134,7 +134,7 @@ const Settings = () => {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="max-w-3xl space-y-6">
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h1 className="text-2xl md:text-3xl font-bold gradient-text">Settings</h1>
