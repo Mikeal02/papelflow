@@ -112,7 +112,7 @@ const Budgets = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative"><div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" /><Loader2 className="h-12 w-12 animate-spin text-primary relative" /></div>
           <p className="text-muted-foreground animate-pulse">Loading budgets...</p>
