@@ -5,7 +5,7 @@ import {
   DollarSign, Percent, Calendar, ArrowUpRight, ArrowDownRight, Briefcase,
   LineChart as LineIcon, Layers, Coins, RefreshCw, Info, Target, FileText
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PageTransition } from '@/components/layout/PageTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
