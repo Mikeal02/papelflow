@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, ArrowLeft } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PageTransition } from '@/components/layout/PageTransition';
 import { FinancialChallenges } from '@/components/gamification/FinancialChallenges';
 import { Link } from 'react-router-dom';
