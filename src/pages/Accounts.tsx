@@ -15,7 +15,7 @@ import {
   Search,
   Link as LinkIcon,
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PlaidLinkModal } from '@/components/banking/PlaidLinkModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
