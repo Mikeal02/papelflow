@@ -16,6 +16,8 @@ export function EliteSkeleton({ className, variant = 'default', style, ...props 
         variant === 'card' && "rounded-xl min-h-[120px]",
         className,
       )}
+      style={style}
+      {...props}
     >
       <motion.div
         className="absolute inset-0 -translate-x-full"
