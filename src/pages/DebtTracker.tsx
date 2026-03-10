@@ -116,7 +116,7 @@ const DebtTracker = () => {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-5 md:space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -15 }}
