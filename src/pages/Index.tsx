@@ -30,6 +30,7 @@ import { MoneyFlowSankey } from '@/components/dashboard/MoneyFlowSankey';
 import { SpendingHeatmapCalendar } from '@/components/dashboard/SpendingHeatmapCalendar';
 import { AISpendingInsights } from '@/components/dashboard/AISpendingInsights';
 import { PageTransition } from '@/components/layout/PageTransition';
+import { DashboardSkeleton } from '@/components/ui/elite-skeleton';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
@@ -41,8 +42,8 @@ import { AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
-  const { data: accounts = [] } = useAccounts();
-  const { data: transactions = [] } = useTransactions();
+  const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
+  const { data: transactions = [], isLoading: txLoading } = useTransactions();
   const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -53,122 +54,129 @@ const Dashboard = () => {
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
 
+  // Show elite skeleton while core data loads
+  const isInitialLoading = statsLoading && accountsLoading && txLoading;
+
   return (
     <AppLayout>
-      <PageTransition>
-        <div className="space-y-6 lg:space-y-8">
-          {/* Header */}
-          <WelcomeHeader />
+      {isInitialLoading ? (
+        <DashboardSkeleton />
+      ) : (
+        <PageTransition>
+          <div className="space-y-6 lg:space-y-8">
+            {/* Header */}
+            <WelcomeHeader />
 
-          {/* Smart Quick Add */}
-          <AnimatePresence>
-            {showQuickAdd && (
-              <SmartTransactionEntry onClose={() => setShowQuickAdd(false)} />
+            {/* Smart Quick Add */}
+            <AnimatePresence>
+              {showQuickAdd && (
+                <SmartTransactionEntry onClose={() => setShowQuickAdd(false)} />
+              )}
+            </AnimatePresence>
+
+            {!showQuickAdd && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={() => setShowQuickAdd(true)}
+                className="w-full rounded-2xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground hover:bg-primary/5 transition-all text-center group"
+              >
+                <Sparkles className="h-4 w-4 inline mr-2 group-hover:text-primary transition-colors" />
+                Quick add: type naturally e.g. "Spent $50 at Starbucks"
+              </motion.button>
             )}
-          </AnimatePresence>
 
-          {!showQuickAdd && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => setShowQuickAdd(true)}
-              className="w-full rounded-2xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground hover:bg-primary/5 transition-all text-center group"
-            >
-              <Sparkles className="h-4 w-4 inline mr-2 group-hover:text-primary transition-colors" />
-              Quick add: type naturally e.g. "Spent $50 at Starbucks"
-            </motion.button>
-          )}
+            {/* Smart Nudges */}
+            <SmartNudges />
 
-          {/* Smart Nudges */}
-          <SmartNudges />
-
-          {/* Stats Grid - Premium 4-col */}
-          <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Total Income"
-              value={formatCurrency(stats?.income || 0)}
-              icon={TrendingUp}
-              iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income"
-              delay={0.05}
-              autoCompare="income"
-            />
-            <StatCard
-              title="Total Expenses"
-              value={formatCurrency(stats?.expenses || 0)}
-              icon={TrendingDown}
-              iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense"
-              delay={0.1}
-              autoCompare="expense"
-            />
-            <StatCard
-              title="Net Cash Flow"
-              value={formatCurrency(stats?.netFlow || 0, true)}
-              icon={Scale}
-              iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary"
-              delay={0.15}
-              autoCompare="net"
-            />
-            <StatCard
-              title="Total Balance"
-              value={formatCurrency(totalBalance)}
-              icon={Wallet}
-              iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent"
-              delay={0.2}
-            />
-          </div>
-
-          {/* Quick Stats Row */}
-          <QuickStats />
-
-          {/* Net Worth Trend + Smart Insights - Equal height */}
-          <div className="grid gap-5 lg:grid-cols-2">
-            <NetWorthMini />
-            {transactions.length > 0 && (
-              <SmartInsights
-                transactions={transactions}
-                categories={categories}
-                formatCurrency={formatCurrency}
+            {/* Stats Grid - Premium 4-col */}
+            <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                title="Total Income"
+                value={formatCurrency(stats?.income || 0)}
+                icon={TrendingUp}
+                iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income"
+                delay={0.05}
+                autoCompare="income"
               />
-            )}
-          </div>
-
-          {/* Main Content Grid - 2/3 + 1/3 */}
-          <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-5 lg:space-y-6">
-              <RecentTransactions />
-              <MoneyFlowSankey />
-              <div className="grid gap-5 sm:grid-cols-2">
-                <CashFlowChart />
-                <SavingsRateGauge />
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <BudgetOverview />
-                <TopCategories />
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <FinancialCalendar />
-                <SpendingForecast />
-              </div>
+              <StatCard
+                title="Total Expenses"
+                value={formatCurrency(stats?.expenses || 0)}
+                icon={TrendingDown}
+                iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense"
+                delay={0.1}
+                autoCompare="expense"
+              />
+              <StatCard
+                title="Net Cash Flow"
+                value={formatCurrency(stats?.netFlow || 0, true)}
+                icon={Scale}
+                iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary"
+                delay={0.15}
+                autoCompare="net"
+              />
+              <StatCard
+                title="Total Balance"
+                value={formatCurrency(totalBalance)}
+                icon={Wallet}
+                iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent"
+                delay={0.2}
+              />
             </div>
 
-            {/* Right Column - Sidebar widgets */}
-            <div className="space-y-5 lg:space-y-6">
-              <FinancialHealthScore />
-              <AISpendingInsights />
-              <SpendingHeatmapCalendar />
-              <WhatIfScenario />
-              <FutureYouSimulator />
-              <GoalsMini />
-              <DailySpendingTracker />
-              <SpendingByTimeOfDay />
-              <AccountsOverview />
-              <CurrencyConverter />
-              <UpcomingBills />
+            {/* Quick Stats Row */}
+            <QuickStats />
+
+            {/* Net Worth Trend + Smart Insights - Equal height */}
+            <div className="grid gap-5 lg:grid-cols-2">
+              <NetWorthMini />
+              {transactions.length > 0 && (
+                <SmartInsights
+                  transactions={transactions}
+                  categories={categories}
+                  formatCurrency={formatCurrency}
+                />
+              )}
+            </div>
+
+            {/* Main Content Grid - 2/3 + 1/3 */}
+            <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
+              {/* Left Column */}
+              <div className="lg:col-span-2 space-y-5 lg:space-y-6">
+                <RecentTransactions />
+                <MoneyFlowSankey />
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <CashFlowChart />
+                  <SavingsRateGauge />
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <BudgetOverview />
+                  <TopCategories />
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <FinancialCalendar />
+                  <SpendingForecast />
+                </div>
+              </div>
+
+              {/* Right Column - Sidebar widgets */}
+              <div className="space-y-5 lg:space-y-6">
+                <FinancialHealthScore />
+                <AISpendingInsights />
+                <SpendingHeatmapCalendar />
+                <WhatIfScenario />
+                <FutureYouSimulator />
+                <GoalsMini />
+                <DailySpendingTracker />
+                <SpendingByTimeOfDay />
+                <AccountsOverview />
+                <CurrencyConverter />
+                <UpcomingBills />
+              </div>
             </div>
           </div>
-        </div>
-      </PageTransition>
+        </PageTransition>
+      )}
 
       {/* AI Financial Advisor */}
       <FinancialAdvisor />
