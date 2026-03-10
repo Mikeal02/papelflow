@@ -157,7 +157,7 @@ const Subscriptions = () => {
   }
 
   return (
-    <AppLayout>
+    <>
       <AmbientBackground variant="purple" />
       <div className="space-y-8 relative z-10">
         {/* Header */}
