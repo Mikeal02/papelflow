@@ -15,7 +15,7 @@ import {
   Filter,
   CreditCard,
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,7 +144,7 @@ const Subscriptions = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
@@ -152,12 +152,12 @@ const Subscriptions = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading subscriptions...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <AmbientBackground variant="purple" />
       <div className="space-y-8 relative z-10">
         {/* Header */}
@@ -434,7 +434,7 @@ const Subscriptions = () => {
           )}
         </motion.div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, TrendingDown, Calculator, Flame, Snowflake, Loader2, AlertTriangle, DollarSign, Calendar, Target, ArrowRight } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
@@ -103,7 +103,7 @@ const DebtTracker = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
@@ -111,12 +111,12 @@ const DebtTracker = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading debt tracker...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-5 md:space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -304,7 +304,7 @@ const DebtTracker = () => {
           </Tabs>
         </motion.div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

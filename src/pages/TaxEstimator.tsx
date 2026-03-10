@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronUp, Info, AlertTriangle, CheckCircle2, DollarSign,
   Calendar, PieChart, BarChart3, FileText, Shield
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PageTransition } from '@/components/layout/PageTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -199,7 +199,7 @@ export default function TaxEstimator() {
   };
 
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6">
           {/* Header */}
@@ -565,6 +565,6 @@ export default function TaxEstimator() {
           </Tabs>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 }

@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AnimatedLayout } from "@/components/layout/AnimatedLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Transactions from "./pages/Transactions";
@@ -39,22 +40,24 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
-                <Route path="/accounts" element={<ProtectedRoute><Accounts /></ProtectedRoute>} />
-                <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
-                <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-                <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
-                <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-                <Route path="/net-worth" element={<ProtectedRoute><NetWorth /></ProtectedRoute>} />
-                <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
-                <Route path="/debt" element={<ProtectedRoute><DebtTracker /></ProtectedRoute>} />
-                <Route path="/recurring" element={<ProtectedRoute><RecurringPayments /></ProtectedRoute>} />
-                <Route path="/tax" element={<ProtectedRoute><TaxEstimator /></ProtectedRoute>} />
-                <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
-                <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
-                <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route element={<ProtectedRoute><AnimatedLayout /></ProtectedRoute>}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/transactions" element={<Transactions />} />
+                  <Route path="/accounts" element={<Accounts />} />
+                  <Route path="/budgets" element={<Budgets />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/subscriptions" element={<Subscriptions />} />
+                  <Route path="/goals" element={<Goals />} />
+                  <Route path="/net-worth" element={<NetWorth />} />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route path="/debt" element={<DebtTracker />} />
+                  <Route path="/recurring" element={<RecurringPayments />} />
+                  <Route path="/tax" element={<TaxEstimator />} />
+                  <Route path="/investments" element={<Investments />} />
+                  <Route path="/challenges" element={<Challenges />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

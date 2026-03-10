@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -112,12 +112,12 @@ const Budgets = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative"><div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" /><Loader2 className="h-12 w-12 animate-spin text-primary relative" /></div>
           <p className="text-muted-foreground animate-pulse">Loading budgets...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
@@ -178,7 +178,7 @@ const Budgets = () => {
   );
 
   return (
-    <AppLayout>
+    <>
       <AmbientBackground variant="warm" />
       <div className="space-y-8 relative z-10">
         {/* Header */}
@@ -391,7 +391,7 @@ const Budgets = () => {
           )}
         </AnimatePresence>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -6,7 +6,7 @@ import {
   ToggleLeft, ToggleRight, Timer, TrendingUp, Bell, History, Filter,
   Zap, Calendar as CalendarIcon
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PageTransition } from '@/components/layout/PageTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -176,7 +176,7 @@ export default function RecurringPayments() {
   const dayPayments = (day: Date) => calendarData.filter(p => isSameDay(p.date, day));
 
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6">
           {/* Header */}
@@ -550,6 +550,6 @@ export default function RecurringPayments() {
           </Tabs>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 }

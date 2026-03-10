@@ -18,7 +18,7 @@ import {
   Trash2,
   Tag,
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -161,7 +161,7 @@ const Transactions = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
@@ -169,7 +169,7 @@ const Transactions = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading transactions...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
@@ -220,7 +220,7 @@ const Transactions = () => {
   );
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-5 md:space-y-6">
         {/* Header */}
         <motion.div
@@ -549,7 +549,7 @@ const Transactions = () => {
         </AnimatePresence>
       </div>
       <CSVImportModal open={isImportOpen} onOpenChange={setIsImportOpen} />
-    </AppLayout>
+    </>
   );
 };
 

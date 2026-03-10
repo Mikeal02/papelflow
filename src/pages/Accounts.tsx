@@ -15,7 +15,7 @@ import {
   Search,
   Link as LinkIcon,
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PlaidLinkModal } from '@/components/banking/PlaidLinkModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,7 +130,7 @@ const Accounts = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
@@ -138,7 +138,7 @@ const Accounts = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading accounts...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
@@ -195,7 +195,7 @@ const Accounts = () => {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-5 md:space-y-6">
         {/* Header */}
         <motion.div
@@ -384,7 +384,7 @@ const Accounts = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 };
 

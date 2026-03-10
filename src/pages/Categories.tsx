@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Palette, MoreHorizontal, Loader2, Folder, Tag } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -81,11 +81,11 @@ const Categories = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
-      </AppLayout>
+      </>
     );
   }
 
@@ -153,7 +153,7 @@ const Categories = () => {
   );
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -265,7 +265,7 @@ const Categories = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 };
 

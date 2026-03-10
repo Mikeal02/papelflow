@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Brain, Sparkles, TrendingUp, Zap } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PageTransition } from '@/components/layout/PageTransition';
 import { FinancialPulse } from '@/components/analytics/FinancialPulse';
 import { SpendingHeatmap } from '@/components/analytics/SpendingHeatmap';
@@ -14,7 +14,7 @@ import { GradientBadge } from '@/components/ui/glowing-border';
 
 const Analytics = () => {
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6 relative">
           {/* Ambient background effects */}
@@ -118,7 +118,7 @@ const Analytics = () => {
           </motion.div>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 };
 

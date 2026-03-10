@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Target, Calendar, MoreHorizontal, TrendingUp, Loader2, Sparkles, Trophy, Clock, Flame, Filter, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -85,7 +85,7 @@ const Goals = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
@@ -93,12 +93,12 @@ const Goals = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading goals...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <AmbientBackground variant="cool" />
       <div className="space-y-8 relative z-10">
         {/* Header */}
@@ -381,7 +381,7 @@ const Goals = () => {
           </motion.div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { useAccounts } from '@/hooks/useAccounts';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -101,7 +101,7 @@ const NetWorth = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
@@ -109,12 +109,12 @@ const NetWorth = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading net worth...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-5 md:space-y-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }}>
@@ -329,7 +329,7 @@ const NetWorth = () => {
           </motion.div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 
