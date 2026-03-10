@@ -199,7 +199,7 @@ export default function TaxEstimator() {
   };
 
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6">
           {/* Header */}
