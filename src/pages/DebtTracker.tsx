@@ -111,7 +111,7 @@ const DebtTracker = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading debt tracker...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
