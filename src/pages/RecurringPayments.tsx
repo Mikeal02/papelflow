@@ -176,7 +176,7 @@ export default function RecurringPayments() {
   const dayPayments = (day: Date) => calendarData.filter(p => isSameDay(p.date, day));
 
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6">
           {/* Header */}
