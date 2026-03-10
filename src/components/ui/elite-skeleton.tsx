@@ -6,7 +6,7 @@ interface EliteSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'text' | 'circle' | 'card' | 'stat';
 }
 
-export function EliteSkeleton({ className, variant = 'default' }: EliteSkeletonProps) {
+export function EliteSkeleton({ className, variant = 'default', style, ...props }: EliteSkeletonProps) {
   return (
     <div
       className={cn(
