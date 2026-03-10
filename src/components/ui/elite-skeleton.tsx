@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-interface EliteSkeletonProps {
+interface EliteSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   variant?: 'default' | 'text' | 'circle' | 'card' | 'stat';
 }
