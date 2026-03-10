@@ -169,7 +169,7 @@ const Transactions = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading transactions...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
