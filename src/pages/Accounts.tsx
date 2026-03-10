@@ -138,7 +138,7 @@ const Accounts = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading accounts...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
