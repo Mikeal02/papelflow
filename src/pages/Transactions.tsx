@@ -220,7 +220,7 @@ const Transactions = () => {
   );
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-5 md:space-y-6">
         {/* Header */}
         <motion.div
