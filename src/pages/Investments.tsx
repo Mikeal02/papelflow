@@ -185,7 +185,7 @@ export default function Investments() {
   const removeHolding = (id: string) => setHoldings(holdings.filter(h => h.id !== id));
 
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-6">
           {/* Header */}
