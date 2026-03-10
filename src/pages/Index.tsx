@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, TrendingDown, Scale, Sparkles } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { StatCard } from '@/components/dashboard/StatCard';
 import { BudgetOverview } from '@/components/dashboard/BudgetOverview';
 import { TopCategories } from '@/components/dashboard/TopCategories';
