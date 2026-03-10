@@ -18,7 +18,7 @@ import {
   Trash2,
   Tag,
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
