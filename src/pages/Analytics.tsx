@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Brain, Sparkles, TrendingUp, Zap } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { PageTransition } from '@/components/layout/PageTransition';
 import { FinancialPulse } from '@/components/analytics/FinancialPulse';
 import { SpendingHeatmap } from '@/components/analytics/SpendingHeatmap';
