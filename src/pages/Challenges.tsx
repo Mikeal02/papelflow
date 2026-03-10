@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 const Challenges = () => {
   return (
-    <AppLayout>
+    <>
       <PageTransition>
         <div className="space-y-5 lg:space-y-7">
           <motion.div
