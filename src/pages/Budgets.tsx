@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
