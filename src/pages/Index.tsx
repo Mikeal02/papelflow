@@ -58,7 +58,7 @@ const Dashboard = () => {
   const isInitialLoading = statsLoading && accountsLoading && txLoading;
 
   return (
-    <AppLayout>
+    <>
       {isInitialLoading ? (
         <DashboardSkeleton />
       ) : (
