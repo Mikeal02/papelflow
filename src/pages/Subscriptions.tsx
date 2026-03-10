@@ -15,7 +15,7 @@ import {
   Filter,
   CreditCard,
 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
