@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { AppLayout } from '@/components/layout/AppLayout';
+
 import { useAccounts } from '@/hooks/useAccounts';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
