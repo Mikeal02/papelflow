@@ -152,7 +152,7 @@ const Subscriptions = () => {
           </div>
           <p className="text-muted-foreground animate-pulse">Loading subscriptions...</p>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
