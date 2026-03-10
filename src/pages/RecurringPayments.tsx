@@ -550,6 +550,6 @@ export default function RecurringPayments() {
           </Tabs>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 }

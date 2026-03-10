@@ -391,7 +391,7 @@ const Budgets = () => {
           )}
         </AnimatePresence>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

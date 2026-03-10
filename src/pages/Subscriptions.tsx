@@ -434,7 +434,7 @@ const Subscriptions = () => {
           )}
         </motion.div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

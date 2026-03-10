@@ -381,7 +381,7 @@ const Goals = () => {
           </motion.div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

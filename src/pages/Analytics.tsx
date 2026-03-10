@@ -118,7 +118,7 @@ const Analytics = () => {
           </motion.div>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 };
 

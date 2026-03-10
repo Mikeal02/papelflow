@@ -515,7 +515,7 @@ const Reports = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

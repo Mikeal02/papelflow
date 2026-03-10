@@ -329,7 +329,7 @@ const NetWorth = () => {
           </motion.div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

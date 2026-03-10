@@ -31,7 +31,7 @@ const Challenges = () => {
           <FinancialChallenges />
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 };
 

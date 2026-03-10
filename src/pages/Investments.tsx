@@ -580,6 +580,6 @@ export default function Investments() {
           </Tabs>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 }

@@ -180,7 +180,7 @@ const Dashboard = () => {
 
       {/* AI Financial Advisor */}
       <FinancialAdvisor />
-    </AppLayout>
+    </>
   );
 };
 

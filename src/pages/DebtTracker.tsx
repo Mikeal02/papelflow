@@ -304,7 +304,7 @@ const DebtTracker = () => {
           </Tabs>
         </motion.div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

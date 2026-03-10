@@ -384,7 +384,7 @@ const Accounts = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 };
 

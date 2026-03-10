@@ -300,7 +300,7 @@ const Settings = () => {
         </motion.div>
       </div>
       <ChangePasswordModal open={showPasswordModal} onOpenChange={setShowPasswordModal} />
-    </AppLayout>
+    </>
   );
 };
 

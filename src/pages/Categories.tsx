@@ -265,7 +265,7 @@ const Categories = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 };
 

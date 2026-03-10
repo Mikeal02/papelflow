@@ -565,6 +565,6 @@ export default function TaxEstimator() {
           </Tabs>
         </div>
       </PageTransition>
-    </AppLayout>
+    </>
   );
 }
