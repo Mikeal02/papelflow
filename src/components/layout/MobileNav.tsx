@@ -202,7 +202,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
           {/* Center FAB */}
           <motion.button
             whileTap={{ scale: 0.85 }}
-            onClick={onAddTransaction}
+            onClick={() => { haptic('medium'); onAddTransaction(); }}
             className="relative -mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xl"
             style={{
               boxShadow: '0 8px 30px -4px hsl(var(--primary) / 0.5), 0 2px 8px -2px hsl(var(--primary) / 0.3)',
