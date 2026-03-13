@@ -1,5 +1,21 @@
-// Elite micro-interaction sound system using Web Audio API
-// No external files needed — synthesizes sounds procedurally
+// Elite micro-interaction sound & haptic system
+// Synthesizes sounds via Web Audio API + Vibration API for mobile haptics
+
+// Haptic feedback using Vibration API
+export function haptic(pattern: 'light' | 'medium' | 'heavy' | 'success' | 'error' = 'light') {
+  try {
+    if (!navigator.vibrate) return;
+    switch (pattern) {
+      case 'light': navigator.vibrate(8); break;
+      case 'medium': navigator.vibrate(15); break;
+      case 'heavy': navigator.vibrate(30); break;
+      case 'success': navigator.vibrate([10, 30, 10]); break;
+      case 'error': navigator.vibrate([30, 50, 30, 50, 30]); break;
+    }
+  } catch {
+    // Silently fail — haptics are non-critical
+  }
+}
 
 let audioContext: AudioContext | null = null;
 
