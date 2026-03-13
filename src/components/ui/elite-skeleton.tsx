@@ -131,3 +131,41 @@ export function DashboardSkeleton() {
     </div>
   );
 }
+
+// Route loading fallback with branded spinner
+export function RouteLoadingFallback() {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center gap-4"
+      >
+        <div className="relative">
+          <motion.div
+            className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          />
+          <motion.div
+            className="absolute inset-0 h-12 w-12 rounded-2xl border-2 border-primary/40 border-t-primary"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+          />
+          <motion.div
+            className="absolute inset-2 rounded-lg bg-primary/20"
+            animate={{ scale: [1, 0.8, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+        </div>
+        <motion.p
+          className="text-sm text-muted-foreground font-medium"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          Loading...
+        </motion.p>
+      </motion.div>
+    </div>
+  );
+}
