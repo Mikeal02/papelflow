@@ -66,6 +66,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
   };
 
   const handleNavClick = (path: string) => {
+    haptic('light');
     navigate(path);
     setOpen(false);
   };
