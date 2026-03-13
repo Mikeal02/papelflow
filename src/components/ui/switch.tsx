@@ -15,6 +15,7 @@ const Switch = React.forwardRef<
     )}
     onCheckedChange={(checked) => {
       playClickSound('toggle');
+      haptic('medium');
       onCheckedChange?.(checked);
     }}
     {...props}
