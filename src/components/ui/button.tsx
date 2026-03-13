@@ -49,6 +49,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       const sound = soundVariant ?? (variant === 'ghost' || variant === 'link' ? 'none' : 'soft');
       if (sound !== 'none') {
         playClickSound(sound);
+        haptic(sound === 'success' ? 'success' : 'light');
       }
       onClick?.(e);
     }, [soundVariant, variant, onClick]);
