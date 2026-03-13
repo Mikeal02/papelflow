@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, memo } from 'react';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 import { AddTransactionModal } from '@/components/transactions/AddTransactionModal';
@@ -11,7 +10,7 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
+export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -20,14 +19,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Subtle background pattern */}
       <div className="fixed inset-0 subtle-grid pointer-events-none opacity-50" />
       
-      {/* Animated ambient orbs */}
+      {/* Animated ambient orbs - reduced for performance */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/[0.02] rounded-full blur-[100px] animate-[float_20s_ease-in-out_infinite]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/[0.02] rounded-full blur-[80px] animate-[float_15s_ease-in-out_infinite_reverse]" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/[0.015] rounded-full blur-[100px] animate-[float_20s_ease-in-out_infinite] will-change-transform" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/[0.015] rounded-full blur-[80px] animate-[float_15s_ease-in-out_infinite_reverse] will-change-transform" />
       </div>
-      
-      {/* Animated particles background */}
-      <div className="fixed inset-0 particles pointer-events-none opacity-30" />
       
       {/* Command Palette */}
       <CommandPalette onAddTransaction={() => setIsAddModalOpen(true)} />
@@ -42,14 +38,16 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       {/* Main Content */}
       <main className={`
-        ${isMobile ? 'pt-14 pb-20' : 'pl-64'}
+        ${isMobile ? 'pt-14 pb-24' : 'pl-64'}
         transition-all duration-300 ease-out relative
       `}>
         <div className="min-h-screen p-4 md:p-6 lg:p-8">{children}</div>
       </main>
       
-      {/* Floating Action Menu */}
-      <FloatingActionMenu onAddTransaction={() => setIsAddModalOpen(true)} />
+      {/* Floating Action Menu - desktop only */}
+      {!isMobile && (
+        <FloatingActionMenu onAddTransaction={() => setIsAddModalOpen(true)} />
+      )}
       
       <AddTransactionModal
         open={isAddModalOpen}
@@ -57,4 +55,4 @@ export function AppLayout({ children }: AppLayoutProps) {
       />
     </div>
   );
-}
+});

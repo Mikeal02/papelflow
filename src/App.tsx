@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,26 +9,37 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AnimatedLayout } from "@/components/layout/AnimatedLayout";
-import Index from "./pages/Index";
+import { RouteLoadingFallback } from "@/components/ui/elite-skeleton";
 import Auth from "./pages/Auth";
-import Transactions from "./pages/Transactions";
-import Accounts from "./pages/Accounts";
-import Budgets from "./pages/Budgets";
-import Reports from "./pages/Reports";
-import Subscriptions from "./pages/Subscriptions";
-import Goals from "./pages/Goals";
-import NetWorth from "./pages/NetWorth";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import Categories from "./pages/Categories";
-import DebtTracker from "./pages/DebtTracker";
-import TaxEstimator from "./pages/TaxEstimator";
-import Investments from "./pages/Investments";
-import RecurringPayments from "./pages/RecurringPayments";
-import Challenges from "./pages/Challenges";
-import Analytics from "./pages/Analytics";
 
-const queryClient = new QueryClient();
+// Lazy load all pages for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Accounts = lazy(() => import("./pages/Accounts"));
+const Budgets = lazy(() => import("./pages/Budgets"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Subscriptions = lazy(() => import("./pages/Subscriptions"));
+const Goals = lazy(() => import("./pages/Goals"));
+const NetWorth = lazy(() => import("./pages/NetWorth"));
+const Settings = lazy(() => import("./pages/Settings"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Categories = lazy(() => import("./pages/Categories"));
+const DebtTracker = lazy(() => import("./pages/DebtTracker"));
+const TaxEstimator = lazy(() => import("./pages/TaxEstimator"));
+const Investments = lazy(() => import("./pages/Investments"));
+const RecurringPayments = lazy(() => import("./pages/RecurringPayments"));
+const Challenges = lazy(() => import("./pages/Challenges"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2, // 2 min stale time
+      gcTime: 1000 * 60 * 10, // 10 min cache
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -41,24 +53,24 @@ const App = () => (
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route element={<ProtectedRoute><AnimatedLayout /></ProtectedRoute>}>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/transactions" element={<Transactions />} />
-                  <Route path="/accounts" element={<Accounts />} />
-                  <Route path="/budgets" element={<Budgets />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/subscriptions" element={<Subscriptions />} />
-                  <Route path="/goals" element={<Goals />} />
-                  <Route path="/net-worth" element={<NetWorth />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route path="/debt" element={<DebtTracker />} />
-                  <Route path="/recurring" element={<RecurringPayments />} />
-                  <Route path="/tax" element={<TaxEstimator />} />
-                  <Route path="/investments" element={<Investments />} />
-                  <Route path="/challenges" element={<Challenges />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/" element={<Suspense fallback={<RouteLoadingFallback />}><Index /></Suspense>} />
+                  <Route path="/transactions" element={<Suspense fallback={<RouteLoadingFallback />}><Transactions /></Suspense>} />
+                  <Route path="/accounts" element={<Suspense fallback={<RouteLoadingFallback />}><Accounts /></Suspense>} />
+                  <Route path="/budgets" element={<Suspense fallback={<RouteLoadingFallback />}><Budgets /></Suspense>} />
+                  <Route path="/reports" element={<Suspense fallback={<RouteLoadingFallback />}><Reports /></Suspense>} />
+                  <Route path="/subscriptions" element={<Suspense fallback={<RouteLoadingFallback />}><Subscriptions /></Suspense>} />
+                  <Route path="/goals" element={<Suspense fallback={<RouteLoadingFallback />}><Goals /></Suspense>} />
+                  <Route path="/net-worth" element={<Suspense fallback={<RouteLoadingFallback />}><NetWorth /></Suspense>} />
+                  <Route path="/categories" element={<Suspense fallback={<RouteLoadingFallback />}><Categories /></Suspense>} />
+                  <Route path="/debt" element={<Suspense fallback={<RouteLoadingFallback />}><DebtTracker /></Suspense>} />
+                  <Route path="/recurring" element={<Suspense fallback={<RouteLoadingFallback />}><RecurringPayments /></Suspense>} />
+                  <Route path="/tax" element={<Suspense fallback={<RouteLoadingFallback />}><TaxEstimator /></Suspense>} />
+                  <Route path="/investments" element={<Suspense fallback={<RouteLoadingFallback />}><Investments /></Suspense>} />
+                  <Route path="/challenges" element={<Suspense fallback={<RouteLoadingFallback />}><Challenges /></Suspense>} />
+                  <Route path="/analytics" element={<Suspense fallback={<RouteLoadingFallback />}><Analytics /></Suspense>} />
+                  <Route path="/settings" element={<Suspense fallback={<RouteLoadingFallback />}><Settings /></Suspense>} />
                 </Route>
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<Suspense fallback={<RouteLoadingFallback />}><NotFound /></Suspense>} />
               </Routes>
             </BrowserRouter>
           </TooltipProvider>
