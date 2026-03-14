@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
 import { LucideIcon, TrendingUp, TrendingDown, Minus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ interface StatCardProps {
   autoCompare?: 'income' | 'expense' | 'net';
 }
 
-export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 0, autoCompare }: StatCardProps) {
+export const StatCard = memo(function StatCard({ title, value, change, icon: Icon, iconColor, delay = 0, autoCompare }: StatCardProps) {
   const { data: transactions = [] } = useTransactions();
 
   const { computedChange, sparklineData, trend } = useMemo(() => {
@@ -30,7 +30,6 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
 
     const filterType = autoCompare === 'net' ? undefined : autoCompare;
 
-    // Calculate change
     let changeValue = change;
     if (change === undefined && autoCompare && transactions.length > 0) {
       const curTotal = transactions
@@ -58,7 +57,6 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
       }
     }
 
-    // Generate sparkline data (last 14 days)
     const last14Days = eachDayOfInterval({
       start: subMonths(now, 0.5),
       end: now,
@@ -79,7 +77,6 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
         }, 0);
     });
 
-    // Calculate trend
     const recent = dailyData.slice(-7).reduce((a, b) => a + b, 0);
     const previous = dailyData.slice(0, 7).reduce((a, b) => a + b, 0);
     const trendValue = previous > 0 ? ((recent - previous) / previous) * 100 : 0;
@@ -87,14 +84,12 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
     return {
       computedChange: changeValue,
       sparklineData: dailyData,
-      trend: trendValue > 5 ? 'up' : trendValue < -5 ? 'down' : 'stable',
+      trend: trendValue > 5 ? 'up' as const : trendValue < -5 ? 'down' as const : 'stable' as const,
     };
   }, [change, autoCompare, transactions]);
 
   const isPositive = computedChange !== undefined && computedChange > 0;
   const isNegative = computedChange !== undefined && computedChange < 0;
-
-  // Determine accent color based on type
   const accentColor = autoCompare === 'income' ? 'income' : autoCompare === 'expense' ? 'expense' : 'primary';
 
   return (
@@ -104,7 +99,7 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
       transition={{ delay, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
     >
       <TiltCard intensity={12} className="stat-card group h-full relative overflow-hidden elite-3d-card">
-        {/* Multi-layer ambient glow */}
+        {/* Hover-only glow — no continuous animation */}
         <div className={cn(
           "absolute -top-24 -right-24 h-48 w-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-700",
           autoCompare === 'income' && "bg-income/25",
@@ -112,54 +107,21 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
           autoCompare === 'net' && "bg-primary/25",
           !autoCompare && "bg-accent/25"
         )} />
-        
-        {/* Secondary glow layer */}
-        <motion.div 
-          className={cn(
-            "absolute -bottom-16 -left-16 h-32 w-32 rounded-full blur-2xl",
-            autoCompare === 'income' && "bg-income/10",
-            autoCompare === 'expense' && "bg-expense/10",
-            !autoCompare && "bg-primary/10"
-          )}
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 4, repeat: Infinity }}
-        />
-        
-        {/* Cyber grid pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.015] pointer-events-none cyber-grid"
-        />
 
         <div className="relative flex items-start justify-between gap-3">
           <div className="space-y-2.5 min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
               {trend === 'up' && autoCompare === 'income' && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="text-[9px] px-1.5 py-0.5 rounded-full bg-income/10 text-income font-medium flex items-center gap-0.5"
-                >
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-income/10 text-income font-medium flex items-center gap-0.5">
                   <Sparkles className="h-2.5 w-2.5" />
                   Hot
-                </motion.span>
+                </span>
               )}
             </div>
             
-            <div className="relative">
-              <CountUpValue value={value} className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" />
-              {/* Value glow effect */}
-              <motion.div
-                className={cn(
-                  "absolute -inset-2 rounded-lg blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500",
-                  autoCompare === 'income' && "bg-income",
-                  autoCompare === 'expense' && "bg-expense",
-                  !autoCompare && "bg-primary"
-                )}
-              />
-            </div>
+            <CountUpValue value={value} className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" />
             
-            {/* Sparkline + Change indicator */}
             <div className="flex items-center gap-3 mt-1">
               {sparklineData.some(v => v > 0) && (
                 <motion.div
@@ -188,59 +150,23 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: delay + 0.3 }}
                 >
-                  {isPositive ? (
-                    <TrendingUp className="h-3 w-3 shrink-0" />
-                  ) : isNegative ? (
-                    <TrendingDown className="h-3 w-3 shrink-0" />
-                  ) : (
-                    <Minus className="h-3 w-3 shrink-0" />
-                  )}
-                  <span className="truncate">
-                    {isPositive ? '+' : ''}
-                    {computedChange.toFixed(1)}%
-                  </span>
+                  {isPositive ? <TrendingUp className="h-3 w-3 shrink-0" /> : isNegative ? <TrendingDown className="h-3 w-3 shrink-0" /> : <Minus className="h-3 w-3 shrink-0" />}
+                  <span className="truncate">{isPositive ? '+' : ''}{computedChange.toFixed(1)}%</span>
                 </motion.div>
               )}
             </div>
           </div>
           
-          {/* Glowing icon */}
-          <motion.div
-            whileHover={{ scale: 1.1, rotate: 8 }}
-            whileTap={{ scale: 0.95 }}
+          {/* Static icon — no infinite rotate/pulse loops */}
+          <div
             className={cn(
-              'relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl',
-              'transition-all duration-300 flex-shrink-0',
+              'relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-transform duration-300 flex-shrink-0 group-hover:scale-110',
               iconColor || 'bg-gradient-to-br from-primary/20 to-primary/10'
             )}
-            style={{
-              boxShadow: `0 8px 32px -8px hsl(var(--${accentColor}) / 0.4)`,
-            }}
+            style={{ boxShadow: `0 8px 32px -8px hsl(var(--${accentColor}) / 0.4)` }}
           >
-            {/* Icon glow ring */}
-            <motion.div
-              className={cn(
-                "absolute inset-0 rounded-2xl",
-                `bg-gradient-to-br from-${accentColor}/30 to-transparent`
-              )}
-              animate={{ 
-                opacity: [0.5, 0.8, 0.5],
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            
-            {/* Rotating ring effect */}
-            <motion.div
-              className="absolute inset-0 rounded-2xl"
-              style={{
-                background: `conic-gradient(from 0deg, transparent, hsl(var(--${accentColor}) / 0.3), transparent)`,
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-            />
-            
             <Icon className={cn('h-6 w-6 sm:h-7 sm:w-7 relative z-10', iconColor ? 'text-inherit' : 'text-primary')} />
-          </motion.div>
+          </div>
         </div>
 
         {/* Bottom accent line */}
@@ -256,4 +182,4 @@ export function StatCard({ title, value, change, icon: Icon, iconColor, delay = 
       </TiltCard>
     </motion.div>
   );
-}
+});
