@@ -1,34 +1,12 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, TrendingDown, Scale, Sparkles } from 'lucide-react';
 
 import { StatCard } from '@/components/dashboard/StatCard';
-import { BudgetOverview } from '@/components/dashboard/BudgetOverview';
-import { TopCategories } from '@/components/dashboard/TopCategories';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
-import { AccountsOverview } from '@/components/dashboard/AccountsOverview';
-import { UpcomingBills } from '@/components/dashboard/UpcomingBills';
-import { SmartInsights } from '@/components/insights/SmartInsights';
-import { FinancialHealthScore } from '@/components/dashboard/FinancialHealthScore';
-import { FinancialCalendar } from '@/components/dashboard/FinancialCalendar';
-import { SpendingForecast } from '@/components/dashboard/SpendingForecast';
-import { FinancialAdvisor } from '@/components/ai/FinancialAdvisor';
-import { CurrencyConverter } from '@/components/dashboard/CurrencyConverter';
-import { CashFlowChart } from '@/components/dashboard/CashFlowChart';
-import { SavingsRateGauge } from '@/components/dashboard/SavingsRateGauge';
-import { DailySpendingTracker } from '@/components/dashboard/DailySpendingTracker';
-import { QuickStats } from '@/components/dashboard/QuickStats';
 import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
-import { NetWorthMini } from '@/components/dashboard/NetWorthMini';
-import { GoalsMini } from '@/components/dashboard/GoalsMini';
-import { SpendingByTimeOfDay } from '@/components/dashboard/SpendingByTimeOfDay';
 import { SmartNudges } from '@/components/dashboard/SmartNudges';
-import { WhatIfScenario } from '@/components/dashboard/WhatIfScenario';
-import { FutureYouSimulator } from '@/components/dashboard/FutureYouSimulator';
-import { SmartTransactionEntry } from '@/components/transactions/SmartTransactionEntry';
-import { MoneyFlowSankey } from '@/components/dashboard/MoneyFlowSankey';
-import { SpendingHeatmapCalendar } from '@/components/dashboard/SpendingHeatmapCalendar';
-import { AISpendingInsights } from '@/components/dashboard/AISpendingInsights';
+import { QuickStats } from '@/components/dashboard/QuickStats';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { DashboardSkeleton } from '@/components/ui/elite-skeleton';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
@@ -39,6 +17,36 @@ import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
 import { useBillReminders } from '@/hooks/useBillReminders';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { AnimatePresence } from 'framer-motion';
+
+// Lazy-load below-fold heavy widgets for faster initial paint
+const SmartTransactionEntry = lazy(() => import('@/components/transactions/SmartTransactionEntry').then(m => ({ default: m.SmartTransactionEntry })));
+const NetWorthMini = lazy(() => import('@/components/dashboard/NetWorthMini').then(m => ({ default: m.NetWorthMini })));
+const SmartInsights = lazy(() => import('@/components/insights/SmartInsights').then(m => ({ default: m.SmartInsights })));
+const MoneyFlowSankey = lazy(() => import('@/components/dashboard/MoneyFlowSankey').then(m => ({ default: m.MoneyFlowSankey })));
+const CashFlowChart = lazy(() => import('@/components/dashboard/CashFlowChart').then(m => ({ default: m.CashFlowChart })));
+const SavingsRateGauge = lazy(() => import('@/components/dashboard/SavingsRateGauge').then(m => ({ default: m.SavingsRateGauge })));
+const BudgetOverview = lazy(() => import('@/components/dashboard/BudgetOverview').then(m => ({ default: m.BudgetOverview })));
+const TopCategories = lazy(() => import('@/components/dashboard/TopCategories').then(m => ({ default: m.TopCategories })));
+const FinancialCalendar = lazy(() => import('@/components/dashboard/FinancialCalendar').then(m => ({ default: m.FinancialCalendar })));
+const SpendingForecast = lazy(() => import('@/components/dashboard/SpendingForecast').then(m => ({ default: m.SpendingForecast })));
+const FinancialHealthScore = lazy(() => import('@/components/dashboard/FinancialHealthScore').then(m => ({ default: m.FinancialHealthScore })));
+const AISpendingInsights = lazy(() => import('@/components/dashboard/AISpendingInsights').then(m => ({ default: m.AISpendingInsights })));
+const SpendingHeatmapCalendar = lazy(() => import('@/components/dashboard/SpendingHeatmapCalendar').then(m => ({ default: m.SpendingHeatmapCalendar })));
+const WhatIfScenario = lazy(() => import('@/components/dashboard/WhatIfScenario').then(m => ({ default: m.WhatIfScenario })));
+const FutureYouSimulator = lazy(() => import('@/components/dashboard/FutureYouSimulator').then(m => ({ default: m.FutureYouSimulator })));
+const GoalsMini = lazy(() => import('@/components/dashboard/GoalsMini').then(m => ({ default: m.GoalsMini })));
+const DailySpendingTracker = lazy(() => import('@/components/dashboard/DailySpendingTracker').then(m => ({ default: m.DailySpendingTracker })));
+const SpendingByTimeOfDay = lazy(() => import('@/components/dashboard/SpendingByTimeOfDay').then(m => ({ default: m.SpendingByTimeOfDay })));
+const AccountsOverview = lazy(() => import('@/components/dashboard/AccountsOverview').then(m => ({ default: m.AccountsOverview })));
+const CurrencyConverter = lazy(() => import('@/components/dashboard/CurrencyConverter').then(m => ({ default: m.CurrencyConverter })));
+const UpcomingBills = lazy(() => import('@/components/dashboard/UpcomingBills').then(m => ({ default: m.UpcomingBills })));
+const FinancialAdvisor = lazy(() => import('@/components/ai/FinancialAdvisor').then(m => ({ default: m.FinancialAdvisor })));
+
+// Lightweight placeholder for lazy widgets
+const WidgetFallback = memo(() => (
+  <div className="rounded-2xl border border-border/40 bg-card/50 animate-pulse h-48" />
+));
+WidgetFallback.displayName = 'WidgetFallback';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
@@ -54,7 +62,6 @@ const Dashboard = () => {
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
 
-  // Show elite skeleton while core data loads
   const isInitialLoading = statsLoading && accountsLoading && txLoading;
 
   return (
@@ -64,13 +71,13 @@ const Dashboard = () => {
       ) : (
         <PageTransition>
           <div className="space-y-6 lg:space-y-8">
-            {/* Header */}
             <WelcomeHeader />
 
-            {/* Smart Quick Add */}
             <AnimatePresence>
               {showQuickAdd && (
-                <SmartTransactionEntry onClose={() => setShowQuickAdd(false)} />
+                <Suspense fallback={<WidgetFallback />}>
+                  <SmartTransactionEntry onClose={() => setShowQuickAdd(false)} />
+                </Suspense>
               )}
             </AnimatePresence>
 
@@ -86,100 +93,65 @@ const Dashboard = () => {
               </motion.button>
             )}
 
-            {/* Smart Nudges */}
             <SmartNudges />
 
-            {/* Stats Grid - Premium 4-col */}
+            {/* Stats Grid */}
             <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
-              <StatCard
-                title="Total Income"
-                value={formatCurrency(stats?.income || 0)}
-                icon={TrendingUp}
-                iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income"
-                delay={0.05}
-                autoCompare="income"
-              />
-              <StatCard
-                title="Total Expenses"
-                value={formatCurrency(stats?.expenses || 0)}
-                icon={TrendingDown}
-                iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense"
-                delay={0.1}
-                autoCompare="expense"
-              />
-              <StatCard
-                title="Net Cash Flow"
-                value={formatCurrency(stats?.netFlow || 0, true)}
-                icon={Scale}
-                iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary"
-                delay={0.15}
-                autoCompare="net"
-              />
-              <StatCard
-                title="Total Balance"
-                value={formatCurrency(totalBalance)}
-                icon={Wallet}
-                iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent"
-                delay={0.2}
-              />
+              <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income" delay={0.05} autoCompare="income" />
+              <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense" delay={0.1} autoCompare="expense" />
+              <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary" delay={0.15} autoCompare="net" />
+              <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent" delay={0.2} />
             </div>
 
-            {/* Quick Stats Row */}
             <QuickStats />
 
-            {/* Net Worth Trend + Smart Insights - Equal height */}
-            <div className="grid gap-5 lg:grid-cols-2">
-              <NetWorthMini />
-              {transactions.length > 0 && (
-                <SmartInsights
-                  transactions={transactions}
-                  categories={categories}
-                  formatCurrency={formatCurrency}
-                />
-              )}
-            </div>
+            {/* Below-fold: all lazy-loaded */}
+            <Suspense fallback={<div className="grid gap-5 lg:grid-cols-2"><WidgetFallback /><WidgetFallback /></div>}>
+              <div className="grid gap-5 lg:grid-cols-2">
+                <NetWorthMini />
+                {transactions.length > 0 && (
+                  <SmartInsights transactions={transactions} categories={categories} formatCurrency={formatCurrency} />
+                )}
+              </div>
+            </Suspense>
 
-            {/* Main Content Grid - 2/3 + 1/3 */}
             <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
-              {/* Left Column */}
               <div className="lg:col-span-2 space-y-5 lg:space-y-6">
                 <RecentTransactions />
-                <MoneyFlowSankey />
+                <Suspense fallback={<WidgetFallback />}><MoneyFlowSankey /></Suspense>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <CashFlowChart />
-                  <SavingsRateGauge />
+                  <Suspense fallback={<WidgetFallback />}><CashFlowChart /></Suspense>
+                  <Suspense fallback={<WidgetFallback />}><SavingsRateGauge /></Suspense>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <BudgetOverview />
-                  <TopCategories />
+                  <Suspense fallback={<WidgetFallback />}><BudgetOverview /></Suspense>
+                  <Suspense fallback={<WidgetFallback />}><TopCategories /></Suspense>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <FinancialCalendar />
-                  <SpendingForecast />
+                  <Suspense fallback={<WidgetFallback />}><FinancialCalendar /></Suspense>
+                  <Suspense fallback={<WidgetFallback />}><SpendingForecast /></Suspense>
                 </div>
               </div>
 
-              {/* Right Column - Sidebar widgets */}
               <div className="space-y-5 lg:space-y-6">
-                <FinancialHealthScore />
-                <AISpendingInsights />
-                <SpendingHeatmapCalendar />
-                <WhatIfScenario />
-                <FutureYouSimulator />
-                <GoalsMini />
-                <DailySpendingTracker />
-                <SpendingByTimeOfDay />
-                <AccountsOverview />
-                <CurrencyConverter />
-                <UpcomingBills />
+                <Suspense fallback={<WidgetFallback />}><FinancialHealthScore /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><AISpendingInsights /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><SpendingHeatmapCalendar /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><WhatIfScenario /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><FutureYouSimulator /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><GoalsMini /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><DailySpendingTracker /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><SpendingByTimeOfDay /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><AccountsOverview /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><CurrencyConverter /></Suspense>
+                <Suspense fallback={<WidgetFallback />}><UpcomingBills /></Suspense>
               </div>
             </div>
           </div>
         </PageTransition>
       )}
 
-      {/* AI Financial Advisor */}
-      <FinancialAdvisor />
+      <Suspense fallback={null}><FinancialAdvisor /></Suspense>
     </>
   );
 };
