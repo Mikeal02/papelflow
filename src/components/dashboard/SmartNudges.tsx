@@ -38,7 +38,7 @@ const typeIconStyles = {
   tip: 'bg-accent/10 text-accent',
 };
 
-export const SmartNudges = () => {
+export const SmartNudges = memo(function SmartNudges() {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const { data: transactions = [] } = useTransactions();
   const { data: stats } = useMonthlyStats();
