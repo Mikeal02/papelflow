@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lightbulb, TrendingDown, AlertTriangle, PiggyBank, Zap, ArrowRight, X, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +38,7 @@ const typeIconStyles = {
   tip: 'bg-accent/10 text-accent',
 };
 
-export const SmartNudges = () => {
+export const SmartNudges = memo(function SmartNudges() {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const { data: transactions = [] } = useTransactions();
   const { data: stats } = useMonthlyStats();
@@ -214,4 +214,4 @@ export const SmartNudges = () => {
       </Card>
     </motion.div>
   );
-};
+});
