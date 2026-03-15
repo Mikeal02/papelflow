@@ -1,21 +1,27 @@
-import { motion } from 'framer-motion';
+import { memo, useMemo, useCallback } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts';
-import { useMemo } from 'react';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
-export function CashFlowChart() {
+const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass-panel rounded-xl p-3 shadow-lg border-border/50">
+      <p className="text-xs text-muted-foreground font-semibold mb-1">{label}</p>
+      {payload.map((entry: any, i: number) => (
+        <p key={i} className="text-sm font-bold" style={{ color: entry.color }}>
+          {entry.name}: {formatCurrency(Math.abs(entry.value))}
+        </p>
+      ))}
+    </div>
+  );
+};
+
+export const CashFlowChart = memo(function CashFlowChart() {
   const { data: transactions = [] } = useTransactions();
   const { formatCurrency } = useCurrency();
 
@@ -31,37 +37,15 @@ export function CashFlowChart() {
       });
       const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
       const expenses = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
-      result.push({
-        month: format(date, 'MMM'),
-        income,
-        expenses: -expenses,
-        net: income - expenses,
-      });
+      result.push({ month: format(date, 'MMM'), income, expenses: -expenses });
     }
     return result;
   }, [transactions]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload?.length) return null;
-    return (
-      <div className="glass-panel rounded-xl p-3 shadow-lg border-border/50">
-        <p className="text-xs text-muted-foreground font-semibold mb-1">{label}</p>
-        {payload.map((entry: any, i: number) => (
-          <p key={i} className="text-sm font-bold" style={{ color: entry.color }}>
-            {entry.name}: {formatCurrency(Math.abs(entry.value))}
-          </p>
-        ))}
-      </div>
-    );
-  };
+  const renderTooltip = useCallback((props: any) => <CustomTooltip {...props} formatCurrency={formatCurrency} />, [formatCurrency]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      className="stat-card"
-    >
+    <div className="stat-card">
       <div className="flex items-center gap-2.5 mb-4">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10">
           <BarChart3 className="h-4 w-4 text-primary" />
@@ -77,13 +61,13 @@ export function CashFlowChart() {
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.4} />
             <XAxis dataKey="month" fontSize={10} tickLine={false} stroke="hsl(var(--muted-foreground))" />
             <YAxis fontSize={9} tickLine={false} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `${(v/1000).toFixed(0)}k`} width={35} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={renderTooltip} />
             <ReferenceLine y={0} stroke="hsl(var(--border))" />
             <Bar dataKey="income" fill="hsl(var(--income))" radius={[4, 4, 0, 0]} name="Income" />
             <Bar dataKey="expenses" fill="hsl(var(--expense))" radius={[0, 0, 4, 4]} name="Expenses" />
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </motion.div>
+    </div>
   );
-}
+});

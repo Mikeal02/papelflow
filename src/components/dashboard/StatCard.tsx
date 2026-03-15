@@ -4,7 +4,6 @@ import { LucideIcon, TrendingUp, TrendingDown, Minus, Sparkles } from 'lucide-re
 import { cn } from '@/lib/utils';
 import { useTransactions } from '@/hooks/useTransactions';
 import { subMonths, startOfMonth, endOfMonth, eachDayOfInterval, format } from 'date-fns';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Sparkline } from '@/components/ui/animated-counter';
 import { CountUpValue } from '@/components/ui/CountUpValue';
 
@@ -97,89 +96,74 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      className="stat-card group h-full relative overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg"
     >
-      <TiltCard intensity={12} className="stat-card group h-full relative overflow-hidden elite-3d-card">
-        {/* Hover-only glow — no continuous animation */}
-        <div className={cn(
-          "absolute -top-24 -right-24 h-48 w-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-700",
-          autoCompare === 'income' && "bg-income/25",
-          autoCompare === 'expense' && "bg-expense/25",
-          autoCompare === 'net' && "bg-primary/25",
-          !autoCompare && "bg-accent/25"
-        )} />
+      {/* Hover-only glow — CSS only */}
+      <div className={cn(
+        "absolute -top-24 -right-24 h-48 w-48 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none",
+        autoCompare === 'income' && "bg-income/20",
+        autoCompare === 'expense' && "bg-expense/20",
+        autoCompare === 'net' && "bg-primary/20",
+        !autoCompare && "bg-accent/20"
+      )} />
 
-        <div className="relative flex items-start justify-between gap-3">
-          <div className="space-y-2.5 min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
-              {trend === 'up' && autoCompare === 'income' && (
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-income/10 text-income font-medium flex items-center gap-0.5">
-                  <Sparkles className="h-2.5 w-2.5" />
-                  Hot
-                </span>
-              )}
-            </div>
-            
-            <CountUpValue value={value} className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" />
-            
-            <div className="flex items-center gap-3 mt-1">
-              {sparklineData.some(v => v > 0) && (
-                <motion.div
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  animate={{ opacity: 1, scaleX: 1 }}
-                  transition={{ delay: delay + 0.2, duration: 0.4 }}
-                  className="origin-left"
-                >
-                  <Sparkline 
-                    data={sparklineData} 
-                    width={70} 
-                    height={24} 
-                    color={autoCompare === 'income' ? 'hsl(var(--income))' : autoCompare === 'expense' ? 'hsl(var(--expense))' : undefined}
-                  />
-                </motion.div>
-              )}
-              {computedChange !== undefined && (
-                <motion.div 
-                  className={cn(
-                    "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold",
-                    isPositive && "bg-income/10 text-income",
-                    isNegative && "bg-expense/10 text-expense",
-                    !isPositive && !isNegative && "bg-muted text-muted-foreground"
-                  )}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: delay + 0.3 }}
-                >
-                  {isPositive ? <TrendingUp className="h-3 w-3 shrink-0" /> : isNegative ? <TrendingDown className="h-3 w-3 shrink-0" /> : <Minus className="h-3 w-3 shrink-0" />}
-                  <span className="truncate">{isPositive ? '+' : ''}{computedChange.toFixed(1)}%</span>
-                </motion.div>
-              )}
-            </div>
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="space-y-2.5 min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
+            {trend === 'up' && autoCompare === 'income' && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-income/10 text-income font-medium flex items-center gap-0.5">
+                <Sparkles className="h-2.5 w-2.5" />
+                Hot
+              </span>
+            )}
           </div>
           
-          {/* Static icon — no infinite rotate/pulse loops */}
-          <div
-            className={cn(
-              'relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-transform duration-300 flex-shrink-0 group-hover:scale-110',
-              iconColor || 'bg-gradient-to-br from-primary/20 to-primary/10'
+          <CountUpValue value={value} className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" />
+          
+          <div className="flex items-center gap-3 mt-1">
+            {sparklineData.some(v => v > 0) && (
+              <Sparkline 
+                data={sparklineData} 
+                width={70} 
+                height={24} 
+                color={autoCompare === 'income' ? 'hsl(var(--income))' : autoCompare === 'expense' ? 'hsl(var(--expense))' : undefined}
+              />
             )}
-            style={{ boxShadow: `0 8px 32px -8px hsl(var(--${accentColor}) / 0.4)` }}
-          >
-            <Icon className={cn('h-6 w-6 sm:h-7 sm:w-7 relative z-10', iconColor ? 'text-inherit' : 'text-primary')} />
+            {computedChange !== undefined && (
+              <div 
+                className={cn(
+                  "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold",
+                  isPositive && "bg-income/10 text-income",
+                  isNegative && "bg-expense/10 text-expense",
+                  !isPositive && !isNegative && "bg-muted text-muted-foreground"
+                )}
+              >
+                {isPositive ? <TrendingUp className="h-3 w-3 shrink-0" /> : isNegative ? <TrendingDown className="h-3 w-3 shrink-0" /> : <Minus className="h-3 w-3 shrink-0" />}
+                <span className="truncate">{isPositive ? '+' : ''}{computedChange.toFixed(1)}%</span>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Bottom accent line */}
-        <motion.div
+        
+        {/* Static icon */}
+        <div
           className={cn(
-            "absolute bottom-0 left-0 h-[2px] rounded-full",
-            `bg-gradient-to-r from-${accentColor} via-${accentColor}/50 to-transparent`
+            'relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-transform duration-300 flex-shrink-0 group-hover:scale-110',
+            iconColor || 'bg-gradient-to-br from-primary/20 to-primary/10'
           )}
-          initial={{ width: 0 }}
-          animate={{ width: '60%' }}
-          transition={{ delay: delay + 0.4, duration: 0.6 }}
-        />
-      </TiltCard>
+        >
+          <Icon className={cn('h-6 w-6 sm:h-7 sm:w-7 relative z-10', iconColor ? 'text-inherit' : 'text-primary')} />
+        </div>
+      </div>
+
+      {/* Bottom accent line — CSS only */}
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 h-[2px] w-[60%] rounded-full",
+          `bg-gradient-to-r from-${accentColor} via-${accentColor}/50 to-transparent`
+        )}
+      />
     </motion.div>
   );
 });
