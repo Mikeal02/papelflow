@@ -15,15 +15,9 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-background/95 backdrop-blur-[2px]">
-      {/* Subtle background pattern */}
-      <div className="fixed inset-0 subtle-grid pointer-events-none opacity-50" />
-      
-      {/* Animated ambient orbs - reduced for performance */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/[0.015] rounded-full blur-[100px] animate-[float_20s_ease-in-out_infinite] will-change-transform" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/[0.015] rounded-full blur-[80px] animate-[float_15s_ease-in-out_infinite_reverse] will-change-transform" />
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Subtle background pattern — no blur, GPU-friendly */}
+      <div className="fixed inset-0 subtle-grid pointer-events-none opacity-30" />
       
       {/* Command Palette */}
       <CommandPalette onAddTransaction={() => setIsAddModalOpen(true)} />

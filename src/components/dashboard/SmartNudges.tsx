@@ -214,4 +214,4 @@ export const SmartNudges = memo(function SmartNudges() {
       </Card>
     </motion.div>
   );
-};
+});
