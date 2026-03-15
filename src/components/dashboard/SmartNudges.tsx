@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lightbulb, TrendingDown, AlertTriangle, PiggyBank, Zap, ArrowRight, X, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
