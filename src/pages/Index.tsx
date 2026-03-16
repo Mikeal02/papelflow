@@ -18,7 +18,7 @@ import { useBillReminders } from '@/hooks/useBillReminders';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { AnimatePresence } from 'framer-motion';
 
-// Lazy-load below-fold heavy widgets for faster initial paint
+// Lazy-load below-fold heavy widgets
 const SmartTransactionEntry = lazy(() => import('@/components/transactions/SmartTransactionEntry').then(m => ({ default: m.SmartTransactionEntry })));
 const NetWorthMini = lazy(() => import('@/components/dashboard/NetWorthMini').then(m => ({ default: m.NetWorthMini })));
 const SmartInsights = lazy(() => import('@/components/insights/SmartInsights').then(m => ({ default: m.SmartInsights })));
@@ -42,11 +42,18 @@ const CurrencyConverter = lazy(() => import('@/components/dashboard/CurrencyConv
 const UpcomingBills = lazy(() => import('@/components/dashboard/UpcomingBills').then(m => ({ default: m.UpcomingBills })));
 const FinancialAdvisor = lazy(() => import('@/components/ai/FinancialAdvisor').then(m => ({ default: m.FinancialAdvisor })));
 
-// Lightweight placeholder for lazy widgets
 const WidgetFallback = memo(() => (
-  <div className="rounded-2xl border border-border/40 bg-card/50 animate-pulse h-48" />
+  <div className="rounded-2xl border border-border/30 bg-card/40 animate-pulse h-48" />
 ));
 WidgetFallback.displayName = 'WidgetFallback';
+
+const SectionHeader = memo(({ title, description }: { title: string; description?: string }) => (
+  <div className="space-y-0.5 mb-1">
+    <h2 className="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-[0.12em]">{title}</h2>
+    {description && <p className="text-[11px] text-muted-foreground/40">{description}</p>}
+  </div>
+));
+SectionHeader.displayName = 'SectionHeader';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
@@ -61,7 +68,6 @@ const Dashboard = () => {
   useRealtimeTransactions();
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
-
   const isInitialLoading = statsLoading && accountsLoading && txLoading;
 
   return (
@@ -70,7 +76,7 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <PageTransition>
-          <div className="space-y-6 lg:space-y-8">
+          <div className="space-y-8 lg:space-y-10">
             <WelcomeHeader />
 
             <AnimatePresence>
@@ -86,38 +92,48 @@ const Dashboard = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 onClick={() => setShowQuickAdd(true)}
-                className="w-full rounded-2xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground hover:bg-primary/5 transition-all text-center group"
+                className="w-full rounded-xl border border-dashed border-primary/15 p-3.5 text-[13px] text-muted-foreground/60 hover:border-primary/40 hover:text-foreground hover:bg-primary/5 transition-all text-center group"
               >
-                <Sparkles className="h-4 w-4 inline mr-2 group-hover:text-primary transition-colors" />
-                Quick add: type naturally e.g. "Spent $50 at Starbucks"
+                <Sparkles className="h-3.5 w-3.5 inline mr-2 group-hover:text-primary transition-colors" />
+                Quick add — type naturally e.g. "Spent $50 at Starbucks"
               </motion.button>
             )}
 
             <SmartNudges />
 
-            {/* Stats Grid */}
-            <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
-              <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income" delay={0.05} autoCompare="income" />
-              <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense" delay={0.1} autoCompare="expense" />
-              <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary" delay={0.15} autoCompare="net" />
-              <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent" delay={0.2} />
+            {/* Key Metrics */}
+            <div>
+              <SectionHeader title="Key Metrics" />
+              <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
+                <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income" delay={0.05} autoCompare="income" />
+                <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense" delay={0.1} autoCompare="expense" />
+                <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary" delay={0.15} autoCompare="net" />
+                <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent" delay={0.2} />
+              </div>
             </div>
 
             <QuickStats />
 
-            {/* Below-fold: all lazy-loaded */}
-            <Suspense fallback={<div className="grid gap-5 lg:grid-cols-2"><WidgetFallback /><WidgetFallback /></div>}>
-              <div className="grid gap-5 lg:grid-cols-2">
-                <NetWorthMini />
-                {transactions.length > 0 && (
-                  <SmartInsights transactions={transactions} categories={categories} formatCurrency={formatCurrency} />
-                )}
-              </div>
-            </Suspense>
+            {/* Insights & Net Worth */}
+            <div>
+              <SectionHeader title="Wealth Overview" />
+              <Suspense fallback={<div className="grid gap-5 lg:grid-cols-2"><WidgetFallback /><WidgetFallback /></div>}>
+                <div className="grid gap-5 lg:grid-cols-2">
+                  <NetWorthMini />
+                  {transactions.length > 0 && (
+                    <SmartInsights transactions={transactions} categories={categories} formatCurrency={formatCurrency} />
+                  )}
+                </div>
+              </Suspense>
+            </div>
 
+            {/* Main Content Grid */}
             <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 space-y-5 lg:space-y-6">
-                <RecentTransactions />
+              <div className="lg:col-span-2 space-y-6">
+                <div>
+                  <SectionHeader title="Activity" />
+                  <RecentTransactions />
+                </div>
                 <Suspense fallback={<WidgetFallback />}><MoneyFlowSankey /></Suspense>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <Suspense fallback={<WidgetFallback />}><CashFlowChart /></Suspense>
@@ -133,7 +149,8 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-5 lg:space-y-6">
+              <div className="space-y-5">
+                <SectionHeader title="Intelligence" />
                 <Suspense fallback={<WidgetFallback />}><FinancialHealthScore /></Suspense>
                 <Suspense fallback={<WidgetFallback />}><AISpendingInsights /></Suspense>
                 <Suspense fallback={<WidgetFallback />}><SpendingHeatmapCalendar /></Suspense>

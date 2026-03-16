@@ -1,53 +1,62 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Wallet,
-  PieChart,
-  BarChart3,
-  CalendarClock,
-  Target,
-  TrendingUp,
-  Settings,
-  Plus,
-  LogOut,
-  Menu,
-  ChevronRight,
-  Tag,
-  CreditCard,
-  Trophy,
-  X,
+  LayoutDashboard, ArrowLeftRight, Wallet, PieChart, BarChart3,
+  CalendarClock, Target, TrendingUp, Settings, Plus, LogOut,
+  Menu, ChevronRight, Tag, CreditCard, Trophy, Brain, Repeat,
+  Sparkles, Briefcase, Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptic } from '@/lib/sounds';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 const bottomTabs = [
   { icon: LayoutDashboard, label: 'Home', path: '/' },
   { icon: ArrowLeftRight, label: 'Txns', path: '/transactions' },
-  { icon: PieChart, label: 'Budgets', path: '/budgets' },
+  { icon: PieChart, label: 'Budget', path: '/budgets' },
   { icon: BarChart3, label: 'Reports', path: '/reports' },
 ];
 
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: ArrowLeftRight, label: 'Transactions', path: '/transactions' },
-  { icon: Wallet, label: 'Accounts', path: '/accounts' },
-  { icon: PieChart, label: 'Budgets', path: '/budgets' },
-  { icon: Tag, label: 'Categories', path: '/categories' },
-  { icon: BarChart3, label: 'Reports', path: '/reports' },
-  { icon: CalendarClock, label: 'Subscriptions', path: '/subscriptions' },
-  { icon: Target, label: 'Goals', path: '/goals' },
-  { icon: TrendingUp, label: 'Net Worth', path: '/net-worth' },
-  { icon: CreditCard, label: 'Debt Tracker', path: '/debt' },
-  { icon: BarChart3, label: 'Recurring', path: '/recurring' },
-  { icon: BarChart3, label: 'Tax Estimator', path: '/tax' },
-  { icon: TrendingUp, label: 'Investments', path: '/investments' },
-  { icon: Trophy, label: 'Challenges', path: '/challenges' },
+const navGroups = [
+  {
+    label: 'Overview',
+    items: [
+      { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+      { icon: Brain, label: 'Analytics', path: '/analytics' },
+      { icon: BarChart3, label: 'Reports', path: '/reports' },
+    ],
+  },
+  {
+    label: 'Money',
+    items: [
+      { icon: ArrowLeftRight, label: 'Transactions', path: '/transactions' },
+      { icon: Wallet, label: 'Accounts', path: '/accounts' },
+      { icon: PieChart, label: 'Budgets', path: '/budgets' },
+      { icon: Tag, label: 'Categories', path: '/categories' },
+    ],
+  },
+  {
+    label: 'Planning',
+    items: [
+      { icon: Target, label: 'Goals', path: '/goals' },
+      { icon: TrendingUp, label: 'Net Worth', path: '/net-worth' },
+      { icon: CalendarClock, label: 'Subscriptions', path: '/subscriptions' },
+      { icon: Repeat, label: 'Recurring', path: '/recurring' },
+    ],
+  },
+  {
+    label: 'Advanced',
+    items: [
+      { icon: CreditCard, label: 'Debt Tracker', path: '/debt' },
+      { icon: Sparkles, label: 'Tax Estimator', path: '/tax' },
+      { icon: Briefcase, label: 'Investments', path: '/investments' },
+      { icon: Trophy, label: 'Challenges', path: '/challenges' },
+    ],
+  },
 ];
 
 interface MobileNavProps {
@@ -74,103 +83,106 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
   return (
     <>
       {/* Top Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between h-full px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl overflow-hidden shadow-sm">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg overflow-hidden ring-1 ring-primary/10 shadow-sm">
               <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
             </div>
-            <span className="text-lg font-bold tracking-tight">Finflow</span>
+            <div>
+              <span className="text-base font-bold tracking-tight">Finflow</span>
+              <span className="ml-1.5 text-[8px] font-bold text-primary tracking-widest uppercase">PRO</span>
+            </div>
           </Link>
 
-          <div className="flex items-center gap-1.5">
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-background/95 backdrop-blur-2xl border-border/30 p-0">
-                <div className="flex flex-col h-full">
-                  {/* Header */}
-                  <div className="flex items-center justify-between h-14 px-5 border-b border-border/30">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-9 w-9 rounded-xl overflow-hidden">
-                        <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
-                      </div>
-                      <span className="text-lg font-bold tracking-tight">Finflow</span>
-                    </div>
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] bg-background/98 backdrop-blur-2xl border-border/20 p-0">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center gap-2.5 h-14 px-5 border-b border-border/20">
+                  <div className="h-8 w-8 rounded-lg overflow-hidden">
+                    <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
                   </div>
-
-                  {/* Navigation */}
-                  <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-                    {navItems.map((item, i) => {
-                      const isActive = location.pathname === item.path;
-                      return (
-                        <motion.button
-                          key={item.path}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.03, duration: 0.25 }}
-                          onClick={() => handleNavClick(item.path)}
-                          className={cn(
-                            'relative flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200 active:scale-[0.97]',
-                            isActive
-                              ? 'bg-primary/10 text-primary'
-                              : 'text-foreground/70 hover:bg-muted active:bg-muted/80'
-                          )}
-                        >
-                          {isActive && (
-                            <motion.div
-                              layoutId="mobile-active-indicator"
-                              className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary"
-                              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                            />
-                          )}
-                          <item.icon className={cn('h-[18px] w-[18px]', isActive && 'text-primary')} />
-                          <span className="flex-1 text-left">{item.label}</span>
-                          {isActive && (
-                            <ChevronRight className="h-3.5 w-3.5 text-primary/60" />
-                          )}
-                        </motion.button>
-                      );
-                    })}
-                  </nav>
-
-                  {/* User & Actions */}
-                  <div className="border-t border-border/30 p-4 space-y-1">
-                    {user && (
-                      <div className="px-3.5 py-3 mb-2 rounded-xl bg-muted/50 backdrop-blur-sm">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Signed in as</p>
-                        <p className="text-sm font-medium truncate mt-0.5">{user.email}</p>
-                      </div>
-                    )}
-                    <button
-                      onClick={() => handleNavClick('/settings')}
-                      className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium text-foreground/70 hover:bg-muted active:scale-[0.97] transition-all duration-200"
-                    >
-                      <Settings className="h-[18px] w-[18px]" />
-                      Settings
-                    </button>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium text-foreground/70 hover:bg-destructive/10 hover:text-destructive active:scale-[0.97] transition-all duration-200"
-                    >
-                      <LogOut className="h-[18px] w-[18px]" />
-                      Sign Out
-                    </button>
-                  </div>
+                  <span className="text-base font-bold tracking-tight">Finflow</span>
                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+
+                <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+                  {navGroups.map((group) => (
+                    <div key={group.label}>
+                      <p className="px-3 mb-1.5 text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.12em]">
+                        {group.label}
+                      </p>
+                      <div className="space-y-0.5">
+                        {group.items.map((item) => {
+                          const isActive = location.pathname === item.path;
+                          return (
+                            <button
+                              key={item.path}
+                              onClick={() => handleNavClick(item.path)}
+                              className={cn(
+                                'relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200 active:scale-[0.97]',
+                                isActive
+                                  ? 'bg-primary/8 text-primary'
+                                  : 'text-foreground/60 hover:bg-muted active:bg-muted/80'
+                              )}
+                            >
+                              {isActive && (
+                                <div className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-primary" />
+                              )}
+                              <item.icon className={cn('h-[15px] w-[15px]', isActive ? 'text-primary' : 'text-muted-foreground')} />
+                              <span className="flex-1 text-left">{item.label}</span>
+                              {isActive && <ChevronRight className="h-3 w-3 text-primary/50" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </nav>
+
+                <div className="border-t border-border/20 p-3 space-y-1">
+                  {user && (
+                    <div className="mx-1 px-3 py-2.5 mb-1 rounded-xl bg-muted/30 border border-border/10">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                          <span className="text-[10px] font-bold text-primary-foreground">{user.email?.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-semibold truncate">{user.email?.split('@')[0]}</p>
+                          <p className="text-[10px] text-muted-foreground/60 truncate">{user.email}</p>
+                        </div>
+                        <Shield className="h-3 w-3 text-income/70 shrink-0" />
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => handleNavClick('/settings')}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-foreground/60 hover:bg-muted transition-all"
+                  >
+                    <Settings className="h-[15px] w-[15px]" />
+                    Settings
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-foreground/60 hover:bg-destructive/10 hover:text-destructive transition-all"
+                  >
+                    <LogOut className="h-[15px] w-[15px]" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
       {/* Bottom Tab Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-        {/* Blur backdrop */}
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-2xl border-t border-border/30" />
+        <div className="absolute inset-0 bg-background/85 backdrop-blur-2xl border-t border-border/20" />
         
         <div className="relative flex items-center justify-around px-2 pb-safe pt-1.5 pb-2">
           {bottomTabs.slice(0, 2).map((tab) => {
@@ -181,39 +193,27 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
                 to={tab.path}
                 className={cn(
                   'flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 active:scale-90',
-                  isActive ? 'text-primary' : 'text-muted-foreground'
+                  isActive ? 'text-primary' : 'text-muted-foreground/60'
                 )}
               >
                 <div className="relative">
-                  <tab.icon className="h-5 w-5" />
-                  {isActive && (
-                    <motion.div
-                      layoutId="bottom-tab-glow"
-                      className="absolute -inset-2 rounded-xl bg-primary/15 blur-md"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
+                  <tab.icon className={cn('h-5 w-5', isActive && 'drop-shadow-[0_0_6px_hsl(var(--primary)/0.4)]')} />
                 </div>
-                <span className="text-[10px] font-semibold">{tab.label}</span>
+                <span className={cn('text-[10px] font-semibold', isActive && 'text-primary')}>{tab.label}</span>
               </Link>
             );
           })}
 
-          {/* Center FAB */}
+          {/* Center FAB — no infinite animation */}
           <motion.button
             whileTap={{ scale: 0.85 }}
             onClick={() => { haptic('medium'); onAddTransaction(); }}
-            className="relative -mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xl"
+            className="relative -mt-5 flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl"
             style={{
-              boxShadow: '0 8px 30px -4px hsl(var(--primary) / 0.5), 0 2px 8px -2px hsl(var(--primary) / 0.3)',
+              boxShadow: '0 8px 24px -4px hsl(var(--primary) / 0.45), 0 2px 8px -2px hsl(var(--primary) / 0.25)',
             }}
           >
             <Plus className="h-6 w-6" />
-            <motion.div
-              className="absolute inset-0 rounded-2xl bg-primary"
-              animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
           </motion.button>
 
           {bottomTabs.slice(2, 4).map((tab) => {
@@ -224,20 +224,13 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
                 to={tab.path}
                 className={cn(
                   'flex flex-col items-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-200 active:scale-90',
-                  isActive ? 'text-primary' : 'text-muted-foreground'
+                  isActive ? 'text-primary' : 'text-muted-foreground/60'
                 )}
               >
                 <div className="relative">
-                  <tab.icon className="h-5 w-5" />
-                  {isActive && (
-                    <motion.div
-                      layoutId="bottom-tab-glow"
-                      className="absolute -inset-2 rounded-xl bg-primary/15 blur-md"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
+                  <tab.icon className={cn('h-5 w-5', isActive && 'drop-shadow-[0_0_6px_hsl(var(--primary)/0.4)]')} />
                 </div>
-                <span className="text-[10px] font-semibold">{tab.label}</span>
+                <span className={cn('text-[10px] font-semibold', isActive && 'text-primary')}>{tab.label}</span>
               </Link>
             );
           })}
