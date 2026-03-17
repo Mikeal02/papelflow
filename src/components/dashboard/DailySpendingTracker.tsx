@@ -1,14 +1,15 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Activity } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isToday, isBefore } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 export function DailySpendingTracker() {
   const { data: transactions = [] } = useTransactions();
   const { formatCurrency } = useCurrency();
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const { days, avgDaily, todaySpending, daysRemaining } = useMemo(() => {
     const now = new Date();
@@ -30,11 +31,8 @@ export function DailySpendingTracker() {
     const days = allDays.map(d => {
       const key = format(d, 'yyyy-MM-dd');
       return {
-        date: d,
-        label: format(d, 'd'),
-        amount: dailyMap[key] || 0,
-        isToday: isToday(d),
-        isPast: isBefore(d, now) && !isToday(d),
+        date: d, label: format(d, 'd'), amount: dailyMap[key] || 0,
+        isToday: isToday(d), isPast: isBefore(d, now) && !isToday(d),
       };
     });
 
@@ -66,35 +64,54 @@ export function DailySpendingTracker() {
           </div>
           <div>
             <h3 className="font-semibold text-sm">Daily Spending</h3>
-            <p className="text-[10px] text-muted-foreground">{daysRemaining} days remaining this month</p>
+            <p className="text-[10px] text-muted-foreground">{daysRemaining} days remaining</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Today</p>
-          <p className="text-sm font-bold text-expense">{formatCurrency(todaySpending)}</p>
+          <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">Today</p>
+          <p className="text-sm font-bold text-expense tabular-nums">{formatCurrency(todaySpending)}</p>
         </div>
       </div>
 
       {/* Mini heatmap */}
-      <div className="grid grid-cols-7 gap-1 mb-3">
+      <div className="grid grid-cols-7 gap-[3px] mb-3">
         {days.slice(0, 28).map((day, i) => {
           const intensity = day.amount > 0 ? Math.max(0.15, day.amount / maxAmount) : 0;
+          const isHovered = hoveredIdx === i;
           return (
-            <div
-              key={i}
-              className={cn(
-                'aspect-square rounded-sm flex items-center justify-center text-[8px] font-medium transition-colors',
-                day.isToday && 'ring-1 ring-primary',
-                !day.isPast && !day.isToday && 'opacity-30'
-              )}
-              style={{
-                backgroundColor: day.amount > 0
-                  ? `hsl(var(--expense) / ${intensity})`
-                  : 'hsl(var(--muted) / 0.3)',
-              }}
-              title={`${format(day.date, 'MMM d')}: ${formatCurrency(day.amount)}`}
-            >
-              {day.label}
+            <div key={i} className="relative">
+              <div
+                className={cn(
+                  'aspect-square rounded-[3px] flex items-center justify-center text-[8px] font-medium transition-all duration-150 cursor-pointer',
+                  day.isToday && 'ring-1.5 ring-primary ring-offset-1 ring-offset-background',
+                  !day.isPast && !day.isToday && 'opacity-25',
+                  isHovered && 'scale-125 z-10 ring-1 ring-foreground/30',
+                )}
+                style={{
+                  backgroundColor: day.amount > 0
+                    ? `hsl(var(--expense) / ${intensity})`
+                    : 'hsl(var(--muted) / 0.2)',
+                }}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+              >
+                {day.label}
+              </div>
+
+              <AnimatePresence>
+                {isHovered && (day.isPast || day.isToday) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                    className="absolute -top-[40px] left-1/2 -translate-x-1/2 z-50 bg-popover border border-border rounded-md px-2 py-1 shadow-lg whitespace-nowrap pointer-events-none"
+                  >
+                    <p className="text-[9px] font-medium">{format(day.date, 'MMM d')}</p>
+                    <p className="text-[10px] font-bold text-expense tabular-nums">{formatCurrency(day.amount)}</p>
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-1.5 h-1.5 bg-popover border-r border-b border-border" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
@@ -102,22 +119,20 @@ export function DailySpendingTracker() {
 
       <div className="flex items-center justify-between pt-3 border-t border-border/30">
         <div>
-          <p className="text-[10px] text-muted-foreground">Daily average</p>
-          <p className="text-sm font-bold">{formatCurrency(avgDaily)}</p>
+          <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">Daily avg</p>
+          <p className="text-sm font-bold tabular-nums">{formatCurrency(avgDaily)}</p>
         </div>
-        <div className="flex gap-2 text-[10px]">
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-sm bg-expense/20" />
-            <span className="text-muted-foreground">Low</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-sm bg-expense/60" />
-            <span className="text-muted-foreground">Med</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-sm bg-expense" />
-            <span className="text-muted-foreground">High</span>
-          </div>
+        <div className="flex gap-2 text-[9px]">
+          {[
+            { label: 'Low', opacity: '0.2' },
+            { label: 'Med', opacity: '0.5' },
+            { label: 'High', opacity: '1' },
+          ].map(l => (
+            <div key={l.label} className="flex items-center gap-1">
+              <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: `hsl(var(--expense) / ${l.opacity})` }} />
+              <span className="text-muted-foreground">{l.label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </motion.div>

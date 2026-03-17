@@ -157,12 +157,21 @@ const Dashboard = () => {
                 <Suspense fallback={<WidgetFallback />}><WhatIfScenario /></Suspense>
                 <Suspense fallback={<WidgetFallback />}><FutureYouSimulator /></Suspense>
                 <Suspense fallback={<WidgetFallback />}><GoalsMini /></Suspense>
+              </div>
+            </div>
+
+            {/* Full-width bottom widgets */}
+            <div>
+              <SectionHeader title="Tracking & Accounts" />
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <Suspense fallback={<WidgetFallback />}><DailySpendingTracker /></Suspense>
                 <Suspense fallback={<WidgetFallback />}><SpendingByTimeOfDay /></Suspense>
                 <Suspense fallback={<WidgetFallback />}><AccountsOverview /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><CurrencyConverter /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><UpcomingBills /></Suspense>
               </div>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Suspense fallback={<WidgetFallback />}><CurrencyConverter /></Suspense>
+              <Suspense fallback={<WidgetFallback />}><UpcomingBills /></Suspense>
             </div>
           </div>
         </PageTransition>
