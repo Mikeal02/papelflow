@@ -15,7 +15,7 @@ export function usePushNotifications() {
   });
 
   useEffect(() => {
-    const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
+    const isSupported = 'Notification' in window;
     
     setState(prev => ({
       ...prev,
@@ -25,8 +25,30 @@ export function usePushNotifications() {
     }));
   }, []);
 
+  const showNotification = useCallback((title: string, options?: NotificationOptions) => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+      toast(title, { description: options?.body });
+      return;
+    }
+
+    try {
+      const notification = new Notification(title, {
+        icon: '/favicon.svg',
+        badge: '/favicon.svg',
+        ...options,
+      });
+      
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    } catch (error) {
+      toast(title, { description: options?.body });
+    }
+  }, []);
+
   const requestPermission = useCallback(async () => {
-    if (!state.isSupported) {
+    if (!('Notification' in window)) {
       toast.error('Push notifications are not supported in this browser');
       return false;
     }
@@ -42,7 +64,6 @@ export function usePushNotifications() {
 
       if (permission === 'granted') {
         toast.success('Push notifications enabled!');
-        // Show a test notification
         showNotification('Notifications Enabled', {
           body: 'You will now receive important financial alerts',
           icon: '/favicon.svg',
@@ -59,30 +80,7 @@ export function usePushNotifications() {
       toast.error('Failed to request notification permission');
       return false;
     }
-  }, [state.isSupported]);
-
-  const showNotification = useCallback((title: string, options?: NotificationOptions) => {
-    if (!state.isSupported || Notification.permission !== 'granted') {
-      // Fallback to toast notification
-      toast(title, {
-        description: options?.body,
-      });
-      return;
-    }
-
-    try {
-      new Notification(title, {
-        icon: '/favicon.svg',
-        badge: '/favicon.svg',
-        ...options,
-      });
-    } catch (error) {
-      // Fallback to toast if native notification fails
-      toast(title, {
-        description: options?.body,
-      });
-    }
-  }, [state.isSupported]);
+  }, [showNotification]);
 
   const sendBudgetAlert = useCallback((categoryName: string, percentage: number) => {
     const isOverBudget = percentage >= 100;
@@ -128,7 +126,7 @@ export function usePushNotifications() {
       title = `📈 Halfway There: ${goalName}`;
       body = `You've reached ${percentage.toFixed(0)}% of your ${goalName} goal!`;
     } else {
-      return; // Don't notify for lower percentages
+      return;
     }
 
     showNotification(title, { body, tag: `goal-${goalName}` });
