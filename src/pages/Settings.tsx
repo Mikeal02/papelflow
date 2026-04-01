@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import {
   User, Shield, Download, Trash2, Moon, Globe, Calendar, ChevronRight, Loader2, LogOut,
   Database, Clock, Activity, HardDrive, FileJson, FileSpreadsheet, BarChart3, Mail, Send,
+  Camera, Zap, Crown, Fingerprint, Eye, Lock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -11,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -124,46 +124,81 @@ const Settings = () => {
 
   if (isLoading) {
     return (
-      <>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-          <div className="relative"><div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" /><Loader2 className="h-12 w-12 animate-spin text-primary relative" /></div>
-          <p className="text-muted-foreground animate-pulse">Loading settings...</p>
-        </div>
-      </>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="relative"><div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" /><Loader2 className="h-12 w-12 animate-spin text-primary relative" /></div>
+        <p className="text-muted-foreground animate-pulse">Loading settings...</p>
+      </div>
     );
   }
+
+  const initials = (profile?.full_name || user?.email || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (
     <>
       <div className="max-w-3xl space-y-6">
+        {/* Hero Profile Card */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-2xl md:text-3xl font-bold gradient-text">Settings</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage your account, preferences, and data</p>
-        </motion.div>
+          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-br from-card via-card to-muted/20">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/5 via-transparent to-transparent rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-accent/5 via-transparent to-transparent rounded-full translate-y-1/2 -translate-x-1/4" />
+            
+            <div className="relative p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                {/* Avatar */}
+                <div className="relative group">
+                  <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-accent flex items-center justify-center shadow-xl shadow-primary/20">
+                    <span className="text-2xl font-black text-primary-foreground tracking-tight">{initials}</span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-lg bg-income flex items-center justify-center ring-2 ring-card shadow-md">
+                    <Zap className="h-3 w-3 text-white" />
+                  </div>
+                </div>
 
-        {/* Account Overview */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="stat-card">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10"><Activity className="h-5 w-5 text-primary" /></div>
-            <div><h3 className="font-semibold">Account Overview</h3><p className="text-xs text-muted-foreground">Your data at a glance</p></div>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: 'Account Age', value: `${dataStats.accountAge}d`, icon: Clock },
-              { label: 'Total Records', value: String(dataStats.totalRecords), icon: Database },
-              { label: 'Transactions', value: String(transactions.length), icon: BarChart3 },
-              { label: 'Accounts', value: String(accounts.length), icon: HardDrive },
-            ].map((stat, i) => (
-              <div key={i} className="p-3 rounded-xl bg-muted/30 text-center">
-                <stat.icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
-                <p className="text-[10px] text-muted-foreground">{stat.label}</p>
-                <p className="text-sm font-bold">{stat.value}</p>
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h1 className="text-xl md:text-2xl font-bold tracking-tight">{profile?.full_name || 'Your Account'}</h1>
+                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold tracking-wider">
+                      <Crown className="h-2.5 w-2.5 mr-1" />PRO
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
+                  {user?.created_at && (
+                    <p className="text-xs text-muted-foreground/60 mt-1 flex items-center gap-1.5">
+                      <Shield className="h-3 w-3" />
+                      Member since {format(new Date(user.created_at), 'MMMM yyyy')}
+                    </p>
+                  )}
+                </div>
               </div>
-            ))}
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+                {[
+                  { label: 'Account Age', value: `${dataStats.accountAge}d`, icon: Clock, color: 'text-primary' },
+                  { label: 'Total Records', value: String(dataStats.totalRecords), icon: Database, color: 'text-accent' },
+                  { label: 'Transactions', value: String(transactions.length), icon: BarChart3, color: 'text-income' },
+                  { label: 'Accounts', value: String(accounts.length), icon: HardDrive, color: 'text-chart-3' },
+                ].map((stat, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    className="p-3 rounded-xl bg-muted/30 border border-border/10 hover:bg-muted/50 transition-colors"
+                  >
+                    <stat.icon className={cn('h-4 w-4 mb-1.5', stat.color)} />
+                    <p className="text-lg font-bold tabular-nums leading-none">{stat.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Profile */}
+        {/* Profile Edit */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="stat-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10"><User className="h-5 w-5 text-primary" /></div>
@@ -172,7 +207,6 @@ const Settings = () => {
           <div className="space-y-4">
             <div className="space-y-2"><Label htmlFor="email" className="text-sm font-medium">Email</Label><Input id="email" type="email" value={user?.email || ''} disabled className="bg-muted/30" /></div>
             <div className="space-y-2"><Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label><Input id="fullName" value={fullName || profile?.full_name || ''} onChange={(e) => setFullName(e.target.value)} className="bg-muted/30" /></div>
-            {user?.created_at && <p className="text-xs text-muted-foreground">Member since {format(new Date(user.created_at), 'MMMM d, yyyy')}</p>}
             <Button onClick={handleSaveProfile} disabled={updateProfile.isPending} className="btn-premium">{updateProfile.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}</Button>
           </div>
         </motion.div>
@@ -256,8 +290,18 @@ const Settings = () => {
             <div><h3 className="font-semibold">Security</h3><p className="text-xs text-muted-foreground">Protect your account</p></div>
           </div>
           <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50" onClick={() => setShowPasswordModal(true)}>Change password<ChevronRight className="h-4 w-4 text-muted-foreground" /></Button>
-            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50">Two-factor authentication<Badge variant="outline" className="text-[10px]">Coming soon</Badge></Button>
+            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50 group" onClick={() => setShowPasswordModal(true)}>
+              <span className="flex items-center gap-2.5"><Lock className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />Change password</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Button>
+            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50 group">
+              <span className="flex items-center gap-2.5"><Fingerprint className="h-4 w-4 text-muted-foreground" />Two-factor authentication</span>
+              <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
+            </Button>
+            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50 group">
+              <span className="flex items-center gap-2.5"><Eye className="h-4 w-4 text-muted-foreground" />Login activity</span>
+              <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
+            </Button>
           </div>
         </motion.div>
 
@@ -292,7 +336,10 @@ const Settings = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={isDeleting}>{isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete Account'}</AlertDialogAction>
+                  <AlertDialogAction onClick={handleDeleteAccount} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Delete Everything
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, Receipt, ArrowDownUp, Target, CreditCard, PiggyBank, Wallet } from 'lucide-react';
+import { Plus, X, Receipt, ArrowDownUp, Target, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -59,7 +59,7 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
   ];
 
   return (
-    <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50">
       <AnimatePresence>
         {isOpen && (
           <>
@@ -68,12 +68,12 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40"
               onClick={() => setIsOpen(false)}
             />
 
             {/* Actions */}
-            <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-3">
+            <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-3 z-50">
               {actions.map((action, index) => (
                 <motion.button
                   key={action.label}
@@ -114,21 +114,21 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'h-14 w-14 rounded-full flex items-center justify-center',
+          'relative h-14 w-14 rounded-full flex items-center justify-center z-50',
           'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground',
-          'shadow-lg shadow-primary/25 transition-all duration-300',
-          isOpen && 'rotate-45 bg-gradient-to-br from-destructive to-destructive/80 shadow-destructive/25'
+          'shadow-lg shadow-primary/25 transition-colors duration-300',
+          isOpen && 'from-destructive to-destructive/80 shadow-destructive/25'
         )}
       >
         <motion.div animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }}>
-          {isOpen ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+          <Plus className="h-6 w-6" />
         </motion.div>
       </motion.button>
 
       {/* Pulse ring */}
       {!isOpen && (
         <motion.div
-          className="absolute inset-0 rounded-full bg-primary/30"
+          className="absolute inset-0 rounded-full bg-primary/30 pointer-events-none"
           initial={{ scale: 1, opacity: 0.5 }}
           animate={{ scale: 1.5, opacity: 0 }}
           transition={{ duration: 1.5, repeat: Infinity }}
