@@ -107,40 +107,40 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
         !autoCompare && "bg-accent/20"
       )} />
 
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="space-y-2.5 min-w-0 flex-1">
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="space-y-2 min-w-0 flex-1 overflow-hidden">
           <div className="flex items-center gap-2">
-            <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
+            <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{title}</p>
             {trend === 'up' && autoCompare === 'income' && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-income/10 text-income font-medium flex items-center gap-0.5">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-income/10 text-income font-medium flex items-center gap-0.5 shrink-0">
                 <Sparkles className="h-2.5 w-2.5" />
                 Hot
               </span>
             )}
           </div>
           
-          <CountUpValue value={value} className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" />
+          <CountUpValue value={value} className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight block truncate" />
           
-          <div className="flex items-center gap-3 mt-1">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             {sparklineData.some(v => v > 0) && (
               <Sparkline 
                 data={sparklineData} 
-                width={70} 
-                height={24} 
+                width={60} 
+                height={20} 
                 color={autoCompare === 'income' ? 'hsl(var(--income))' : autoCompare === 'expense' ? 'hsl(var(--expense))' : undefined}
               />
             )}
             {computedChange !== undefined && (
               <div 
                 className={cn(
-                  "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold",
+                  "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0",
                   isPositive && "bg-income/10 text-income",
                   isNegative && "bg-expense/10 text-expense",
                   !isPositive && !isNegative && "bg-muted text-muted-foreground"
                 )}
               >
                 {isPositive ? <TrendingUp className="h-3 w-3 shrink-0" /> : isNegative ? <TrendingDown className="h-3 w-3 shrink-0" /> : <Minus className="h-3 w-3 shrink-0" />}
-                <span className="truncate">{isPositive ? '+' : ''}{computedChange.toFixed(1)}%</span>
+                <span>{isPositive ? '+' : ''}{computedChange.toFixed(1)}%</span>
               </div>
             )}
           </div>
@@ -149,11 +149,11 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
         {/* Static icon */}
         <div
           className={cn(
-            'relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-transform duration-300 flex-shrink-0 group-hover:scale-110',
+            'relative flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl transition-transform duration-300 flex-shrink-0 group-hover:scale-110',
             iconColor || 'bg-gradient-to-br from-primary/20 to-primary/10'
           )}
         >
-          <Icon className={cn('h-6 w-6 sm:h-7 sm:w-7 relative z-10', iconColor ? 'text-inherit' : 'text-primary')} />
+          <Icon className={cn('h-5 w-5 sm:h-6 sm:w-6 relative z-10', iconColor ? 'text-inherit' : 'text-primary')} />
         </div>
       </div>
 

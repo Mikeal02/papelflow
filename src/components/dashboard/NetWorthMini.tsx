@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, ArrowUpRight, ArrowDownRight, Sparkles } from 'lucide-react';
+import { TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -44,7 +44,6 @@ export function NetWorthMini() {
       });
     }
 
-    // Build cumulative from estimated starting point
     let cumulative = currentBalance;
     for (let i = data.length - 1; i >= 0; i--) {
       cumulative -= data[i].net;
@@ -86,46 +85,46 @@ export function NetWorthMini() {
     >
       <TiltCard className="stat-card h-full">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <motion.div 
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-primary shadow-lg"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-primary shadow-lg shrink-0"
               animate={{ boxShadow: ['0 0 0 0 hsl(var(--accent) / 0)', '0 0 20px 5px hsl(var(--accent) / 0.3)', '0 0 0 0 hsl(var(--accent) / 0)'] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <TrendingUp className="h-5 w-5 text-white" />
+              <TrendingUp className="h-5 w-5 text-primary-foreground" />
             </motion.div>
-            <div>
-              <h3 className="font-semibold text-sm">Net Worth</h3>
+            <div className="min-w-0">
+              <h3 className="font-semibold text-sm truncate">Net Worth</h3>
               <p className="text-[10px] text-muted-foreground">6-month trajectory</p>
             </div>
           </div>
-          <Link to="/net-worth">
+          <Link to="/net-worth" className="shrink-0">
             <Button variant="ghost" size="sm" className="text-primary h-7 text-xs">
               Details →
             </Button>
           </Link>
         </div>
 
-        <div className="flex items-end justify-between gap-4">
-          <div className="min-w-0">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0 flex-1 overflow-hidden">
             <ShineEffect>
-              <CountUpValue value={formatCurrency(currentNetWorth)} className="text-2xl md:text-3xl font-bold truncate" duration={1800} />
+              <CountUpValue value={formatCurrency(currentNetWorth)} className="text-xl sm:text-2xl lg:text-3xl font-bold block truncate" duration={1800} />
             </ShineEffect>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <GradientBadge variant={change >= 0 ? 'success' : 'warning'}>
                 {change >= 0 ? (
                   <ArrowUpRight className="h-3 w-3" />
                 ) : (
                   <ArrowDownRight className="h-3 w-3" />
                 )}
-                {change >= 0 ? '+' : ''}{formatCurrency(change)}
+                <span className="truncate max-w-[80px]">{change >= 0 ? '+' : ''}{formatCurrency(change)}</span>
               </GradientBadge>
-              <span className={cn('text-[10px] font-medium', change >= 0 ? 'text-income' : 'text-expense')}>
+              <span className={cn('text-[10px] font-medium shrink-0', change >= 0 ? 'text-income' : 'text-expense')}>
                 ({changePercent >= 0 ? '+' : ''}{changePercent.toFixed(1)}%)
               </span>
             </div>
           </div>
-          <div className="h-[70px] w-[150px] sm:w-[200px] flex-shrink-0">
+          <div className="h-[60px] w-[120px] sm:w-[160px] flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData}>
                 <defs>

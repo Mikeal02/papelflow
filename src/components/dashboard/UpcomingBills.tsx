@@ -36,9 +36,9 @@ export function UpcomingBills() {
       transition={{ delay: 0.45, duration: 0.3 }}
       className="stat-card"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold">Upcoming Bills</h3>
-        <Link to="/subscriptions">
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <h3 className="text-base font-semibold truncate">Upcoming Bills</h3>
+        <Link to="/subscriptions" className="shrink-0">
           <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 h-8 gap-1">
             View all
             <ChevronRight className="h-3.5 w-3.5" />
@@ -67,11 +67,11 @@ export function UpcomingBills() {
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + index * 0.04 }}
-                className="flex items-center gap-3 rounded-lg p-3 bg-muted/30"
+                className="flex items-center gap-3 rounded-lg p-3 bg-muted/30 hover:bg-muted/50 transition-colors"
               >
                 <div
                   className={cn(
-                    'flex h-9 w-9 items-center justify-center rounded-lg',
+                    'flex h-9 w-9 items-center justify-center rounded-lg shrink-0',
                     isUrgent && !isPaid ? 'bg-warning/10' : 'bg-muted',
                     isPaid && 'bg-income/10'
                   )}
@@ -85,9 +85,9 @@ export function UpcomingBills() {
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="font-medium text-sm truncate">{subscription.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground truncate">
                     {isPaid
                       ? 'Paid'
                       : daysUntil === 0
@@ -98,11 +98,11 @@ export function UpcomingBills() {
                   </p>
                 </div>
 
-                <div className="text-right flex-shrink-0 max-w-[90px]">
-                  <span className="font-semibold tabular-nums text-sm truncate block" title={formatCurrency(Number(subscription.amount))}>
+                <div className="text-right shrink-0 max-w-[85px]">
+                  <span className="font-semibold tabular-nums text-sm block truncate" title={formatCurrency(Number(subscription.amount))}>
                     {formatCurrency(Number(subscription.amount))}
                   </span>
-                  <p className="text-xs text-muted-foreground capitalize">{subscription.frequency}</p>
+                  <p className="text-[10px] text-muted-foreground capitalize">{subscription.frequency}</p>
                 </div>
               </motion.div>
             );

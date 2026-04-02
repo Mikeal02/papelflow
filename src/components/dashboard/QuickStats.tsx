@@ -95,23 +95,24 @@ export const QuickStats = memo(function QuickStats() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 + i * 0.05 }}
         >
-          {/* Lightweight CSS hover instead of TiltCard (eliminates 4 springs + glare per card) */}
           <div
             className={cn(
               'rounded-xl p-3 bg-gradient-to-br border border-border/30 h-full',
-              'transition-transform duration-200 hover:scale-[1.03] hover:shadow-md',
+              'transition-all duration-200 hover:scale-[1.03] hover:shadow-md hover:border-border/50',
               stat.color
             )}
           >
             <div className="flex items-center justify-between mb-2">
-              <stat.icon className={cn('h-4 w-4', stat.iconColor)} />
+              <stat.icon className={cn('h-4 w-4 shrink-0', stat.iconColor)} />
               {stat.progress !== undefined && (
                 <ProgressRing progress={stat.progress} size={24} strokeWidth={3} color={stat.progressColor} showGlow={false} />
               )}
               {stat.trend && <span className="text-xs">{stat.trend}</span>}
             </div>
-            <CountUpValue value={stat.value} className="text-lg font-bold truncate" duration={1000} />
-            <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
+            <div className="min-w-0 overflow-hidden">
+              <CountUpValue value={stat.value} className="text-base sm:text-lg font-bold block truncate" duration={1000} />
+              <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
+            </div>
           </div>
         </motion.div>
       ))}
