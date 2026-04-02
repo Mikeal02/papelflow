@@ -37,7 +37,7 @@ export function CurrencyConverter() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-5"
+      className="stat-card"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export function CurrencyConverter() {
           <div className="flex items-end gap-2">
             <div className="flex-1 space-y-1">
               <span className="text-xs text-muted-foreground">To</span>
-              <div className="h-10 px-3 flex items-center rounded-lg border border-input bg-muted/30 font-semibold text-sm">
+              <div className="h-10 px-3 flex items-center rounded-lg border border-input bg-muted/30 font-semibold text-sm tabular-nums truncate overflow-hidden">
                 {converted !== null ? converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
               </div>
             </div>

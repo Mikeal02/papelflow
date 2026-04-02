@@ -40,17 +40,17 @@ export function AccountsOverview() {
       transition={{ delay: 0.4, duration: 0.3 }}
       className="stat-card"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-base font-semibold">Accounts</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold truncate">Accounts</h3>
+          <p className="text-sm text-muted-foreground mt-0.5 truncate">
             Net worth:{' '}
-            <span className={cn('font-semibold', netWorth >= 0 ? 'text-income' : 'text-expense')}>
+            <span className={cn('font-semibold tabular-nums', netWorth >= 0 ? 'text-income' : 'text-expense')} title={formatCurrency(netWorth)}>
               {formatCurrency(netWorth)}
             </span>
           </p>
         </div>
-        <Link to="/accounts">
+        <Link to="/accounts" className="shrink-0">
           <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 h-8 gap-1">
             Manage
             <ChevronRight className="h-3.5 w-3.5" />
@@ -81,22 +81,22 @@ export function AccountsOverview() {
                 className="flex items-center gap-3 rounded-lg p-3 bg-muted/30 hover:bg-muted/50 transition-colors duration-200"
               >
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-lg"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0"
                   style={{ backgroundColor: `${account.color}15` }}
                 >
                   <Icon className="h-4 w-4" style={{ color: account.color || undefined }} />
                 </div>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="font-medium text-sm truncate">{account.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
+                  <p className="text-xs text-muted-foreground capitalize truncate">
                     {account.type.replace('_', ' ')}
                   </p>
                 </div>
 
                 <span
                   className={cn(
-                    'font-semibold tabular-nums text-sm truncate max-w-[100px]',
+                    'font-semibold tabular-nums text-sm truncate shrink-0 max-w-[90px] sm:max-w-[110px]',
                     isNegative ? 'text-expense' : 'text-foreground'
                   )}
                   title={formatCurrency(Number(account.balance))}

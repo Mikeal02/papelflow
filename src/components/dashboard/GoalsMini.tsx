@@ -22,18 +22,9 @@ export function GoalsMini() {
 
   const getGoalEmoji = (icon: string) => {
     const emojiMap: Record<string, string> = {
-      target: '🎯',
-      home: '🏠',
-      car: '🚗',
-      'graduation-cap': '🎓',
-      plane: '✈️',
-      piggy: '🐷',
-      gift: '🎁',
-      heart: '❤️',
-      laptop: '💻',
-      ring: '💍',
-      baby: '👶',
-      briefcase: '💼',
+      target: '🎯', home: '🏠', car: '🚗', 'graduation-cap': '🎓',
+      plane: '✈️', piggy: '🐷', gift: '🎁', heart: '❤️',
+      laptop: '💻', ring: '💍', baby: '👶', briefcase: '💼',
     };
     return emojiMap[icon] || '💰';
   };
@@ -51,42 +42,25 @@ export function GoalsMini() {
       transition={{ delay: 0.48 }}
     >
       <TiltCard intensity={8} className="stat-card h-full relative overflow-hidden">
-        {/* Ambient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-income/[0.02] pointer-events-none" />
         
-        {/* Floating particles for completed goals */}
         {completedGoals > 0 && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
                 className="absolute h-1 w-1 rounded-full bg-income/40"
-                initial={{ 
-                  x: Math.random() * 100 + '%', 
-                  y: '100%',
-                  opacity: 0 
-                }}
-                animate={{ 
-                  y: '-20%',
-                  opacity: [0, 1, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  delay: i * 1.5,
-                  ease: 'easeOut'
-                }}
+                initial={{ x: Math.random() * 100 + '%', y: '100%', opacity: 0 }}
+                animate={{ y: '-20%', opacity: [0, 1, 0] }}
+                transition={{ duration: 3, repeat: Infinity, delay: i * 1.5, ease: 'easeOut' }}
               />
             ))}
           </div>
         )}
         
-        <div className="relative flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <motion.div 
-              className="relative"
-              whileHover={{ scale: 1.05 }}
-            >
+        <div className="relative flex items-center justify-between gap-2 mb-5">
+          <div className="flex items-center gap-3 min-w-0">
+            <motion.div className="relative shrink-0" whileHover={{ scale: 1.05 }}>
               <ProgressRing progress={overallProgress} size={44} strokeWidth={4} color="primary" showGlow>
                 <Target className="h-4 w-4 text-primary" />
               </ProgressRing>
@@ -97,32 +71,24 @@ export function GoalsMini() {
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', delay: 0.5 }}
                 >
-                  <span className="text-[9px] font-bold text-white">{completedGoals}</span>
+                  <span className="text-[9px] font-bold text-primary-foreground">{completedGoals}</span>
                 </motion.div>
               )}
             </motion.div>
-            <div>
-              <h3 className="text-base font-semibold">Goals</h3>
+            <div className="min-w-0">
+              <h3 className="text-base font-semibold truncate">Goals</h3>
               <div className="flex items-center gap-2">
                 <p className="text-[10px] text-muted-foreground">{overallProgress.toFixed(0)}% overall</p>
                 {overallProgress >= 50 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="flex items-center gap-0.5"
-                  >
-                    <Flame className="h-2.5 w-2.5 text-warning" />
-                  </motion.span>
+                  <Flame className="h-2.5 w-2.5 text-warning" />
                 )}
               </div>
             </div>
           </div>
-          <Link to="/goals">
-            <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 h-8 gap-1 group/btn">
+          <Link to="/goals" className="shrink-0">
+            <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 h-8 gap-1">
               View all
-              <motion.span whileHover={{ x: 3 }} className="inline-block">
-                <ChevronRight className="h-3.5 w-3.5" />
-              </motion.span>
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
         </div>
@@ -178,7 +144,6 @@ export function GoalsMini() {
                         : "bg-muted/30 border-border/40 hover:border-primary/40 hover:shadow-md"
                     )}
                   >
-                    {/* Completion celebration effect */}
                     {isComplete && (
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-income/10 to-transparent"
@@ -196,33 +161,21 @@ export function GoalsMini() {
                             : "bg-gradient-to-br from-muted to-muted/80"
                         )}
                         whileHover={{ rotate: 5, scale: 1.05 }}
-                        animate={isComplete ? { 
-                          boxShadow: [
-                            '0 0 0 0 hsl(var(--income) / 0)',
-                            '0 0 20px 4px hsl(var(--income) / 0.3)',
-                            '0 0 0 0 hsl(var(--income) / 0)'
-                          ]
-                        } : {}}
-                        transition={{ duration: 2, repeat: isComplete ? Infinity : 0 }}
                       >
                         <span className="text-xl">
                           {isComplete ? '🎉' : getGoalEmoji(goal.icon || 'target')}
                         </span>
                       </motion.div>
                       
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <span className="font-semibold text-sm truncate">{goal.name}</span>
                           <div className="flex items-center gap-1.5 shrink-0">
                             {isUrgent && (
-                              <motion.span
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full bg-warning/10 text-warning font-medium"
-                              >
+                              <span className="flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full bg-warning/10 text-warning font-medium">
                                 <Clock className="h-2.5 w-2.5" />
                                 {daysRemaining}d
-                              </motion.span>
+                              </span>
                             )}
                             {isComplete ? (
                               <GradientBadge variant="success">
@@ -230,14 +183,12 @@ export function GoalsMini() {
                                 Done!
                               </GradientBadge>
                             ) : (
-                              <span className="text-xs font-bold text-primary">{progress.toFixed(0)}%</span>
+                              <span className="text-xs font-bold text-primary tabular-nums">{progress.toFixed(0)}%</span>
                             )}
                           </div>
                         </div>
                         
-                        {/* Premium progress bar */}
                         <div className="relative h-2 bg-muted/60 rounded-full overflow-hidden">
-                          {/* Glow */}
                           <motion.div
                             className={cn(
                               "absolute inset-y-0 left-0 rounded-full blur-sm opacity-60",
@@ -247,8 +198,6 @@ export function GoalsMini() {
                             animate={{ width: `${Math.min(progress, 100)}%` }}
                             transition={{ delay: 0.6 + index * 0.1, duration: 0.6 }}
                           />
-                          
-                          {/* Main bar */}
                           <motion.div
                             className={cn(
                               "relative h-full rounded-full",
@@ -259,20 +208,12 @@ export function GoalsMini() {
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(progress, 100)}%` }}
                             transition={{ delay: 0.6 + index * 0.1, duration: 0.6, ease: 'easeOut' }}
-                          >
-                            {/* Shine */}
-                            <motion.div
-                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                              initial={{ x: '-100%' }}
-                              animate={{ x: '200%' }}
-                              transition={{ delay: 0.9 + index * 0.1, duration: 0.8, repeat: 0 }}
-                            />
-                          </motion.div>
+                          />
                         </div>
                         
-                        <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-                          <span className="font-medium">{formatCurrency(Number(goal.current_amount || 0))}</span>
-                          <span>{formatCurrency(Number(goal.target_amount))}</span>
+                        <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5 tabular-nums">
+                          <span className="font-medium truncate max-w-[45%]">{formatCurrency(Number(goal.current_amount || 0))}</span>
+                          <span className="truncate max-w-[45%] text-right">{formatCurrency(Number(goal.target_amount))}</span>
                         </div>
                       </div>
                     </div>

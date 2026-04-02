@@ -61,19 +61,19 @@ export const TopCategories = memo(function TopCategories() {
     <div className="stat-card relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-chart-1/[0.02] via-transparent to-chart-3/[0.02] pointer-events-none" />
       
-      <div className="relative flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-chart-1/20 to-chart-3/20 flex items-center justify-center">
+      <div className="relative flex items-center justify-between gap-2 mb-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-chart-1/20 to-chart-3/20 flex items-center justify-center shrink-0">
             <BarChart3 className="h-5 w-5 text-chart-1" />
           </div>
-          <div>
-            <h3 className="text-base font-semibold">Top Spending</h3>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold truncate">Top Spending</h3>
             <p className="text-[10px] text-muted-foreground">This month's breakdown</p>
           </div>
         </div>
         {topCategories.length > 0 && (
-          <div className="text-right">
-            <p className="text-lg font-bold text-foreground">{formatCurrency(total)}</p>
+          <div className="text-right shrink-0">
+            <p className="text-base sm:text-lg font-bold text-foreground truncate max-w-[120px]" title={formatCurrency(total)}>{formatCurrency(total)}</p>
             <p className="text-[9px] text-muted-foreground">Total spent</p>
           </div>
         )}
@@ -97,15 +97,15 @@ export const TopCategories = memo(function TopCategories() {
               <div key={item.category!.id} className="group hover:translate-x-1 transition-transform duration-200">
                 <div className="flex items-center gap-3">
                   <div className={cn(
-                    'h-10 w-10 rounded-xl bg-gradient-to-br flex items-center justify-center transition-transform duration-200 group-hover:scale-105',
+                    'h-10 w-10 rounded-xl bg-gradient-to-br flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shrink-0',
                     gradients[index]
                   )}>
                     <span className="text-lg">{categoryEmojis[item.category!.name] || '📁'}</span>
                   </div>
                   
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0 overflow-hidden">
                         <span className="font-semibold text-sm truncate">{item.category!.name}</span>
                         {index === 0 && (
                           <span className="flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full bg-warning/10 text-warning font-medium shrink-0">
@@ -114,9 +114,9 @@ export const TopCategories = memo(function TopCategories() {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</span>
-                        <span className="font-bold text-sm tabular-nums">{formatCurrency(item.amount)}</span>
+                        <span className="font-bold text-xs sm:text-sm tabular-nums truncate max-w-[80px] sm:max-w-[100px]" title={formatCurrency(item.amount)}>{formatCurrency(item.amount)}</span>
                       </div>
                     </div>
                     

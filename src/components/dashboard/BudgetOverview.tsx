@@ -49,13 +49,13 @@ export const BudgetOverview = memo(function BudgetOverview() {
     <div className="stat-card relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-accent/[0.02] pointer-events-none" />
       
-      <div className="relative flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+      <div className="relative flex items-center justify-between gap-2 mb-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0">
             <PieChart className="h-5 w-5 text-primary" />
           </div>
-          <div>
-            <h3 className="text-base font-semibold">Budget Status</h3>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold truncate">Budget Status</h3>
             <p className="text-[10px] text-muted-foreground">
               {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
             </p>
@@ -63,11 +63,11 @@ export const BudgetOverview = memo(function BudgetOverview() {
         </div>
         {budgetsWithSpent.length > 0 && (
           <div className={cn(
-            "text-right px-3 py-1.5 rounded-lg",
+            "text-right px-3 py-1.5 rounded-lg shrink-0",
             overallPercentage >= 90 ? "bg-expense/10" : overallPercentage >= 70 ? "bg-warning/10" : "bg-income/10"
           )}>
             <p className={cn(
-              "text-lg font-bold",
+              "text-lg font-bold tabular-nums",
               overallPercentage >= 90 ? "text-expense" : overallPercentage >= 70 ? "text-warning" : "text-income"
             )}>
               {overallPercentage.toFixed(0)}%
@@ -97,7 +97,7 @@ export const BudgetOverview = memo(function BudgetOverview() {
             return (
               <div key={budget.id} className="group hover:translate-x-1 transition-transform duration-200">
                 <div className="flex items-center justify-between gap-2 text-sm mb-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                     <div className={cn(
                       "h-6 w-6 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110",
                       isOverBudget && "bg-expense/20",
@@ -111,11 +111,11 @@ export const BudgetOverview = memo(function BudgetOverview() {
                     <span className="font-medium truncate">{(budget.category as any)?.name || 'Category'}</span>
                   </div>
                   <span className={cn(
-                    'font-semibold text-xs truncate max-w-[100px] sm:max-w-[140px] tabular-nums',
+                    'font-semibold text-[11px] sm:text-xs shrink-0 tabular-nums max-w-[110px] sm:max-w-[150px] truncate',
                     isOverBudget && 'text-expense',
                     isNearLimit && 'text-warning',
                     isHealthy && 'text-muted-foreground'
-                  )}>
+                  )} title={`${formatCurrency(budget.spent)} / ${formatCurrency(Number(budget.amount))}`}>
                     {formatCurrency(budget.spent)} / {formatCurrency(Number(budget.amount))}
                   </span>
                 </div>
@@ -134,8 +134,8 @@ export const BudgetOverview = memo(function BudgetOverview() {
                 
                 {isOverBudget && (
                   <p className="text-[10px] text-expense mt-1 flex items-center gap-1">
-                    <AlertTriangle className="h-2.5 w-2.5" />
-                    Over by {formatCurrency(budget.spent - Number(budget.amount))}
+                    <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                    <span className="truncate">Over by {formatCurrency(budget.spent - Number(budget.amount))}</span>
                   </p>
                 )}
               </div>

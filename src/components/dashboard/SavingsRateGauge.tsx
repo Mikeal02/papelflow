@@ -3,7 +3,7 @@ import { PiggyBank, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useMemo } from 'react';
-import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns';
+import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 export function SavingsRateGauge() {
@@ -45,11 +45,11 @@ export function SavingsRateGauge() {
       className="stat-card"
     >
       <div className="flex items-center gap-2.5 mb-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-income/20 to-income/10">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-income/20 to-income/10 shrink-0">
           <PiggyBank className="h-4 w-4 text-income" />
         </div>
-        <div>
-          <h3 className="font-semibold text-sm">Savings Rate</h3>
+        <div className="min-w-0">
+          <h3 className="font-semibold text-sm truncate">Savings Rate</h3>
           <p className="text-[10px] text-muted-foreground">This month's savings percentage</p>
         </div>
       </div>
@@ -70,29 +70,29 @@ export function SavingsRateGauge() {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold">{currentRate.toFixed(0)}%</span>
+            <span className="text-2xl font-bold tabular-nums">{currentRate.toFixed(0)}%</span>
             <span className="text-[10px] text-muted-foreground">saved</span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
-        <div>
+      <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-border/30">
+        <div className="min-w-0 overflow-hidden">
           <p className="text-[10px] text-muted-foreground">Monthly savings</p>
-          <p className={cn('text-sm font-bold', monthlySavings >= 0 ? 'text-income' : 'text-expense')}>
+          <p className={cn('text-sm font-bold tabular-nums truncate', monthlySavings >= 0 ? 'text-income' : 'text-expense')} title={formatCurrency(Math.abs(monthlySavings))}>
             {formatCurrency(Math.abs(monthlySavings))}
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {rateChange >= 0 ? (
             <TrendingUp className="h-3.5 w-3.5 text-income" />
           ) : (
             <TrendingDown className="h-3.5 w-3.5 text-expense" />
           )}
-          <span className={cn('text-xs font-bold', rateChange >= 0 ? 'text-income' : 'text-expense')}>
+          <span className={cn('text-xs font-bold tabular-nums', rateChange >= 0 ? 'text-income' : 'text-expense')}>
             {rateChange >= 0 ? '+' : ''}{rateChange.toFixed(1)}%
           </span>
-          <span className="text-[10px] text-muted-foreground">vs last month</span>
+          <span className="text-[10px] text-muted-foreground hidden sm:inline">vs last</span>
         </div>
       </div>
     </motion.div>
