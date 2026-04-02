@@ -37,7 +37,7 @@ export function CurrencyConverter() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-5"
+      className="stat-card"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
