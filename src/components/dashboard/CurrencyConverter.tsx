@@ -90,7 +90,7 @@ export function CurrencyConverter() {
           <div className="flex items-end gap-2">
             <div className="flex-1 space-y-1">
               <span className="text-xs text-muted-foreground">To</span>
-              <div className="h-10 px-3 flex items-center rounded-lg border border-input bg-muted/30 font-semibold text-sm">
+              <div className="h-10 px-3 flex items-center rounded-lg border border-input bg-muted/30 font-semibold text-sm tabular-nums truncate overflow-hidden">
                 {converted !== null ? converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
               </div>
             </div>

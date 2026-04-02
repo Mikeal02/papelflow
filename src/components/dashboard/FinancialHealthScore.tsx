@@ -115,17 +115,17 @@ export const FinancialHealthScore = memo(function FinancialHealthScore() {
         </CardHeader>
         <CardContent className="space-y-5 relative">
           {/* Score Ring */}
-          <div className="flex items-center gap-5">
-            <div className="relative">
-              <MultiProgressRing segments={segments} size={80} strokeWidth={9}>
-                <span className={cn('text-2xl font-bold', ratingColor)}>
+          <div className="flex items-center gap-4">
+            <div className="relative shrink-0">
+              <MultiProgressRing segments={segments} size={72} strokeWidth={8}>
+                <span className={cn('text-xl font-bold tabular-nums', ratingColor)}>
                   {overallScore}
                 </span>
               </MultiProgressRing>
             </div>
-            <div className="flex-1">
-              <p className={cn('text-xl font-bold', ratingColor)}>{rating}</p>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex-1 min-w-0">
+              <p className={cn('text-lg font-bold truncate', ratingColor)}>{rating}</p>
+              <p className="text-xs text-muted-foreground truncate">
                 {overallScore >= 70 ? "Excellent financial health!" : "Room for improvement"}
               </p>
             </div>
