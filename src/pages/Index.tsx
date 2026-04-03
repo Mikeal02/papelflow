@@ -15,7 +15,7 @@ import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
 import { useBillReminders } from '@/hooks/useBillReminders';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 
-// Lazy-load below-fold heavy widgets
+const SmartNudges = lazy(() => import('@/components/dashboard/SmartNudges').then(m => ({ default: m.SmartNudges })));
 const SmartTransactionEntry = lazy(() => import('@/components/transactions/SmartTransactionEntry').then(m => ({ default: m.SmartTransactionEntry })));
 const NetWorthMini = lazy(() => import('@/components/dashboard/NetWorthMini').then(m => ({ default: m.NetWorthMini })));
 const SmartInsights = lazy(() => import('@/components/insights/SmartInsights').then(m => ({ default: m.SmartInsights })));
