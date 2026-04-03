@@ -5,7 +5,7 @@ import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
-import { SmartNudges } from '@/components/dashboard/SmartNudges';
+import { QuickStats } from '@/components/dashboard/QuickStats';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { DashboardSkeleton } from '@/components/ui/elite-skeleton';
