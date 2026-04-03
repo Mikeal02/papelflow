@@ -58,7 +58,7 @@ const Dashboard = () => {
   const { data: transactions = [], isLoading: txLoading } = useTransactions();
   const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  
 
   useRecurringTransactions();
   useBillReminders();
