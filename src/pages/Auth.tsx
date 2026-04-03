@@ -367,18 +367,16 @@ const Auth = () => {
               )}
             </div>
 
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-              <Button type="submit" className="w-full h-12 font-semibold gap-2 btn-premium text-base" disabled={loading}>
-                {loading ? (
-                  <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                ) : (
-                  <>
-                    {isLogin ? 'Sign In' : 'Create Account'}
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </motion.div>
+            <Button type="submit" className="w-full h-11 font-medium gap-2 text-sm" disabled={loading}>
+              {loading ? (
+                <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+              ) : (
+                <>
+                  {isLogin ? 'Sign In' : 'Create Account'}
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
           </form>
 
           <AnimatePresence>
@@ -387,15 +385,15 @@ const Auth = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="space-y-2 overflow-hidden"
+                className="space-y-2.5 overflow-hidden"
               >
                 {['Free 14-day trial', 'No credit card required', 'Cancel anytime'].map((item, i) => (
                   <motion.div
                     key={item}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-2 text-xs text-muted-foreground"
+                    transition={{ delay: i * 0.08 }}
+                    className="flex items-center gap-2.5 text-xs text-muted-foreground"
                   >
                     <CheckCircle2 className="h-3.5 w-3.5 text-income shrink-0" />
                     <span>{item}</span>
@@ -405,9 +403,9 @@ const Auth = () => {
             )}
           </AnimatePresence>
 
-          <div className="flex items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
-            <Shield className="h-3.5 w-3.5" />
-            <span>256-bit encrypted • SOC 2 certified</span>
+          <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-muted-foreground/60">
+            <Shield className="h-3 w-3" />
+            <span>256-bit encrypted · SOC 2 certified</span>
           </div>
         </div>
       </motion.div>
