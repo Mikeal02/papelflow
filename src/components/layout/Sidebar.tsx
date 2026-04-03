@@ -134,17 +134,17 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
 
         {/* Quick Actions */}
         <div className="px-3 pt-3 pb-1 space-y-1.5">
-          <Button onClick={onAddTransaction} className="w-full gap-2 h-9 text-[13px] btn-premium group rounded-xl">
-            <Plus className="h-3.5 w-3.5 transition-transform group-hover:rotate-90 duration-300" />
+          <Button onClick={onAddTransaction} className="w-full gap-2 h-9 text-[13px] font-medium rounded-lg">
+            <Plus className="h-3.5 w-3.5" />
             New Transaction
           </Button>
           <button
             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] text-muted-foreground/70 hover:text-muted-foreground hover:bg-sidebar-accent/40 transition-all"
+            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <Command className="h-3 w-3" />
             <span>Quick Search</span>
-            <kbd className="ml-auto pointer-events-none inline-flex h-[18px] select-none items-center gap-0.5 rounded border border-border/30 bg-muted/30 px-1 font-mono text-[9px] font-medium text-muted-foreground/60">⌘K</kbd>
+            <kbd className="ml-auto pointer-events-none inline-flex h-[18px] select-none items-center gap-0.5 rounded border border-border/50 bg-muted/50 px-1 font-mono text-[9px] font-medium text-muted-foreground/60">⌘K</kbd>
           </button>
         </div>
 
