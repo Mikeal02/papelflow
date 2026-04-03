@@ -40,7 +40,7 @@ const UpcomingBills = lazy(() => import('@/components/dashboard/UpcomingBills').
 const FinancialAdvisor = lazy(() => import('@/components/ai/FinancialAdvisor').then(m => ({ default: m.FinancialAdvisor })));
 
 const WidgetFallback = memo(() => (
-  <div className="rounded-2xl border border-border/30 bg-card/40 animate-pulse h-48" />
+  <div className="rounded-xl border border-border/30 bg-card animate-pulse h-48" />
 ));
 WidgetFallback.displayName = 'WidgetFallback';
 
