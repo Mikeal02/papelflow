@@ -105,147 +105,79 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex bg-background relative overflow-hidden">
-      {/* Left Panel - Branding with Particle Effects */}
+      {/* Left Panel - Clean Branding */}
       <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="hidden lg:flex lg:w-[55%] xl:w-1/2 relative p-8 xl:p-12 flex-col justify-between overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="hidden lg:flex lg:w-[52%] xl:w-1/2 relative p-10 xl:p-14 flex-col justify-between overflow-hidden bg-muted/30"
       >
-        {/* Animated mesh gradient background */}
-        <MeshGradient className="opacity-60" />
-        
-        {/* Interactive particle field */}
-        <ParticleField 
-          count={40} 
-          speed={0.2} 
-          interactive={true}
-          colors={['217, 91%, 60%', '173, 80%, 45%', '280, 67%, 52%']}
-        />
-        
-        {/* Radial glow orbs */}
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full blur-[100px] bg-primary/20"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.3, 0.2] }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full blur-[80px] bg-accent/15"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
+        {/* Subtle gradient accent */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-primary/8 via-transparent to-transparent rounded-full -translate-y-1/4 translate-x-1/4 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-accent/6 via-transparent to-transparent rounded-full translate-y-1/4 -translate-x-1/4 pointer-events-none" />
 
         <div className="relative z-10">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex items-center gap-4 mb-2"
+            transition={{ delay: 0.2 }}
+            className="flex items-center gap-3"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ delay: 0.4, type: 'spring', stiffness: 200, damping: 15 }}
-              className="h-20 w-20 rounded-2xl overflow-hidden shrink-0 relative"
-              whileHover={{ scale: 1.1, rotateY: 15 }}
-              style={{ transformStyle: 'preserve-3d' }}
-            >
+            <div className="h-11 w-11 rounded-xl overflow-hidden">
               <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
-              {/* Logo glow */}
-              <motion.div 
-                className="absolute inset-0 bg-primary/20 blur-xl"
-                animate={{ opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </motion.div>
-            <div>
-              <motion.span 
-                className="text-4xl font-bold tracking-tight block"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                Finflow
-              </motion.span>
-              <motion.p 
-                className="text-xs text-muted-foreground font-medium tracking-wider uppercase"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                Enterprise Finance Platform
-              </motion.p>
             </div>
+            <span className="text-xl font-semibold tracking-tight">Finflow</span>
           </motion.div>
         </div>
 
-        <div className="relative z-10 space-y-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-4">
-            <h1 className="text-3xl xl:text-5xl font-bold leading-tight tracking-tight">
-              The most powerful way to
+        <div className="relative z-10 space-y-8 max-w-lg">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-4">
+            <h1 className="text-4xl xl:text-5xl font-semibold leading-[1.1] tracking-tight text-foreground">
+              Financial clarity,
               <br />
-              <span className="gradient-text">manage your finances</span>
+              <span className="text-primary">simplified.</span>
             </h1>
-            <p className="text-base text-muted-foreground max-w-lg leading-relaxed">
-              Enterprise-grade financial management with AI-powered insights, real-time analytics, and institutional-quality tools — all in one platform.
+            <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+              The modern way to track spending, set budgets, and build wealth — with AI-powered insights that actually help.
             </p>
           </motion.div>
 
-          {/* Enhanced Stats row with icons */}
+          {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="grid grid-cols-4 gap-3"
+            transition={{ delay: 0.4 }}
+            className="flex gap-8"
           >
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.55 + index * 0.08, type: 'spring', stiffness: 200 }}
-                whileHover={{ y: -5, scale: 1.05 }}
-                className="text-center p-3 rounded-xl frosted-glass group relative overflow-hidden"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 + index * 0.05 }}
               >
-                {/* Hover glow */}
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                />
-                <stat.icon className="h-4 w-4 mx-auto mb-1 text-primary/60 group-hover:text-primary transition-colors" />
-                <p className="text-lg font-bold text-primary relative z-10">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground font-medium relative z-10">{stat.label}</p>
+                <p className="text-2xl font-semibold text-foreground">{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* Features grid with gradient icons */}
-          <div className="grid grid-cols-2 gap-2.5">
-            {features.map((feature, index) => (
+          {/* Features */}
+          <div className="grid grid-cols-2 gap-3">
+            {features.slice(0, 4).map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + index * 0.07 }}
-                whileHover={{ x: 6, scale: 1.02 }}
-                className="flex items-start gap-3 p-3 rounded-xl frosted-glass group cursor-default relative overflow-hidden"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.06 }}
+                className="flex items-start gap-3 p-3 rounded-xl bg-background/60 border border-border/30"
               >
-                {/* Animated gradient border on hover */}
-                <motion.div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    background: `linear-gradient(135deg, hsl(var(--primary) / 0.1), transparent)`,
-                  }}
-                />
-                <div className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br transition-all duration-300",
-                  feature.gradient,
-                  "opacity-70 group-hover:opacity-100 group-hover:scale-110"
-                )}>
-                  <feature.icon className="h-4 w-4 text-white" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/8">
+                  <feature.icon className="h-4 w-4 text-primary" />
                 </div>
-                <div className="min-w-0 relative z-10">
-                  <h3 className="font-semibold text-xs">{feature.title}</h3>
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">{feature.description}</p>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-xs">{feature.title}</h3>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed mt-0.5">{feature.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -255,13 +187,14 @@ const Auth = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="relative z-10 flex items-center justify-between text-xs text-muted-foreground"
+          transition={{ delay: 0.8 }}
+          className="relative z-10 flex items-center gap-4 text-xs text-muted-foreground"
         >
-          <span>© 2026 Finflow. All rights reserved.</span>
-          <div className="flex items-center gap-1">
+          <span>© 2026 Finflow</span>
+          <span>·</span>
+          <div className="flex items-center gap-1.5">
             <Shield className="h-3 w-3" />
-            <span>SOC 2 Type II Certified</span>
+            <span>SOC 2 Type II</span>
           </div>
         </motion.div>
       </motion.div>
