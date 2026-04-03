@@ -10,7 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
-import { ParticleField, MeshGradient } from '@/components/ui/particle-field';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
