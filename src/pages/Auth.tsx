@@ -201,37 +201,32 @@ const Auth = () => {
 
       {/* Right Panel - Form */}
       <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
         className="flex-1 flex items-center justify-center p-6 md:p-8 relative"
       >
-        <div className="w-full max-w-md space-y-6">
+        <div className="w-full max-w-[400px] space-y-6">
           <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
-              className="h-16 w-16 rounded-xl overflow-hidden"
-            >
+            <div className="h-10 w-10 rounded-xl overflow-hidden">
               <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" />
-            </motion.div>
-            <span className="text-3xl font-bold">Finflow</span>
+            </div>
+            <span className="text-2xl font-semibold">Finflow</span>
           </div>
 
-          <div className="text-center lg:text-left space-y-2">
+          <div className="text-center lg:text-left space-y-1">
             <AnimatePresence mode="wait">
               <motion.h2
                 key={isLogin ? 'login' : 'signup'}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="text-2xl font-bold"
+                exit={{ opacity: 0, y: -8 }}
+                className="text-2xl font-semibold tracking-tight"
               >
                 {isLogin ? 'Welcome back' : 'Create your account'}
               </motion.h2>
             </AnimatePresence>
-            <p className="text-muted-foreground text-sm">{isLogin ? 'Sign in to access your financial dashboard' : 'Start your journey to financial freedom'}</p>
+            <p className="text-muted-foreground text-sm">{isLogin ? 'Sign in to your account' : 'Start your journey to financial clarity'}</p>
           </div>
 
           {/* Mode toggle with animated indicator */}
