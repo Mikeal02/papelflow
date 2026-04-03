@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense, memo } from 'react';
+import { lazy, Suspense, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 
