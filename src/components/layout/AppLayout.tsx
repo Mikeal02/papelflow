@@ -16,9 +16,6 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Subtle background pattern — no blur, GPU-friendly */}
-      <div className="fixed inset-0 subtle-grid pointer-events-none opacity-30" />
-      
       {/* Command Palette */}
       <CommandPalette onAddTransaction={() => setIsAddModalOpen(true)} />
       
