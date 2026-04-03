@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown, Scale, Sparkles } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
