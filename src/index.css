@@ -183,20 +183,12 @@
       0 12px 32px -8px hsl(var(--foreground) / 0.05);
   }
   
-  /* Glass Card Effect - Deep Layered */
+  /* Glass Card - Clean */
   .glass-card {
-    @apply rounded-2xl border border-border/25 p-5;
-    background: linear-gradient(
-      145deg,
-      hsl(var(--card) / 0.92) 0%,
-      hsl(var(--card) / 0.82) 100%
-    );
-    backdrop-filter: blur(24px) saturate(1.6);
-    box-shadow: 
-      0 8px 32px -8px hsl(var(--foreground) / 0.06),
-      0 2px 8px -2px hsl(var(--foreground) / 0.03),
-      inset 0 1px 0 hsl(0 0% 100% / 0.08),
-      inset 0 -1px 0 hsl(var(--foreground) / 0.02);
+    @apply rounded-2xl border border-border/30 p-5;
+    background: hsl(var(--card) / 0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.03);
   }
   
   /* Premium Gradient Text */
