@@ -117,26 +117,20 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
   }, [user?.email]);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border/20 bg-sidebar/80 backdrop-blur-2xl overflow-hidden">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/40 bg-sidebar overflow-hidden">
       <div className="flex h-full flex-col relative">
         {/* Logo */}
         <div className="flex h-[60px] items-center gap-3 px-5">
-          <div
-            className="h-10 w-10 rounded-xl overflow-hidden ring-1 ring-primary/10"
-            style={{ boxShadow: '0 4px 16px -4px hsl(var(--primary) / 0.3)' }}
-          >
+          <div className="h-9 w-9 rounded-xl overflow-hidden">
             <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" loading="eager" />
           </div>
           <div className="min-w-0">
-            <span className="text-lg font-bold tracking-tight">Finflow</span>
-            <div className="flex items-center gap-1.5 -mt-0.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-income" />
-              <p className="text-[9px] text-muted-foreground font-semibold tracking-widest uppercase">Pro</p>
-            </div>
+            <span className="text-base font-semibold tracking-tight">Finflow</span>
+            <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase -mt-0.5">Pro</p>
           </div>
         </div>
 
-        <Separator className="mx-4 w-auto opacity-30" />
+        <div className="mx-4 h-px bg-border/40" />
 
         {/* Quick Actions */}
         <div className="px-3 pt-3 pb-1 space-y-1.5">
