@@ -165,18 +165,18 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-sidebar-border/20 p-3 space-y-1">
+        <div className="border-t border-border/40 p-3 space-y-1">
           {/* Theme Toggle */}
           <button
             onClick={() => toggleTheme()}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-all duration-200"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
           >
             {theme === 'dark' ? <Moon className="h-[15px] w-[15px]" /> : <Sun className="h-[15px] w-[15px]" />}
             <span>{theme === 'dark' ? 'Dark' : 'Light'} Mode</span>
-            <div className="ml-auto relative h-[18px] w-8 rounded-full bg-muted/50 border border-border/30 transition-colors">
+            <div className="ml-auto relative h-5 w-9 rounded-full bg-muted border border-border/50 transition-colors">
               <motion.div
-                className="absolute top-[2px] h-[14px] w-[14px] rounded-full bg-primary shadow-sm"
-                animate={{ left: theme === 'dark' ? '14px' : '2px' }}
+                className="absolute top-[3px] h-[14px] w-[14px] rounded-full bg-foreground/80 shadow-sm"
+                animate={{ left: theme === 'dark' ? '16px' : '3px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </div>
@@ -184,17 +184,14 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
 
           {/* User Card */}
           {user && (
-            <div className="mx-1 px-3 py-2.5 rounded-xl bg-gradient-to-br from-sidebar-accent/40 to-sidebar-accent/20 border border-border/10">
+            <div className="mx-1 px-3 py-2.5 rounded-lg bg-muted/30 border border-border/30">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md">
-                  <span className="text-[11px] font-bold text-primary-foreground">{userInitial}</span>
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm">
+                  <span className="text-[11px] font-semibold text-primary-foreground">{userInitial}</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold truncate">{user.email?.split('@')[0]}</p>
-                  <p className="text-[10px] text-muted-foreground/60 truncate">{user.email}</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Shield className="h-3 w-3 text-income/70" />
+                  <p className="text-[13px] font-medium truncate">{user.email?.split('@')[0]}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
                 </div>
               </div>
             </div>
@@ -202,14 +199,14 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
 
           <div className="flex items-center gap-1 pt-0.5">
             <Link to="/settings" className="flex-1">
-              <div className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-all duration-200">
+              <div className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors">
                 <Settings className="h-[15px] w-[15px]" />
                 Settings
               </div>
             </Link>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-destructive/8 hover:text-destructive transition-colors"
               title="Sign Out"
             >
               <LogOut className="h-[15px] w-[15px]" />
