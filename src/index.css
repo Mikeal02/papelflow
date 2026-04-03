@@ -75,66 +75,66 @@
   }
 
   .dark {
-    /* Dark Mode - Ultra Premium Corporate */
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
+    /* Dark Mode - Clean & Luxurious */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 95%;
     
-    --card: 224 71% 6%;
-    --card-foreground: 213 31% 91%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 95%;
     
-    --popover: 224 71% 5%;
-    --popover-foreground: 213 31% 91%;
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 95%;
     
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 4%;
-    --primary-glow: 217 100% 70%;
+    --primary: 221 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 221 90% 68%;
     
-    --secondary: 222 47% 11%;
-    --secondary-foreground: 213 31% 91%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 95%;
     
-    --muted: 223 47% 11%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 55%;
     
-    --accent: 173 80% 45%;
-    --accent-foreground: 222 47% 4%;
+    --accent: 172 66% 50%;
+    --accent-foreground: 240 10% 3.9%;
     
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 213 31% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
     
-    --success: 142 69% 50%;
-    --success-foreground: 213 31% 98%;
+    --success: 152 60% 45%;
+    --success-foreground: 0 0% 98%;
     
     --warning: 38 92% 55%;
-    --warning-foreground: 222 47% 4%;
+    --warning-foreground: 240 10% 3.9%;
     
-    --expense: 0 72% 58%;
-    --income: 142 69% 50%;
-    --transfer: 217 91% 65%;
+    --expense: 0 62% 55%;
+    --income: 152 60% 45%;
+    --transfer: 221 83% 62%;
     
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 217 91% 60%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 221 83% 58%;
     
-    --sidebar-background: 224 71% 3%;
-    --sidebar-foreground: 213 31% 91%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 222 47% 4%;
-    --sidebar-accent: 223 47% 11%;
-    --sidebar-accent-foreground: 213 31% 91%;
-    --sidebar-border: 216 34% 15%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 240 10% 4.5%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 221 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4% 14%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 240 4% 14%;
+    --sidebar-ring: 221 83% 58%;
     
-    --chart-1: 217 91% 65%;
-    --chart-2: 142 69% 55%;
-    --chart-3: 173 80% 50%;
+    --chart-1: 221 83% 62%;
+    --chart-2: 152 60% 50%;
+    --chart-3: 172 66% 50%;
     --chart-4: 38 92% 60%;
-    --chart-5: 0 72% 62%;
-    --chart-6: 280 60% 60%;
+    --chart-5: 0 62% 58%;
+    --chart-6: 262 52% 55%;
     
     /* Premium gradient stops */
-    --gradient-start: 217 100% 70%;
-    --gradient-mid: 173 90% 55%;
-    --gradient-end: 280 80% 65%;
+    --gradient-start: 221 90% 68%;
+    --gradient-mid: 172 70% 55%;
+    --gradient-end: 262 60% 60%;
   }
 }
 
