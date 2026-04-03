@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Shield, BarChart3, Wallet, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff, Sparkles, Zap, Crown } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Shield, BarChart3, Wallet, PieChart, Target, Globe, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
