@@ -18,10 +18,10 @@ const authSchema = z.object({
 });
 
 const stats = [
-  { value: '50K+', label: 'Active Users', icon: Crown },
-  { value: '$2.4B', label: 'Tracked', icon: Sparkles },
-  { value: '99.9%', label: 'Uptime', icon: Zap },
-  { value: '4.9★', label: 'Rating', icon: Target },
+  { value: '50K+', label: 'Active Users' },
+  { value: '$2.4B', label: 'Tracked' },
+  { value: '99.9%', label: 'Uptime' },
+  { value: '4.9★', label: 'Rating' },
 ];
 
 const features = [
