@@ -1,6 +1,6 @@
 import { useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
-import { LucideIcon, TrendingUp, TrendingDown, Minus, Sparkles } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTransactions } from '@/hooks/useTransactions';
 import { subMonths, startOfMonth, endOfMonth, eachDayOfInterval, format } from 'date-fns';
