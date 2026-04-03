@@ -1,11 +1,9 @@
 import { lazy, Suspense, memo } from 'react';
-import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
-import { QuickStats } from '@/components/dashboard/QuickStats';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { DashboardSkeleton } from '@/components/ui/elite-skeleton';
@@ -16,7 +14,6 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
 import { useBillReminders } from '@/hooks/useBillReminders';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
-import { AnimatePresence } from 'framer-motion';
 
 // Lazy-load below-fold heavy widgets
 const SmartTransactionEntry = lazy(() => import('@/components/transactions/SmartTransactionEntry').then(m => ({ default: m.SmartTransactionEntry })));
