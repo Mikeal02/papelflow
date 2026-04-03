@@ -76,39 +76,16 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <PageTransition>
-          <div className="space-y-8 lg:space-y-10">
+          <div className="space-y-10">
             <WelcomeHeader />
-
-            <AnimatePresence>
-              {showQuickAdd && (
-                <Suspense fallback={<WidgetFallback />}>
-                  <SmartTransactionEntry onClose={() => setShowQuickAdd(false)} />
-                </Suspense>
-              )}
-            </AnimatePresence>
-
-            {!showQuickAdd && (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => setShowQuickAdd(true)}
-                className="w-full rounded-xl border border-dashed border-primary/15 p-3.5 text-[13px] text-muted-foreground/60 hover:border-primary/40 hover:text-foreground hover:bg-primary/5 transition-all text-center group"
-              >
-                <Sparkles className="h-3.5 w-3.5 inline mr-2 group-hover:text-primary transition-colors" />
-                Quick add — type naturally e.g. "Spent $50 at Starbucks"
-              </motion.button>
-            )}
-
-            <SmartNudges />
 
             {/* Key Metrics */}
             <div>
-              <SectionHeader title="Key Metrics" />
               <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-gradient-to-br from-income/20 to-income/10 text-income" delay={0.05} autoCompare="income" />
-                <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-gradient-to-br from-expense/20 to-expense/10 text-expense" delay={0.1} autoCompare="expense" />
-                <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-gradient-to-br from-primary/20 to-primary/10 text-primary" delay={0.15} autoCompare="net" />
-                <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-gradient-to-br from-accent/20 to-accent/10 text-accent" delay={0.2} />
+                <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-income/8 text-income" delay={0.05} autoCompare="income" />
+                <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-expense/8 text-expense" delay={0.1} autoCompare="expense" />
+                <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-primary/8 text-primary" delay={0.15} autoCompare="net" />
+                <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-accent/8 text-accent" delay={0.2} />
               </div>
             </div>
 
