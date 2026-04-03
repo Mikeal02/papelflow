@@ -149,10 +149,10 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
         </div>
 
         {/* Grouped Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 sidebar-scrollbar space-y-4">
+        <nav className="flex-1 overflow-y-auto px-3 py-2 sidebar-scrollbar space-y-5">
           {navGroups.map((group) => (
             <div key={group.label}>
-              <p className="px-3 mb-1 text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.12em]">
+              <p className="px-3 mb-1.5 text-[10px] font-medium text-muted-foreground/50 uppercase tracking-[0.1em]">
                 {group.label}
               </p>
               <div className="space-y-0.5">
