@@ -59,44 +59,32 @@ interface SidebarProps {
 const NavItem = memo(function NavItem({ item, isActive }: { item: { icon: any; label: string; path: string; badge?: string }; isActive: boolean }) {
   return (
     <Link to={item.path}>
-      <motion.div
-        whileTap={{ scale: 0.97 }}
+      <div
         className={cn(
-          'relative flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium transition-all duration-200',
+          'relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150',
           isActive
-            ? 'text-primary'
-            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+            ? 'text-primary bg-primary/6'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
         )}
       >
         {isActive && (
           <motion.div
-            layoutId="sidebar-active-bg"
-            className="absolute inset-0 rounded-xl bg-primary/8 border border-primary/10"
-            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-          />
-        )}
-        {isActive && (
-          <motion.div
             layoutId="sidebar-indicator"
-            className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-primary"
-            style={{ boxShadow: '2px 0 8px hsl(var(--primary) / 0.3)' }}
+            className="absolute left-0 top-1/2 h-5 w-[2.5px] -translate-y-1/2 rounded-r-full bg-primary"
             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
           />
         )}
-        <item.icon className={cn('h-[15px] w-[15px] shrink-0 relative z-10 transition-colors', isActive ? 'text-primary' : 'text-muted-foreground')} />
-        <span className="relative z-10 flex-1 truncate">{item.label}</span>
+        <item.icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')} />
+        <span className="flex-1 truncate">{item.label}</span>
         {item.badge && (
           <Badge
             variant="secondary"
-            className="relative z-10 h-[18px] px-1.5 text-[9px] font-bold tracking-wider bg-primary/10 text-primary border-primary/15"
+            className="h-[18px] px-1.5 text-[9px] font-semibold tracking-wider bg-primary/8 text-primary border-0"
           >
             {item.badge}
           </Badge>
         )}
-        {isActive && !item.badge && (
-          <ChevronRight className="relative z-10 h-3 w-3 text-primary/50 shrink-0" />
-        )}
-      </motion.div>
+      </div>
     </Link>
   );
 });
