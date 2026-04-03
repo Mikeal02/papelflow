@@ -85,6 +85,7 @@ const Dashboard = () => {
                 <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-accent/8 text-accent" delay={0.2} />
               </div>
             </div>
+            <Suspense fallback={null}><SmartNudges /></Suspense>
 
             <QuickStats />
 
