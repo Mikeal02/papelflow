@@ -109,7 +109,7 @@ const Goals = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Financial Goals</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Financial Goals</h1>
             <p className="text-muted-foreground mt-1 text-sm">Track, analyze, and achieve your savings targets</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">

@@ -230,7 +230,7 @@ const Transactions = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Transactions</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Transactions</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {filteredStats.count} transactions found
             </p>

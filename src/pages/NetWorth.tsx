@@ -118,7 +118,7 @@ const NetWorth = () => {
       <div className="space-y-5 md:space-y-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl md:text-3xl font-bold gradient-text">Net Worth</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Net Worth</h1>
           <p className="text-sm text-muted-foreground mt-1">Your complete financial picture</p>
         </motion.div>
 

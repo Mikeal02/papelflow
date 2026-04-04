@@ -168,7 +168,7 @@ const Subscriptions = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Subscriptions</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Subscriptions</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {activeSubscriptions.length} active • {urgentCount > 0 && <span className="text-warning">{urgentCount} due soon</span>}
             </p>

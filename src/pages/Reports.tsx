@@ -230,7 +230,7 @@ const Reports = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Reports & Analytics</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Reports & Analytics</h1>
             <p className="text-sm text-muted-foreground mt-1">Deep insights into your finances</p>
           </div>
           <div className="flex items-center gap-2">
