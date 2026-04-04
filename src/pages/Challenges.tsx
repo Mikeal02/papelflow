@@ -1,37 +1,31 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, ArrowLeft } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
-import { PageTransition } from '@/components/layout/PageTransition';
 import { FinancialChallenges } from '@/components/gamification/FinancialChallenges';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 
 const Challenges = () => {
   return (
-    <>
-      <PageTransition>
-        <div className="space-y-5 lg:space-y-7">
-          <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4"
-          >
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold gradient-text flex items-center gap-3">
-                <Trophy className="h-7 w-7" />
-                Challenges & Achievements
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Level up your financial skills with challenges and earn badges
-              </p>
-            </div>
-          </motion.div>
-
-          <FinancialChallenges />
+    <div className="space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-warning/15 to-warning/5 flex items-center justify-center border border-border/30">
+            <Trophy className="h-5 w-5 text-warning" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Challenges & Achievements</h1>
+            <p className="text-sm text-muted-foreground">
+              Level up your financial skills and earn badges
+            </p>
+          </div>
         </div>
-      </PageTransition>
-    </>
+      </motion.div>
+
+      <FinancialChallenges />
+    </div>
   );
 };
 
