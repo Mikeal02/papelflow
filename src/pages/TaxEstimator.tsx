@@ -200,16 +200,22 @@ export default function TaxEstimator() {
 
   return (
     <>
-      <PageTransition>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground flex items-center gap-2">
-                <Calculator className="h-7 w-7 text-primary" />
-                Tax Estimator
-              </h1>
-              <p className="text-muted-foreground mt-1">Estimate your federal tax liability with quarterly projections</p>
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-income/15 to-income/5 flex items-center justify-center border border-border/30">
+                <Calculator className="h-5 w-5 text-income" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Tax Estimator</h1>
+                <p className="text-sm text-muted-foreground">Estimate your federal tax liability with quarterly projections</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <Select value={filingStatus} onValueChange={(v: 'single' | 'married') => setFilingStatus(v)}>

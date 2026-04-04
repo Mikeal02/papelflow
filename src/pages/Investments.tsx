@@ -186,16 +186,22 @@ export default function Investments() {
 
   return (
     <>
-      <PageTransition>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground flex items-center gap-2">
-                <Briefcase className="h-7 w-7 text-primary" />
-                Investment Portfolio
-              </h1>
-              <p className="text-muted-foreground mt-1">Track asset allocation, performance, and dividends</p>
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-border/30">
+                <Briefcase className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Investment Portfolio</h1>
+                <p className="text-sm text-muted-foreground">Track asset allocation, performance, and dividends</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => {
