@@ -217,13 +217,16 @@ export default function RecurringPayments() {
               { label: 'Upcoming', value: formatCurrency(stats.totalUpcoming), icon: Clock, color: 'text-warning', sub: `${stats.upcoming} pending` },
               { label: 'Auto-Pay', value: `${stats.autoPay}`, icon: Zap, color: 'text-accent', sub: 'Active schedules' },
             ].map((kpi, i) => (
-              <motion.div key={kpi.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <Card className="glass-card border-border/30">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <kpi.icon className={cn('h-4 w-4', kpi.color)} />
-                      <span className="text-xs text-muted-foreground">{kpi.label}</span>
-                    </div>
+              <motion.div key={kpi.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className="stat-card p-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <kpi.icon className={cn('h-4 w-4', kpi.color)} />
+                  <span className="text-xs text-muted-foreground">{kpi.label}</span>
+                </div>
+                <p className={cn('text-lg font-bold', kpi.color)}>{kpi.value}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{kpi.sub}</p>
+              </motion.div>
                     <p className="text-lg lg:text-xl font-bold text-foreground">{kpi.value}</p>
                     <p className="text-[11px] text-muted-foreground mt-0.5">{kpi.sub}</p>
                   </CardContent>
