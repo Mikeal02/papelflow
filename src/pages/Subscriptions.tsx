@@ -190,10 +190,10 @@ const Subscriptions = () => {
         {/* Summary Cards */}
         <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: CreditCard, label: 'Active', value: `${activeSubscriptions.length}`, sub: 'subscriptions', color: 'primary' },
-            { icon: DollarSign, label: 'Monthly Cost', value: formatCurrency(totalMonthly), sub: `${formatCurrency(totalDaily)}/day`, color: 'expense' },
-            { icon: BarChart3, label: 'Yearly Cost', value: formatCurrency(totalYearly), sub: `${formatCurrency(totalMonthly)}/mo`, color: 'warning' },
-            { icon: Calendar, label: 'Next Payment', value: nextPayment ? format(new Date(nextPayment.next_due), 'MMM d') : 'N/A', sub: nextPayment?.name || '', color: 'accent' },
+            { icon: CreditCard, label: 'Active', value: `${activeSubscriptions.length}`, sub: 'subscriptions', bgClass: 'bg-primary/10', iconClass: 'text-primary' },
+            { icon: DollarSign, label: 'Monthly Cost', value: formatCurrency(totalMonthly), sub: `${formatCurrency(totalDaily)}/day`, bgClass: 'bg-expense/10', iconClass: 'text-expense' },
+            { icon: BarChart3, label: 'Yearly Cost', value: formatCurrency(totalYearly), sub: `${formatCurrency(totalMonthly)}/mo`, bgClass: 'bg-warning/10', iconClass: 'text-warning' },
+            { icon: Calendar, label: 'Next Payment', value: nextPayment ? format(new Date(nextPayment.next_due), 'MMM d') : 'N/A', sub: nextPayment?.name || '', bgClass: 'bg-accent/10', iconClass: 'text-accent' },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -203,8 +203,8 @@ const Subscriptions = () => {
               className="stat-card p-3 md:p-4"
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-${item.color}/10 shrink-0`}>
-                  <item.icon className={`h-4 w-4 text-${item.color}`} />
+                <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg shrink-0', item.bgClass)}>
+                  <item.icon className={cn('h-4 w-4', item.iconClass)} />
                 </div>
                 <span className="text-[10px] md:text-xs text-muted-foreground font-medium truncate">{item.label}</span>
               </div>
