@@ -230,7 +230,7 @@ const Reports = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Reports & Analytics</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Reports & Analytics</h1>
             <p className="text-sm text-muted-foreground mt-1">Deep insights into your finances</p>
           </div>
           <div className="flex items-center gap-2">
@@ -260,10 +260,10 @@ const Reports = () => {
         {/* Summary Cards */}
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: TrendingUp, label: 'Total Income', value: formatCurrency(stats.totalIncome), color: 'income' },
-            { icon: TrendingDown, label: 'Total Expenses', value: formatCurrency(stats.totalExpenses), color: 'expense' },
-            { icon: ArrowRight, label: 'Savings Rate', value: `${stats.savingsRate.toFixed(1)}%`, color: stats.savingsRate >= 0 ? 'income' : 'expense' },
-            { icon: DollarSign, label: 'Highest Month', value: formatCurrency(stats.highestExpAmount), color: 'warning' },
+            { icon: TrendingUp, label: 'Total Income', value: formatCurrency(stats.totalIncome), bgClass: 'bg-income/10', iconClass: 'text-income', valueClass: 'text-income' },
+            { icon: TrendingDown, label: 'Total Expenses', value: formatCurrency(stats.totalExpenses), bgClass: 'bg-expense/10', iconClass: 'text-expense', valueClass: 'text-expense' },
+            { icon: ArrowRight, label: 'Savings Rate', value: `${stats.savingsRate.toFixed(1)}%`, bgClass: stats.savingsRate >= 0 ? 'bg-income/10' : 'bg-expense/10', iconClass: stats.savingsRate >= 0 ? 'text-income' : 'text-expense', valueClass: stats.savingsRate >= 0 ? 'text-income' : 'text-expense' },
+            { icon: DollarSign, label: 'Highest Month', value: formatCurrency(stats.highestExpAmount), bgClass: 'bg-warning/10', iconClass: 'text-warning', valueClass: 'text-warning' },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -273,12 +273,12 @@ const Reports = () => {
               className="stat-card p-4"
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-${item.color}/10`}>
-                  <item.icon className={`h-4 w-4 text-${item.color}`} />
+                <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', item.bgClass)}>
+                  <item.icon className={cn('h-4 w-4', item.iconClass)} />
                 </div>
                 <span className="text-[10px] text-muted-foreground font-medium">{item.label}</span>
               </div>
-              <p className={`text-lg font-bold text-${item.color}`}>{item.value}</p>
+              <p className={cn('text-lg font-bold', item.valueClass)}>{item.value}</p>
             </motion.div>
           ))}
         </div>

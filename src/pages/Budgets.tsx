@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -179,12 +178,11 @@ const Budgets = () => {
 
   return (
     <>
-      <AmbientBackground variant="warm" />
-      <div className="space-y-8 relative z-10">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Budgets</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Budgets</h1>
             <p className="text-muted-foreground mt-1 text-sm">Monitor spending limits and category budgets</p>
           </div>
           <div className="flex items-center gap-3">

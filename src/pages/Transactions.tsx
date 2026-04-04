@@ -39,7 +39,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
 import { CSVImportModal } from '@/components/transactions/CSVImportModal';
 import { Upload } from 'lucide-react';
-import { PageTransition } from '@/components/layout/PageTransition';
 import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
@@ -230,7 +229,7 @@ const Transactions = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Transactions</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Transactions</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {filteredStats.count} transactions found
             </p>

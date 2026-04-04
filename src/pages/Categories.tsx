@@ -161,7 +161,7 @@ const Categories = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Categories</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Categories</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {categories.length} categories • {expenseCategories.length} expense, {incomeCategories.length} income
             </p>
@@ -191,7 +191,7 @@ const Categories = () => {
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="sm:max-w-[400px] bg-card/95 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle className="gradient-text">New Category</DialogTitle>
+            <DialogTitle className="">New Category</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="space-y-2">

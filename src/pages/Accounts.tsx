@@ -204,7 +204,7 @@ const Accounts = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Accounts</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Accounts</h1>
             <p className="text-sm text-muted-foreground mt-1">{accounts.length} accounts • Net worth: <span className={cn('font-semibold', netWorth >= 0 ? 'text-income' : 'text-expense')}>{formatCurrency(netWorth)}</span></p>
           </div>
           <div className="flex gap-2">
@@ -342,7 +342,7 @@ const Accounts = () => {
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="sm:max-w-[400px] bg-card/95 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle className="gradient-text">Add New Account</DialogTitle>
+            <DialogTitle className="">Add New Account</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleCreateAccount} className="space-y-4">
             <div className="space-y-2">

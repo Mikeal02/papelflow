@@ -7,7 +7,6 @@ import {
   Zap, Calendar as CalendarIcon
 } from 'lucide-react';
 
-import { PageTransition } from '@/components/layout/PageTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -177,16 +176,22 @@ export default function RecurringPayments() {
 
   return (
     <>
-      <PageTransition>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground flex items-center gap-2">
-                <Repeat className="h-7 w-7 text-primary" />
-                Recurring Payments
-              </h1>
-              <p className="text-muted-foreground mt-1">Track scheduled payments, auto-pay, and payment history</p>
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center border border-border/30">
+                <Repeat className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Recurring Payments</h1>
+                <p className="text-sm text-muted-foreground">Track scheduled payments, auto-pay, and history</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
@@ -200,7 +205,7 @@ export default function RecurringPayments() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          </div>
+          </motion.div>
 
           {/* KPIs */}
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
@@ -211,17 +216,15 @@ export default function RecurringPayments() {
               { label: 'Upcoming', value: formatCurrency(stats.totalUpcoming), icon: Clock, color: 'text-warning', sub: `${stats.upcoming} pending` },
               { label: 'Auto-Pay', value: `${stats.autoPay}`, icon: Zap, color: 'text-accent', sub: 'Active schedules' },
             ].map((kpi, i) => (
-              <motion.div key={kpi.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <Card className="glass-card border-border/30">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <kpi.icon className={cn('h-4 w-4', kpi.color)} />
-                      <span className="text-xs text-muted-foreground">{kpi.label}</span>
-                    </div>
-                    <p className="text-lg lg:text-xl font-bold text-foreground">{kpi.value}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{kpi.sub}</p>
-                  </CardContent>
-                </Card>
+              <motion.div key={kpi.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className="stat-card p-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <kpi.icon className={cn('h-4 w-4', kpi.color)} />
+                  <span className="text-xs text-muted-foreground">{kpi.label}</span>
+                </div>
+                <p className={cn('text-lg font-bold', kpi.color)}>{kpi.value}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{kpi.sub}</p>
               </motion.div>
             ))}
           </div>
@@ -549,7 +552,7 @@ export default function RecurringPayments() {
             </TabsContent>
           </Tabs>
         </div>
-      </PageTransition>
+      
     </>
   );
 }
