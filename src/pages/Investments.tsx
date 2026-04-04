@@ -6,7 +6,6 @@ import {
   LineChart as LineIcon, Layers, Coins, RefreshCw, Info, Target, FileText
 } from 'lucide-react';
 
-import { PageTransition } from '@/components/layout/PageTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
