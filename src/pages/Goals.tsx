@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Target, Calendar, MoreHorizontal, TrendingUp, Loader2, Sparkles, Trophy, Clock, Flame, Filter, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { format, differenceInDays, differenceInMonths } from 'date-fns';
 
-import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -99,8 +98,7 @@ const Goals = () => {
 
   return (
     <>
-      <AmbientBackground variant="cool" />
-      <div className="space-y-8 relative z-10">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -15 }}
