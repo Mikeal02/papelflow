@@ -585,7 +585,7 @@ export default function Investments() {
             </TabsContent>
           </Tabs>
         </div>
-      </PageTransition>
+      
     </>
   );
 }

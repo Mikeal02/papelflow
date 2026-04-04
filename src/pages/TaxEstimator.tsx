@@ -570,7 +570,7 @@ export default function TaxEstimator() {
             </TabsContent>
           </Tabs>
         </div>
-      </PageTransition>
+      
     </>
   );
 }
