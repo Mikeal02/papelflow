@@ -227,11 +227,6 @@ export default function RecurringPayments() {
                 <p className={cn('text-lg font-bold', kpi.color)}>{kpi.value}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{kpi.sub}</p>
               </motion.div>
-                    <p className="text-lg lg:text-xl font-bold text-foreground">{kpi.value}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{kpi.sub}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
             ))}
           </div>
 
