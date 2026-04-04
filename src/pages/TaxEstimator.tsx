@@ -242,7 +242,7 @@ export default function TaxEstimator() {
                 Tax Year {now.getFullYear()}
               </Badge>
             </div>
-          </div>
+          </motion.div>
 
           {/* Summary KPIs */}
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">

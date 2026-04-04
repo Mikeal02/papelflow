@@ -254,7 +254,7 @@ export default function Investments() {
               </DialogContent>
             </Dialog>
             </div>
-          </div>
+          </motion.div>
 
           {/* KPIs */}
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-6">
