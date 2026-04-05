@@ -2,14 +2,14 @@ import { useRef, useEffect, useState, memo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CountUpValueProps {
-  value: string; // formatted currency string like "$1,234.56"
+  value: string;
   className?: string;
   duration?: number;
 }
 
-function parseFormattedNumber(formatted: string): { prefix: string; num: number; decimals: number; suffix: string; raw: string } {
+function parseFormattedNumber(formatted: string): { prefix: string; num: number; decimals: number; suffix: string } {
   const match = formatted.match(/^([^\d-]*)([-]?[\d,. ]+)(.*)$/);
-  if (!match) return { prefix: '', num: 0, decimals: 0, suffix: '', raw: formatted };
+  if (!match) return { prefix: '', num: 0, decimals: 0, suffix: '' };
 
   const prefix = match[1];
   const suffix = match[3];
@@ -18,10 +18,8 @@ function parseFormattedNumber(formatted: string): { prefix: string; num: number;
   const lastComma = numStr.lastIndexOf(',');
   const lastDot = numStr.lastIndexOf('.');
 
-  let decimalSep = '.';
   if (lastComma > lastDot) {
     numStr = numStr.replace(/\./g, '').replace(',', '.');
-    decimalSep = ',';
   } else {
     numStr = numStr.replace(/,/g, '');
   }
@@ -30,17 +28,14 @@ function parseFormattedNumber(formatted: string): { prefix: string; num: number;
   const decPart = numStr.split('.')[1];
   const decimals = decPart ? decPart.length : 0;
 
-  return { prefix, num, decimals, suffix, raw: formatted };
+  return { prefix, num, decimals, suffix };
 }
 
-function formatWithOriginalStyle(num: number, decimals: number, original: string, prefix: string, suffix: string): string {
-  // Format number with proper separators matching original style
+function formatWithOriginalStyle(num: number, decimals: number, prefix: string, suffix: string): string {
   const absNum = Math.abs(num);
   const sign = num < 0 ? '-' : '';
   const fixed = absNum.toFixed(decimals);
   const [intPart, decPart] = fixed.split('.');
-
-  // Add thousand separators
   const withSeparators = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   let result = `${prefix}${sign}${withSeparators}`;
@@ -49,14 +44,16 @@ function formatWithOriginalStyle(num: number, decimals: number, original: string
   return result;
 }
 
-export const CountUpValue = memo(function CountUpValue({ value, className, duration = 1400 }: CountUpValueProps) {
+// Custom easing for a luxurious deceleration feel
+const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+
+export const CountUpValue = memo(function CountUpValue({ value, className, duration = 1200 }: CountUpValueProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(value);
   const [hasAnimated, setHasAnimated] = useState(false);
   const rafRef = useRef<number>();
   const prevValue = useRef(value);
 
-  // Intersection observer
   useEffect(() => {
     if (!ref.current) return;
     const el = ref.current;
@@ -73,7 +70,6 @@ export const CountUpValue = memo(function CountUpValue({ value, className, durat
     return () => observer.disconnect();
   }, [hasAnimated]);
 
-  // Animate
   useEffect(() => {
     if (!hasAnimated) {
       setDisplay(value);
@@ -84,24 +80,21 @@ export const CountUpValue = memo(function CountUpValue({ value, className, durat
     const { num: startNum } = parseFormattedNumber(prevValue.current);
     prevValue.current = value;
 
-    // If value changed after initial animation, animate from old to new
     const from = startNum === endNum ? 0 : startNum;
     const startTime = performance.now();
-
-    const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutExpo(progress);
+      const eased = easeOutQuart(progress);
       const current = from + (endNum - from) * eased;
 
-      setDisplay(formatWithOriginalStyle(current, decimals, value, prefix, suffix));
+      setDisplay(formatWithOriginalStyle(current, decimals, prefix, suffix));
 
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
-        setDisplay(value); // Ensure exact final value
+        setDisplay(value);
       }
     };
 
