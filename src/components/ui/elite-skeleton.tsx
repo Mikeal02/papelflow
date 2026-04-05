@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface EliteSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -10,7 +9,7 @@ export function EliteSkeleton({ className, variant = 'default', style, ...props 
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg bg-muted/40",
+        "relative overflow-hidden rounded-lg bg-muted/40 skeleton-shimmer",
         variant === 'circle' && "rounded-full",
         variant === 'text' && "h-4 rounded-md",
         variant === 'card' && "rounded-xl min-h-[120px]",
@@ -18,16 +17,7 @@ export function EliteSkeleton({ className, variant = 'default', style, ...props 
       )}
       style={style}
       {...props}
-    >
-      <motion.div
-        className="absolute inset-0 -translate-x-full"
-        style={{
-          background: 'linear-gradient(90deg, transparent, hsl(var(--primary) / 0.06), hsl(var(--primary) / 0.12), hsl(var(--primary) / 0.06), transparent)',
-        }}
-        animate={{ translateX: ['-100%', '100%'] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </div>
+    />
   );
 }
 
@@ -43,7 +33,7 @@ export function StatCardSkeleton() {
             <EliteSkeleton className="w-12 h-5 rounded-full" />
           </div>
         </div>
-        <EliteSkeleton className="h-14 w-14 rounded-2xl flex-shrink-0" />
+        <EliteSkeleton className="h-12 w-12 rounded-2xl flex-shrink-0" />
       </div>
     </div>
   );
@@ -87,12 +77,9 @@ export function DashboardSkeleton() {
     <div className="space-y-6 animate-fade-in">
       {/* Welcome header */}
       <div className="space-y-2">
-        <EliteSkeleton variant="text" className="w-48 h-8" />
-        <EliteSkeleton variant="text" className="w-64 h-4" />
+        <EliteSkeleton variant="text" className="w-36 h-4" />
+        <EliteSkeleton variant="text" className="w-56 h-8" />
       </div>
-
-      {/* Quick add */}
-      <EliteSkeleton className="w-full h-14 rounded-2xl" />
 
       {/* Stat cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -132,40 +119,19 @@ export function DashboardSkeleton() {
   );
 }
 
-// Route loading fallback with branded spinner
 export function RouteLoadingFallback() {
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center gap-4"
-      >
-        <div className="relative">
-          <motion.div
-            className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          />
-          <motion.div
-            className="absolute inset-0 h-12 w-12 rounded-2xl border-2 border-primary/40 border-t-primary"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-          />
-          <motion.div
-            className="absolute inset-2 rounded-lg bg-primary/20"
-            animate={{ scale: [1, 0.8, 1], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
+      <div className="flex flex-col items-center gap-4 animate-fade-in">
+        <div className="relative h-12 w-12">
+          <div className="absolute inset-0 rounded-2xl bg-primary/10 border border-primary/20 animate-spin" style={{ animationDuration: '2s' }} />
+          <div className="absolute inset-0 rounded-2xl border-2 border-primary/40 border-t-primary animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+          <div className="absolute inset-2 rounded-lg bg-primary/20 animate-pulse" />
         </div>
-        <motion.p
-          className="text-sm text-muted-foreground font-medium"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
+        <p className="text-sm text-muted-foreground font-medium animate-pulse">
           Loading...
-        </motion.p>
-      </motion.div>
+        </p>
+      </div>
     </div>
   );
 }
