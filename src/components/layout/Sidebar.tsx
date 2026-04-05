@@ -57,9 +57,13 @@ interface SidebarProps {
   onAddTransaction: () => void;
 }
 
-const NavItem = memo(function NavItem({ item, isActive }: { item: { icon: any; label: string; path: string; badge?: string }; isActive: boolean }) {
+const NavItem = memo(function NavItem({ item, isActive, onPrefetch }: { item: { icon: any; label: string; path: string; badge?: string }; isActive: boolean; onPrefetch: (path: string) => void }) {
   return (
-    <Link to={item.path}>
+    <Link
+      to={item.path}
+      onMouseEnter={() => onPrefetch(item.path)}
+      onFocus={() => onPrefetch(item.path)}
+    >
       <div
         className={cn(
           'relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150',
