@@ -99,6 +99,7 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { theme, toggleTheme } = useThemeTransition();
+  const { prefetchRoute } = useRoutePreloader();
 
   const handleSignOut = async () => {
     await signOut();
