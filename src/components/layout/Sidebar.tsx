@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { useThemeTransition } from '@/hooks/useThemeTransition';
 import { Separator } from '@/components/ui/separator';
+import { useRoutePreloader } from '@/hooks/useRoutePreloader';
 
 const navGroups = [
   {
