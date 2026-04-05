@@ -18,13 +18,13 @@ export function AnimatedLayout() {
           opacity: 1,
           y: 0,
           filter: 'blur(0px)',
-          transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+          transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
         },
         exit: {
           opacity: 0,
           y: -4,
           filter: 'blur(2px)',
-          transition: { duration: 0.15, ease: [0.4, 0, 1, 1] },
+          transition: { duration: 0.15, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
         },
       };
 
