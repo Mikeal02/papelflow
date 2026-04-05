@@ -434,17 +434,26 @@
     @apply relative overflow-hidden bg-muted rounded-lg;
   }
   
-  .skeleton::after {
+  .skeleton::after,
+  .skeleton-shimmer::after {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      hsl(var(--foreground) / 0.05) 50%,
+      hsl(var(--primary) / 0.06) 25%,
+      hsl(var(--primary) / 0.12) 50%,
+      hsl(var(--primary) / 0.06) 75%,
       transparent 100%
     );
-    animation: skeleton-wave 1.5s ease-in-out infinite;
+    animation: skeleton-wave 1.8s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
   }
   
   @keyframes skeleton-wave {
