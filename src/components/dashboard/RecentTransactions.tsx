@@ -8,6 +8,15 @@ import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
+const staggerItem = {
+  hidden: { opacity: 0, x: -8 },
+  show: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.04, duration: 0.25, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+  }),
+};
+
 export const RecentTransactions = memo(function RecentTransactions() {
   const { data: transactions = [], isLoading } = useTransactions();
   const { formatCurrency } = useCurrency();
@@ -60,7 +69,7 @@ export const RecentTransactions = memo(function RecentTransactions() {
         </div>
       ) : (
         <div className="space-y-1">
-          {recentTransactions.map((transaction) => {
+          {recentTransactions.map((transaction, i) => {
             const Icon =
               transaction.type === 'income' ? ArrowUpRight
               : transaction.type === 'transfer' ? ArrowLeftRight
@@ -69,8 +78,12 @@ export const RecentTransactions = memo(function RecentTransactions() {
             const isLarge = Number(transaction.amount) >= 500;
 
             return (
-              <div
+              <motion.div
                 key={transaction.id}
+                custom={i}
+                variants={staggerItem}
+                initial="hidden"
+                animate="show"
                 className={cn(
                   'relative flex items-center gap-3 rounded-xl p-3 transition-all duration-200 cursor-pointer',
                   'hover:translate-x-1 hover:bg-muted/50'
@@ -126,7 +139,7 @@ export const RecentTransactions = memo(function RecentTransactions() {
                     transaction.type !== 'transfer'
                   )}
                 </span>
-              </div>
+              </motion.div>
             );
           })}
         </div>

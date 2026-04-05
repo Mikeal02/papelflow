@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { useThemeTransition } from '@/hooks/useThemeTransition';
 import { Separator } from '@/components/ui/separator';
+import { useRoutePreloader } from '@/hooks/useRoutePreloader';
 
 const navGroups = [
   {
@@ -56,9 +57,13 @@ interface SidebarProps {
   onAddTransaction: () => void;
 }
 
-const NavItem = memo(function NavItem({ item, isActive }: { item: { icon: any; label: string; path: string; badge?: string }; isActive: boolean }) {
+const NavItem = memo(function NavItem({ item, isActive, onPrefetch }: { item: { icon: any; label: string; path: string; badge?: string }; isActive: boolean; onPrefetch: (path: string) => void }) {
   return (
-    <Link to={item.path}>
+    <Link
+      to={item.path}
+      onMouseEnter={() => onPrefetch(item.path)}
+      onFocus={() => onPrefetch(item.path)}
+    >
       <div
         className={cn(
           'relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150',
@@ -94,6 +99,7 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const { theme, toggleTheme } = useThemeTransition();
+  const { prefetchRoute } = useRoutePreloader();
 
   const handleSignOut = async () => {
     await signOut();
@@ -145,7 +151,7 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
               </p>
               <div className="space-y-0.5">
                 {group.items.map((item) => (
-                  <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
+                  <NavItem key={item.path} item={item} isActive={location.pathname === item.path} onPrefetch={prefetchRoute} />
                 ))}
               </div>
             </div>
