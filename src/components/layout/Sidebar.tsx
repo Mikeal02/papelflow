@@ -151,7 +151,7 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
               </p>
               <div className="space-y-0.5">
                 {group.items.map((item) => (
-                  <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
+                  <NavItem key={item.path} item={item} isActive={location.pathname === item.path} onPrefetch={prefetchRoute} />
                 ))}
               </div>
             </div>
