@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, Receipt, ArrowDownUp, Target, CreditCard } from 'lucide-react';
+import { Plus, Receipt, ArrowDownUp, Target, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ interface FloatingAction {
   label: string;
   onClick: () => void;
   color: string;
+  shortcut?: string;
 }
 
 interface FloatingActionMenuProps {
@@ -23,6 +24,7 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
     {
       icon: Receipt,
       label: 'Add Transaction',
+      shortcut: 'T',
       onClick: () => {
         onAddTransaction?.();
         setIsOpen(false);
@@ -32,6 +34,7 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
     {
       icon: ArrowDownUp,
       label: 'Transfer',
+      shortcut: 'R',
       onClick: () => {
         navigate('/accounts');
         setIsOpen(false);
@@ -41,6 +44,7 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
     {
       icon: Target,
       label: 'Add Goal',
+      shortcut: 'G',
       onClick: () => {
         navigate('/goals');
         setIsOpen(false);
@@ -50,6 +54,7 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
     {
       icon: CreditCard,
       label: 'Add Budget',
+      shortcut: 'B',
       onClick: () => {
         navigate('/budgets');
         setIsOpen(false);
@@ -63,7 +68,6 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -72,34 +76,38 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Actions */}
-            <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-3 z-50">
+            <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-2.5 z-50">
               {actions.map((action, index) => (
                 <motion.button
                   key={action.label}
-                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  initial={{ opacity: 0, y: 16, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                  transition={{ delay: index * 0.05 }}
+                  exit={{ opacity: 0, y: 16, scale: 0.9 }}
+                  transition={{ delay: index * 0.04, type: 'spring', stiffness: 400, damping: 25 }}
                   onClick={action.onClick}
                   className="flex items-center gap-3 group"
                 >
                   <motion.span
-                    initial={{ opacity: 0, x: 10 }}
+                    initial={{ opacity: 0, x: 8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 + 0.1 }}
-                    className="px-3 py-1.5 rounded-lg bg-card border border-border text-sm font-medium shadow-lg whitespace-nowrap"
+                    transition={{ delay: index * 0.04 + 0.08 }}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border/50 text-sm font-medium shadow-lg whitespace-nowrap"
                   >
                     {action.label}
+                    {action.shortcut && (
+                      <kbd className="text-[9px] px-1 py-0.5 rounded border border-border/50 bg-muted/50 text-muted-foreground font-mono">
+                        {action.shortcut}
+                      </kbd>
+                    )}
                   </motion.span>
                   <div
                     className={cn(
-                      'h-12 w-12 rounded-full flex items-center justify-center text-white shadow-lg',
-                      'transition-transform group-hover:scale-110',
+                      'h-11 w-11 rounded-full flex items-center justify-center text-primary-foreground shadow-lg',
+                      'transition-all duration-200 group-hover:scale-110 group-hover:shadow-xl',
                       action.color
                     )}
                   >
-                    <action.icon className="h-5 w-5" />
+                    <action.icon className="h-4.5 w-4.5" />
                   </div>
                 </motion.button>
               ))}
@@ -110,8 +118,8 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
 
       {/* Main FAB */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'relative h-14 w-14 rounded-full flex items-center justify-center z-50',
@@ -120,20 +128,13 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
           isOpen && 'from-destructive to-destructive/80 shadow-destructive/25'
         )}
       >
-        <motion.div animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }}>
+        <motion.div
+          animate={{ rotate: isOpen ? 135 : 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+        >
           <Plus className="h-6 w-6" />
         </motion.div>
       </motion.button>
-
-      {/* Pulse ring */}
-      {!isOpen && (
-        <motion.div
-          className="absolute inset-0 rounded-full bg-primary/30 pointer-events-none"
-          initial={{ scale: 1, opacity: 0.5 }}
-          animate={{ scale: 1.5, opacity: 0 }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        />
-      )}
     </div>
   );
 };
