@@ -110,7 +110,7 @@ export const QuickStats = memo(function QuickStats() {
               {stat.trend && <span className="text-xs">{stat.trend}</span>}
             </div>
             <div className="min-w-0 overflow-hidden">
-              <CountUpValue value={stat.value} className="text-base sm:text-lg font-bold block truncate" duration={1000} />
+              <CountUpValue value={stat.value} className="text-sm sm:text-base md:text-lg font-bold block truncate" duration={1000} />
               <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
             </div>
           </div>

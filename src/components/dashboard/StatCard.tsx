@@ -135,7 +135,7 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
             iconColor || 'bg-primary/8 text-primary'
           )}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
       </div>
     </motion.div>

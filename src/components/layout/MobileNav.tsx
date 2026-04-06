@@ -184,7 +184,7 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
         <div className="absolute inset-0 bg-background/85 backdrop-blur-2xl border-t border-border/20" />
         
-        <div className="relative flex items-center justify-around px-2 pb-safe pt-1.5 pb-2">
+        <div className="relative flex items-center justify-around px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {bottomTabs.slice(0, 2).map((tab) => {
             const isActive = location.pathname === tab.path;
             return (

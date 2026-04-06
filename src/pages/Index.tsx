@@ -78,7 +78,7 @@ const Dashboard = () => {
 
             {/* Key Metrics */}
             <div>
-              <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-2.5 sm:gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
                 <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-income/8 text-income" delay={0.05} autoCompare="income" />
                 <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-expense/8 text-expense" delay={0.1} autoCompare="expense" />
                 <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-primary/8 text-primary" delay={0.15} autoCompare="net" />
