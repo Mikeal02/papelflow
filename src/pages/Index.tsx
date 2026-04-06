@@ -73,7 +73,7 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <PageTransition>
-          <div className="space-y-10">
+          <div className="space-y-6 md:space-y-10">
             <WelcomeHeader />
 
             {/* Key Metrics */}
