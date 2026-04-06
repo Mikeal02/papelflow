@@ -100,9 +100,9 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
     >
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-2 min-w-0 flex-1 overflow-hidden">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{title}</p>
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{title}</p>
           
-          <CountUpValue value={value} className="text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight block truncate" />
+          <CountUpValue value={value} className="text-sm sm:text-lg lg:text-2xl font-semibold tracking-tight block truncate" />
           
           <div className="flex items-center gap-2 mt-1">
             {sparklineData.some(v => v > 0) && (
