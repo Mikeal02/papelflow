@@ -86,7 +86,7 @@ export const QuickStats = memo(function QuickStats() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3"
     >
       {quickStats.map((stat, i) => (
         <motion.div
