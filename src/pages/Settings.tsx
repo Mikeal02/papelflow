@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import {
   User, Shield, Download, Trash2, Moon, Globe, Calendar, ChevronRight, Loader2, LogOut,
   Database, Clock, Activity, HardDrive, FileJson, FileSpreadsheet, BarChart3, Mail, Send,
-  Camera, Zap, Crown, Fingerprint, Eye, Lock,
+  Camera, Zap, Crown, Fingerprint, Eye, Lock, Sparkles, TrendingUp, ArrowUpRight,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -25,6 +25,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
+import { ExportDataModal } from '@/components/settings/ExportDataModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useTransactions } from '@/hooks/useTransactions';
 import { triggerWeeklySummary } from '@/lib/email-service';
@@ -53,6 +54,7 @@ const Settings = () => {
   
   const [fullName, setFullName] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingSummary, setIsSendingSummary] = useState(false);
@@ -66,8 +68,8 @@ const Settings = () => {
     const totalRecords = transactions.length + accounts.length + budgets.length + categories.length + goals.length + subscriptions.length;
     const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
     const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
-    const oldestTx = transactions.length > 0 ? transactions[transactions.length - 1]?.date : null;
-    return { accountAge, totalRecords, totalExpenses, totalIncome, oldestTx };
+    const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100) : 0;
+    return { accountAge, totalRecords, totalExpenses, totalIncome, savingsRate };
   }, [user, transactions, accounts, budgets, categories, goals, subscriptions]);
 
   const handleSaveProfile = async () => { await updateProfile.mutateAsync({ full_name: fullName }); };
@@ -75,33 +77,6 @@ const Settings = () => {
   const handleSignOut = async () => { await signOut(); navigate('/auth'); };
   const handleDarkModeToggle = (checked: boolean) => { setTheme(checked ? 'dark' : 'light'); };
   const isDark = mounted ? (resolvedTheme === 'dark') : true;
-
-  const handleExportData = (exportFormat: 'json' | 'csv') => {
-    const exportData = { exportedAt: new Date().toISOString(), profile, accounts, transactions, budgets, categories, goals, subscriptions };
-
-    if (exportFormat === 'json') {
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `finflow-export-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(link); link.click(); document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } else {
-      const headers = ['Date', 'Type', 'Amount', 'Payee', 'Notes'];
-      const rows = transactions.map(t => [t.date, t.type, t.amount, t.payee || '', t.notes || '']);
-      const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(link); link.click(); document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-
-    toast({ title: 'Data exported', description: `Your data has been downloaded as ${exportFormat.toUpperCase()}` });
-  };
 
   const handleDeleteAccount = async () => {
     if (!user) return;
@@ -132,65 +107,80 @@ const Settings = () => {
   }
 
   const initials = (profile?.full_name || user?.email || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  const memberDays = dataStats.accountAge;
+  const memberLabel = memberDays < 30 ? 'New Member' : memberDays < 180 ? 'Active Member' : memberDays < 365 ? 'Power User' : 'Veteran';
 
   return (
     <>
       <div className="max-w-3xl space-y-6">
-        {/* Hero Profile Card */}
+        {/* ── Hero Profile Card ── */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-br from-card via-card to-muted/20">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/5 via-transparent to-transparent rounded-full -translate-y-1/2 translate-x-1/4" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-accent/5 via-transparent to-transparent rounded-full translate-y-1/2 -translate-x-1/4" />
+          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-card">
+            {/* Layered background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-transparent to-accent/[0.03]" />
+            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-primary/[0.06] via-transparent to-transparent rounded-full -translate-y-1/3 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-tr from-income/[0.04] via-transparent to-transparent rounded-full translate-y-1/3 -translate-x-1/4" />
             
             <div className="relative p-6 md:p-8">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                {/* Avatar */}
+                {/* Avatar with activity ring */}
                 <div className="relative group">
-                  <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-accent flex items-center justify-center shadow-xl shadow-primary/20">
+                  <div className="absolute -inset-1.5 rounded-[22px] bg-gradient-to-br from-primary via-accent to-income opacity-20 group-hover:opacity-40 transition-opacity blur-sm" />
+                  <div className="relative h-20 w-20 rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-accent flex items-center justify-center shadow-xl shadow-primary/15">
                     <span className="text-2xl font-black text-primary-foreground tracking-tight">{initials}</span>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-lg bg-income flex items-center justify-center ring-2 ring-card shadow-md">
-                    <Zap className="h-3 w-3 text-white" />
+                  <div className="absolute -bottom-1.5 -right-1.5 h-7 w-7 rounded-lg bg-income flex items-center justify-center ring-[3px] ring-card shadow-lg">
+                    <Zap className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  {/* Camera overlay on hover */}
+                  <div className="absolute inset-0 rounded-2xl bg-foreground/0 group-hover:bg-foreground/10 transition-colors flex items-center justify-center cursor-pointer">
+                    <Camera className="h-5 w-5 text-primary-foreground opacity-0 group-hover:opacity-80 transition-opacity" />
                   </div>
                 </div>
 
-                {/* Info */}
+                {/* User info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <h1 className="text-xl md:text-2xl font-bold tracking-tight">{profile?.full_name || 'Your Account'}</h1>
-                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold tracking-wider">
-                      <Crown className="h-2.5 w-2.5 mr-1" />PRO
+                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold tracking-wider gap-1">
+                      <Crown className="h-2.5 w-2.5" />PRO
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
-                  {user?.created_at && (
-                    <p className="text-xs text-muted-foreground/60 mt-1 flex items-center gap-1.5">
-                      <Shield className="h-3 w-3" />
-                      Member since {format(new Date(user.created_at), 'MMMM yyyy')}
-                    </p>
-                  )}
+                  <div className="flex items-center gap-3 mt-2 flex-wrap">
+                    {user?.created_at && (
+                      <p className="text-xs text-muted-foreground/70 flex items-center gap-1.5">
+                        <Shield className="h-3 w-3" />
+                        {format(new Date(user.created_at), 'MMM yyyy')}
+                      </p>
+                    )}
+                    <Badge variant="outline" className="text-[10px] font-medium border-border/40">
+                      <Sparkles className="h-2.5 w-2.5 mr-1" />{memberLabel}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-6">
                 {[
-                  { label: 'Account Age', value: `${dataStats.accountAge}d`, icon: Clock, color: 'text-primary' },
-                  { label: 'Total Records', value: String(dataStats.totalRecords), icon: Database, color: 'text-accent' },
-                  { label: 'Transactions', value: String(transactions.length), icon: BarChart3, color: 'text-income' },
-                  { label: 'Accounts', value: String(accounts.length), icon: HardDrive, color: 'text-chart-3' },
+                  { label: 'Days Active', value: String(dataStats.accountAge), icon: Clock, color: 'text-primary', bg: 'bg-primary/8' },
+                  { label: 'Records', value: dataStats.totalRecords.toLocaleString(), icon: Database, color: 'text-accent', bg: 'bg-accent/8' },
+                  { label: 'Transactions', value: String(transactions.length), icon: BarChart3, color: 'text-income', bg: 'bg-income/8' },
+                  { label: 'Savings Rate', value: `${dataStats.savingsRate}%`, icon: TrendingUp, color: dataStats.savingsRate >= 20 ? 'text-income' : 'text-warning', bg: dataStats.savingsRate >= 20 ? 'bg-income/8' : 'bg-warning/8' },
                 ].map((stat, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
-                    className="p-3 rounded-xl bg-muted/30 border border-border/10 hover:bg-muted/50 transition-colors"
+                    transition={{ delay: 0.15 + i * 0.05 }}
+                    className="group p-3 rounded-xl bg-muted/20 border border-border/10 hover:bg-muted/40 hover:border-border/30 transition-all"
                   >
-                    <stat.icon className={cn('h-4 w-4 mb-1.5', stat.color)} />
-                    <p className="text-lg font-bold tabular-nums leading-none">{stat.value}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">{stat.label}</p>
+                    <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center mb-2', stat.bg)}>
+                      <stat.icon className={cn('h-3.5 w-3.5', stat.color)} />
+                    </div>
+                    <p className="text-lg font-bold tabular-nums leading-none tracking-tight">{stat.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1 font-medium">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
@@ -198,7 +188,7 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Profile Edit */}
+        {/* ── Profile Edit ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="stat-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10"><User className="h-5 w-5 text-primary" /></div>
@@ -211,7 +201,7 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Preferences */}
+        {/* ── Preferences ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="stat-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent/20 to-accent/10"><Globe className="h-5 w-5 text-accent" /></div>
@@ -244,10 +234,10 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Notifications */}
+        {/* ── Notifications ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}><NotificationSettings /></motion.div>
 
-        {/* Email Reports */}
+        {/* ── Email Reports ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }} className="stat-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10"><Mail className="h-5 w-5 text-primary" /></div>
@@ -283,7 +273,7 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Security */}
+        {/* ── Security ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="stat-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-income/20 to-income/10"><Shield className="h-5 w-5 text-income" /></div>
@@ -305,21 +295,29 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        {/* Data & Privacy */}
+        {/* ── Data & Privacy ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="stat-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-warning/20 to-warning/10"><Download className="h-5 w-5 text-warning" /></div>
             <div><h3 className="font-semibold">Data & Privacy</h3><p className="text-xs text-muted-foreground">Export or delete your data</p></div>
           </div>
           <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" className="h-12 hover:bg-muted/50 gap-2" onClick={() => handleExportData('json')}>
-                <FileJson className="h-4 w-4" /><span className="text-sm">Export JSON</span>
-              </Button>
-              <Button variant="outline" className="h-12 hover:bg-muted/50 gap-2" onClick={() => handleExportData('csv')}>
-                <FileSpreadsheet className="h-4 w-4" /><span className="text-sm">Export CSV</span>
-              </Button>
-            </div>
+            {/* Export button — opens the premium modal */}
+            <Button
+              variant="outline"
+              className="w-full justify-between h-12 hover:bg-muted/50 group"
+              onClick={() => setShowExportModal(true)}
+            >
+              <span className="flex items-center gap-2.5">
+                <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                Export your data
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="text-[10px] tabular-nums">{dataStats.totalRecords} records</Badge>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </Button>
+
             <Button variant="outline" onClick={handleSignOut} className="w-full justify-between h-12 hover:bg-muted/50">
               <span className="flex items-center gap-2"><LogOut className="h-4 w-4" />Sign out</span>
             </Button>
@@ -346,7 +344,13 @@ const Settings = () => {
           </div>
         </motion.div>
       </div>
+
       <ChangePasswordModal open={showPasswordModal} onOpenChange={setShowPasswordModal} />
+      <ExportDataModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+        data={{ profile, accounts, transactions, budgets, categories, goals, subscriptions }}
+      />
     </>
   );
 };
