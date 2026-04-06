@@ -86,7 +86,7 @@ export const QuickStats = memo(function QuickStats() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3"
     >
       {quickStats.map((stat, i) => (
         <motion.div
@@ -110,7 +110,7 @@ export const QuickStats = memo(function QuickStats() {
               {stat.trend && <span className="text-xs">{stat.trend}</span>}
             </div>
             <div className="min-w-0 overflow-hidden">
-              <CountUpValue value={stat.value} className="text-base sm:text-lg font-bold block truncate" duration={1000} />
+              <CountUpValue value={stat.value} className="text-sm sm:text-base md:text-lg font-bold block truncate" duration={1000} />
               <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
             </div>
           </div>
