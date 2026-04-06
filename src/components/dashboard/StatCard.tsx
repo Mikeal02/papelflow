@@ -131,7 +131,7 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
         
         <div
           className={cn(
-            'flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl flex-shrink-0',
+            'flex h-8 w-8 sm:h-10 sm:w-10 lg:h-11 lg:w-11 items-center justify-center rounded-lg sm:rounded-xl flex-shrink-0',
             iconColor || 'bg-primary/8 text-primary'
           )}
         >
