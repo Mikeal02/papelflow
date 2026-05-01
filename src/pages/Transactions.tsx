@@ -39,13 +39,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
 import { CSVImportModal } from '@/components/transactions/CSVImportModal';
 import { Upload } from 'lucide-react';
-import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
+import { useTransactions, useDeleteTransaction, type Transaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { exportTransactionsToCSV } from '@/lib/export-utils';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { EditTransactionModal } from '@/components/transactions/EditTransactionModal';
+import { useCreateTransaction } from '@/hooks/useTransactions';
 
 const PAGE_SIZE = 25;
 
