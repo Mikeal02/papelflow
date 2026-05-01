@@ -20,10 +20,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
-import { useUpdateTransaction, type Transaction } from '@/hooks/useTransactions';
+import { useUpdateTransaction, useTransactions, type Transaction } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from 'lucide-react';
+import { findDuplicates, type DuplicateMatch } from '@/lib/duplicate-detection';
+import { DuplicateWarningDialog } from '@/components/transactions/DuplicateWarningDialog';
 
 interface EditTransactionModalProps {
   open: boolean;
@@ -51,8 +53,11 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
 
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
+  const { data: allTransactions = [] } = useTransactions();
   const updateTransaction = useUpdateTransaction();
   const { currencySymbol } = useCurrency();
+  const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -71,10 +76,8 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
     (cat) => cat.type === (type === 'income' ? 'income' : 'expense')
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const persist = async () => {
     if (!transaction) return;
-
     await updateTransaction.mutateAsync({
       id: transaction.id,
       updates: {
@@ -88,11 +91,39 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
         notes: notes || null,
       },
     });
-
+    setShowDuplicateWarning(false);
+    setDuplicateMatches([]);
     onOpenChange(false);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transaction) return;
+
+    const matches = findDuplicates(
+      {
+        id: transaction.id,
+        type,
+        amount: parseFloat(amount),
+        date,
+        account_id: accountId,
+        category_id: categoryId || null,
+        payee: payee || null,
+      },
+      allTransactions as any
+    );
+
+    if (matches.length > 0) {
+      setDuplicateMatches(matches);
+      setShowDuplicateWarning(true);
+      return;
+    }
+
+    await persist();
+  };
+
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -263,5 +294,17 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
         </form>
       </DialogContent>
     </Dialog>
+    <DuplicateWarningDialog
+      open={showDuplicateWarning}
+      onOpenChange={(o) => {
+        setShowDuplicateWarning(o);
+        if (!o) setDuplicateMatches([]);
+      }}
+      matches={duplicateMatches}
+      mode="edit"
+      isProcessing={updateTransaction.isPending}
+      onConfirm={persist}
+    />
+    </>
   );
 }

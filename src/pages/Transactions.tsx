@@ -48,6 +48,8 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { EditTransactionModal } from '@/components/transactions/EditTransactionModal';
 import { useCreateTransaction } from '@/hooks/useTransactions';
+import { DuplicateWarningDialog } from '@/components/transactions/DuplicateWarningDialog';
+import { findDuplicates, type DuplicateMatch } from '@/lib/duplicate-detection';
 
 const PAGE_SIZE = 25;
 
@@ -72,6 +74,8 @@ const Transactions = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [pendingDuplicate, setPendingDuplicate] = useState<Transaction | null>(null);
+  const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
 
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
@@ -80,7 +84,7 @@ const Transactions = () => {
   const createTransaction = useCreateTransaction();
   const { formatCurrency } = useCurrency();
 
-  const handleDuplicate = async (t: Transaction) => {
+  const performDuplicate = async (t: Transaction) => {
     await createTransaction.mutateAsync({
       type: t.type,
       amount: Number(t.amount),
@@ -91,6 +95,27 @@ const Transactions = () => {
       payee: t.payee,
       notes: t.notes,
     });
+  };
+
+  const handleDuplicate = async (t: Transaction) => {
+    const matches = findDuplicates(
+      {
+        type: t.type,
+        amount: Number(t.amount),
+        date: new Date().toISOString().split('T')[0],
+        account_id: t.account_id,
+        category_id: t.category_id,
+        payee: t.payee,
+      },
+      transactions as any
+    );
+
+    if (matches.length > 0) {
+      setPendingDuplicate(t);
+      setDuplicateMatches(matches);
+      return;
+    }
+    await performDuplicate(t);
   };
 
   const dateInterval = useMemo(() => {
@@ -573,6 +598,24 @@ const Transactions = () => {
         open={!!editingTransaction}
         onOpenChange={(open) => !open && setEditingTransaction(null)}
         transaction={editingTransaction}
+      />
+      <DuplicateWarningDialog
+        open={!!pendingDuplicate}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDuplicate(null);
+            setDuplicateMatches([]);
+          }
+        }}
+        matches={duplicateMatches}
+        mode="duplicate"
+        isProcessing={createTransaction.isPending}
+        onConfirm={async () => {
+          if (!pendingDuplicate) return;
+          await performDuplicate(pendingDuplicate);
+          setPendingDuplicate(null);
+          setDuplicateMatches([]);
+        }}
       />
     </>
   );
