@@ -48,6 +48,8 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { EditTransactionModal } from '@/components/transactions/EditTransactionModal';
 import { useCreateTransaction } from '@/hooks/useTransactions';
+import { DuplicateWarningDialog } from '@/components/transactions/DuplicateWarningDialog';
+import { findDuplicates, type DuplicateMatch } from '@/lib/duplicate-detection';
 
 const PAGE_SIZE = 25;
 
