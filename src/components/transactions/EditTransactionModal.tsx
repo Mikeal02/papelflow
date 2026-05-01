@@ -20,10 +20,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
-import { useUpdateTransaction, type Transaction } from '@/hooks/useTransactions';
+import { useUpdateTransaction, useTransactions, type Transaction } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from 'lucide-react';
+import { findDuplicates, type DuplicateMatch } from '@/lib/duplicate-detection';
+import { DuplicateWarningDialog } from '@/components/transactions/DuplicateWarningDialog';
 
 interface EditTransactionModalProps {
   open: boolean;
