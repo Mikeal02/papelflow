@@ -71,12 +71,27 @@ const Transactions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
   const deleteTransaction = useDeleteTransaction();
+  const createTransaction = useCreateTransaction();
   const { formatCurrency } = useCurrency();
+
+  const handleDuplicate = async (t: Transaction) => {
+    await createTransaction.mutateAsync({
+      type: t.type,
+      amount: Number(t.amount),
+      date: new Date().toISOString().split('T')[0],
+      account_id: t.account_id,
+      category_id: t.category_id,
+      to_account_id: t.to_account_id,
+      payee: t.payee,
+      notes: t.notes,
+    });
+  };
 
   const dateInterval = useMemo(() => {
     const now = new Date();
