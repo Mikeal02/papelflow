@@ -569,6 +569,11 @@ const Transactions = () => {
         </AnimatePresence>
       </div>
       <CSVImportModal open={isImportOpen} onOpenChange={setIsImportOpen} />
+      <EditTransactionModal
+        open={!!editingTransaction}
+        onOpenChange={(open) => !open && setEditingTransaction(null)}
+        transaction={editingTransaction}
+      />
     </>
   );
 };
