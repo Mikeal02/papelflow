@@ -112,8 +112,8 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Icon className="h-4 w-4" />
-                {label}
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{label}</span>
               </button>
             ))}
           </div>
