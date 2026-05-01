@@ -53,8 +53,11 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
 
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
+  const { data: allTransactions = [] } = useTransactions();
   const updateTransaction = useUpdateTransaction();
   const { currencySymbol } = useCurrency();
+  const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
 
   useEffect(() => {
     if (transaction) {
