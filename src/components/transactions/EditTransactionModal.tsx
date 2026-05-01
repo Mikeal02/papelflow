@@ -76,10 +76,8 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
     (cat) => cat.type === (type === 'income' ? 'income' : 'expense')
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const persist = async () => {
     if (!transaction) return;
-
     await updateTransaction.mutateAsync({
       id: transaction.id,
       updates: {
@@ -93,8 +91,35 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
         notes: notes || null,
       },
     });
-
+    setShowDuplicateWarning(false);
+    setDuplicateMatches([]);
     onOpenChange(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transaction) return;
+
+    const matches = findDuplicates(
+      {
+        id: transaction.id,
+        type,
+        amount: parseFloat(amount),
+        date,
+        account_id: accountId,
+        category_id: categoryId || null,
+        payee: payee || null,
+      },
+      allTransactions as any
+    );
+
+    if (matches.length > 0) {
+      setDuplicateMatches(matches);
+      setShowDuplicateWarning(true);
+      return;
+    }
+
+    await persist();
   };
 
   return (
