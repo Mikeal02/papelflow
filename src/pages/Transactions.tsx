@@ -599,6 +599,24 @@ const Transactions = () => {
         onOpenChange={(open) => !open && setEditingTransaction(null)}
         transaction={editingTransaction}
       />
+      <DuplicateWarningDialog
+        open={!!pendingDuplicate}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDuplicate(null);
+            setDuplicateMatches([]);
+          }
+        }}
+        matches={duplicateMatches}
+        mode="duplicate"
+        isProcessing={createTransaction.isPending}
+        onConfirm={async () => {
+          if (!pendingDuplicate) return;
+          await performDuplicate(pendingDuplicate);
+          setPendingDuplicate(null);
+          setDuplicateMatches([]);
+        }}
+      />
     </>
   );
 };
