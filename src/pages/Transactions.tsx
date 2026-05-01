@@ -269,19 +269,19 @@ const Transactions = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-3 gap-2 sm:gap-4"
         >
-          <div className="stat-card p-4 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</p>
-            <p className="text-base font-bold text-income mt-1">{formatCurrency(filteredStats.income)}</p>
+          <div className="stat-card p-2.5 sm:p-4 text-center">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</p>
+            <p className="text-xs sm:text-base font-bold text-income mt-1 truncate">{formatCurrency(filteredStats.income)}</p>
           </div>
-          <div className="stat-card p-4 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expenses</p>
-            <p className="text-base font-bold text-expense mt-1">{formatCurrency(filteredStats.expenses)}</p>
+          <div className="stat-card p-2.5 sm:p-4 text-center">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expenses</p>
+            <p className="text-xs sm:text-base font-bold text-expense mt-1 truncate">{formatCurrency(filteredStats.expenses)}</p>
           </div>
-          <div className="stat-card p-4 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Net</p>
-            <p className={cn('text-base font-bold mt-1', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
+          <div className="stat-card p-2.5 sm:p-4 text-center">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Net</p>
+            <p className={cn('text-xs sm:text-base font-bold mt-1 truncate', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
               {formatCurrency(filteredStats.net)}
             </p>
           </div>
