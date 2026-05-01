@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, Loader2 } from 'lucide-react';
 import {
   Dialog,
@@ -20,14 +20,15 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
-import { useCreateTransaction } from '@/hooks/useTransactions';
+import { useUpdateTransaction, type Transaction } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from 'lucide-react';
 
-interface AddTransactionModalProps {
+interface EditTransactionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  transaction: Transaction | null;
 }
 
 type TransactionType = 'expense' | 'income' | 'transfer';
@@ -38,7 +39,7 @@ const transactionTypes = [
   { type: 'transfer' as const, label: 'Transfer', icon: ArrowLeftRight, color: 'transfer' },
 ];
 
-export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalProps) {
+export function EditTransactionModal({ open, onOpenChange, transaction }: EditTransactionModalProps) {
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
   const [accountId, setAccountId] = useState('');
@@ -50,8 +51,21 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
 
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
-  const createTransaction = useCreateTransaction();
+  const updateTransaction = useUpdateTransaction();
   const { currencySymbol } = useCurrency();
+
+  useEffect(() => {
+    if (transaction) {
+      setType(transaction.type as TransactionType);
+      setAmount(String(transaction.amount));
+      setAccountId(transaction.account_id);
+      setToAccountId(transaction.to_account_id || '');
+      setCategoryId(transaction.category_id || '');
+      setPayee(transaction.payee || '');
+      setNotes(transaction.notes || '');
+      setDate(transaction.date);
+    }
+  }, [transaction]);
 
   const filteredCategories = categories.filter(
     (cat) => cat.type === (type === 'income' ? 'income' : 'expense')
@@ -59,42 +73,34 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    await createTransaction.mutateAsync({
-      type,
-      amount: parseFloat(amount),
-      date,
-      account_id: accountId,
-      category_id: type !== 'transfer' ? categoryId : null,
-      to_account_id: type === 'transfer' ? toAccountId : null,
-      payee: payee || null,
-      notes: notes || null,
-    });
-    
-    onOpenChange(false);
-    resetForm();
-  };
+    if (!transaction) return;
 
-  const resetForm = () => {
-    setAmount('');
-    setAccountId('');
-    setToAccountId('');
-    setCategoryId('');
-    setPayee('');
-    setNotes('');
-    setDate(new Date().toISOString().split('T')[0]);
+    await updateTransaction.mutateAsync({
+      id: transaction.id,
+      updates: {
+        type,
+        amount: parseFloat(amount),
+        date,
+        account_id: accountId,
+        category_id: type !== 'transfer' ? categoryId || null : null,
+        to_account_id: type === 'transfer' ? toAccountId || null : null,
+        payee: payee || null,
+        notes: notes || null,
+      },
+    });
+
+    onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">Add Transaction</DialogTitle>
-          <DialogDescription>Record a new transaction for your accounts</DialogDescription>
+          <DialogTitle className="text-lg font-semibold">Edit Transaction</DialogTitle>
+          <DialogDescription>Update the details of this transaction</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Transaction Type Tabs */}
           <div className="flex gap-1 p-1 bg-muted rounded-lg">
             {transactionTypes.map(({ type: t, label, icon: Icon, color }) => (
               <button
@@ -112,21 +118,20 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{label}</span>
+                <Icon className="h-4 w-4" />
+                <span className="hidden xs:inline sm:inline">{label}</span>
               </button>
             ))}
           </div>
 
-          {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="edit-amount">Amount</Label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl">
                 {currencySymbol}
               </span>
               <Input
-                id="amount"
+                id="edit-amount"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
@@ -139,7 +144,6 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Account */}
             <div className="space-y-2">
               <Label>From Account</Label>
               <Select value={accountId} onValueChange={setAccountId} required>
@@ -156,7 +160,6 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               </Select>
             </div>
 
-            {/* To Account (for transfers) or Category */}
             {type === 'transfer' ? (
               <div className="space-y-2">
                 <Label>To Account</Label>
@@ -178,7 +181,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             ) : (
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select value={categoryId} onValueChange={setCategoryId} required>
+                <Select value={categoryId} onValueChange={setCategoryId}>
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -195,13 +198,12 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Date */}
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="edit-date">Date</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="date"
+                  id="edit-date"
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
@@ -211,12 +213,11 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
               </div>
             </div>
 
-            {/* Payee */}
             {type !== 'transfer' && (
               <div className="space-y-2">
-                <Label htmlFor="payee">{type === 'income' ? 'From' : 'Payee'}</Label>
+                <Label htmlFor="edit-payee">{type === 'income' ? 'From' : 'Payee'}</Label>
                 <Input
-                  id="payee"
+                  id="edit-payee"
                   placeholder={type === 'income' ? 'Source' : 'Merchant name'}
                   value={payee}
                   onChange={(e) => setPayee(e.target.value)}
@@ -226,11 +227,10 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             )}
           </div>
 
-          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (optional)</Label>
+            <Label htmlFor="edit-notes">Notes (optional)</Label>
             <Textarea
-              id="notes"
+              id="edit-notes"
               placeholder="Add any additional details..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -239,7 +239,6 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             />
           </div>
 
-          {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
             <Button
               type="button"
@@ -249,15 +248,15 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 h-10"
-              disabled={createTransaction.isPending}
+              disabled={updateTransaction.isPending}
             >
-              {createTransaction.isPending ? (
+              {updateTransaction.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Add Transaction'
+                'Save Changes'
               )}
             </Button>
           </div>

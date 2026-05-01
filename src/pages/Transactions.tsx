@@ -39,13 +39,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
 import { CSVImportModal } from '@/components/transactions/CSVImportModal';
 import { Upload } from 'lucide-react';
-import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions';
+import { useTransactions, useDeleteTransaction, type Transaction } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { exportTransactionsToCSV } from '@/lib/export-utils';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { EditTransactionModal } from '@/components/transactions/EditTransactionModal';
+import { useCreateTransaction } from '@/hooks/useTransactions';
 
 const PAGE_SIZE = 25;
 
@@ -69,12 +71,27 @@ const Transactions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
   const deleteTransaction = useDeleteTransaction();
+  const createTransaction = useCreateTransaction();
   const { formatCurrency } = useCurrency();
+
+  const handleDuplicate = async (t: Transaction) => {
+    await createTransaction.mutateAsync({
+      type: t.type,
+      amount: Number(t.amount),
+      date: new Date().toISOString().split('T')[0],
+      account_id: t.account_id,
+      category_id: t.category_id,
+      to_account_id: t.to_account_id,
+      payee: t.payee,
+      notes: t.notes,
+    });
+  };
 
   const dateInterval = useMemo(() => {
     const now = new Date();
@@ -252,19 +269,19 @@ const Transactions = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-3 gap-2 sm:gap-4"
         >
-          <div className="stat-card p-4 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</p>
-            <p className="text-base font-bold text-income mt-1">{formatCurrency(filteredStats.income)}</p>
+          <div className="stat-card p-2.5 sm:p-4 text-center">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</p>
+            <p className="text-xs sm:text-base font-bold text-income mt-1 truncate">{formatCurrency(filteredStats.income)}</p>
           </div>
-          <div className="stat-card p-4 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expenses</p>
-            <p className="text-base font-bold text-expense mt-1">{formatCurrency(filteredStats.expenses)}</p>
+          <div className="stat-card p-2.5 sm:p-4 text-center">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expenses</p>
+            <p className="text-xs sm:text-base font-bold text-expense mt-1 truncate">{formatCurrency(filteredStats.expenses)}</p>
           </div>
-          <div className="stat-card p-4 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Net</p>
-            <p className={cn('text-base font-bold mt-1', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
+          <div className="stat-card p-2.5 sm:p-4 text-center">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Net</p>
+            <p className={cn('text-xs sm:text-base font-bold mt-1 truncate', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
               {formatCurrency(filteredStats.net)}
             </p>
           </div>
@@ -468,13 +485,17 @@ const Transactions = () => {
                             </span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-40">
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setEditingTransaction(transaction as Transaction)}>
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDuplicate(transaction as Transaction)}>
+                                  Duplicate
+                                </DropdownMenuItem>
                                 <DropdownMenuItem
                                   className="text-destructive focus:text-destructive"
                                   onClick={() => deleteTransaction.mutate(transaction.id)}
@@ -548,6 +569,11 @@ const Transactions = () => {
         </AnimatePresence>
       </div>
       <CSVImportModal open={isImportOpen} onOpenChange={setIsImportOpen} />
+      <EditTransactionModal
+        open={!!editingTransaction}
+        onOpenChange={(open) => !open && setEditingTransaction(null)}
+        transaction={editingTransaction}
+      />
     </>
   );
 };
