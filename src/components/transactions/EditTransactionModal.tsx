@@ -294,5 +294,17 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
         </form>
       </DialogContent>
     </Dialog>
+    <DuplicateWarningDialog
+      open={showDuplicateWarning}
+      onOpenChange={(o) => {
+        setShowDuplicateWarning(o);
+        if (!o) setDuplicateMatches([]);
+      }}
+      matches={duplicateMatches}
+      mode="edit"
+      isProcessing={updateTransaction.isPending}
+      onConfirm={persist}
+    />
+    </>
   );
 }
