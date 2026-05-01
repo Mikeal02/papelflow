@@ -74,6 +74,8 @@ const Transactions = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [pendingDuplicate, setPendingDuplicate] = useState<Transaction | null>(null);
+  const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
 
   const { data: transactions = [], isLoading } = useTransactions();
   const { data: accounts = [] } = useAccounts();
@@ -82,7 +84,7 @@ const Transactions = () => {
   const createTransaction = useCreateTransaction();
   const { formatCurrency } = useCurrency();
 
-  const handleDuplicate = async (t: Transaction) => {
+  const performDuplicate = async (t: Transaction) => {
     await createTransaction.mutateAsync({
       type: t.type,
       amount: Number(t.amount),
@@ -93,6 +95,27 @@ const Transactions = () => {
       payee: t.payee,
       notes: t.notes,
     });
+  };
+
+  const handleDuplicate = async (t: Transaction) => {
+    const matches = findDuplicates(
+      {
+        type: t.type,
+        amount: Number(t.amount),
+        date: new Date().toISOString().split('T')[0],
+        account_id: t.account_id,
+        category_id: t.category_id,
+        payee: t.payee,
+      },
+      transactions as any
+    );
+
+    if (matches.length > 0) {
+      setPendingDuplicate(t);
+      setDuplicateMatches(matches);
+      return;
+    }
+    await performDuplicate(t);
   };
 
   const dateInterval = useMemo(() => {
