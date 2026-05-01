@@ -87,7 +87,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">Add Transaction</DialogTitle>
           <DialogDescription>Record a new transaction for your accounts</DialogDescription>
