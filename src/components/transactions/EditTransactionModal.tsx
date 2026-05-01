@@ -123,6 +123,7 @@ export function EditTransactionModal({ open, onOpenChange, transaction }: EditTr
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
