@@ -240,7 +240,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
