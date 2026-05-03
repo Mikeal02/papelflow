@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Brain, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+import { IntelligenceEngine } from '@/components/analytics/IntelligenceEngine';
 import { FinancialPulse } from '@/components/analytics/FinancialPulse';
 import { SpendingHeatmap } from '@/components/analytics/SpendingHeatmap';
 import { VelocityTracker } from '@/components/analytics/VelocityTracker';
@@ -47,6 +48,9 @@ const Analytics = () => {
           </Badge>
         </div>
       </motion.div>
+
+      {/* Intelligence Engine — composite algorithmic layer */}
+      <IntelligenceEngine />
 
       {/* Main Analytics Grid */}
       <div className="grid gap-5 lg:grid-cols-3">
