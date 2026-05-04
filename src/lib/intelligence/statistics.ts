@@ -118,3 +118,69 @@ export function similarity(a: string, b: string): number {
   const max = Math.max(a.length, b.length);
   return max === 0 ? 1 : 1 - levenshtein(a, b) / max;
 }
+
+/**
+ * Hampel filter — replaces points more than `nSigmas` MADs from the rolling
+ * median with the median itself. Used to clean training series before regression.
+ * Returns { cleaned, outlierIndices }.
+ */
+export function hampelFilter(xs: number[], window = 7, nSigmas = 3): { cleaned: number[]; outlierIndices: number[] } {
+  const cleaned = [...xs];
+  const outliers: number[] = [];
+  const k = 1.4826;
+  for (let i = 0; i < xs.length; i++) {
+    const lo = Math.max(0, i - window);
+    const hi = Math.min(xs.length, i + window + 1);
+    const slice = xs.slice(lo, hi);
+    const { median: med, mad: m } = mad(slice);
+    const sigma = k * m;
+    if (sigma > 0 && Math.abs(xs[i] - med) > nSigmas * sigma) {
+      cleaned[i] = med;
+      outliers.push(i);
+    }
+  }
+  return { cleaned, outlierIndices: outliers };
+}
+
+/**
+ * Holt-Winters double exponential smoothing (no seasonality).
+ * Returns level + trend at the last step; useful for forward extrapolation.
+ */
+export function holtLinear(xs: number[], alpha = 0.4, beta = 0.2): { level: number; trend: number; fitted: number[] } {
+  if (!xs.length) return { level: 0, trend: 0, fitted: [] };
+  let level = xs[0];
+  let trend = xs.length > 1 ? xs[1] - xs[0] : 0;
+  const fitted: number[] = [level];
+  for (let i = 1; i < xs.length; i++) {
+    const prevLevel = level;
+    level = alpha * xs[i] + (1 - alpha) * (level + trend);
+    trend = beta * (level - prevLevel) + (1 - beta) * trend;
+    fitted.push(level + trend);
+  }
+  return { level, trend, fitted };
+}
+
+/** Find dominant period by autocorrelation peak in [minLag, maxLag]. */
+export function dominantPeriod(xs: number[], minLag = 2, maxLag = 60): { lag: number; strength: number } {
+  let best = { lag: 0, strength: -Infinity };
+  const cap = Math.min(maxLag, Math.floor(xs.length / 2));
+  for (let lag = minLag; lag <= cap; lag++) {
+    const a = autocorrelation(xs, lag);
+    if (a > best.strength) best = { lag, strength: a };
+  }
+  return best;
+}
+
+/** Shannon entropy of a discrete distribution (counts). */
+export function entropy(counts: number[]): number {
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (total === 0) return 0;
+  let h = 0;
+  for (const c of counts) {
+    if (c <= 0) continue;
+    const p = c / total;
+    h -= p * Math.log2(p);
+  }
+  return h;
+}
+
