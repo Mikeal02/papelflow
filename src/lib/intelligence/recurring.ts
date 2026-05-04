@@ -1,5 +1,6 @@
 import { differenceInDays, parseISO, addDays, format } from 'date-fns';
-import { similarity, autocorrelation, mean, welford } from './statistics';
+import { similarity, autocorrelation, mean, welford, dominantPeriod } from './statistics';
+import type { AlgorithmExplanation } from './explanations';
 
 export interface RecurringPattern {
   signature: string;
@@ -7,12 +8,18 @@ export interface RecurringPattern {
   averageAmount: number;
   amountStdev: number;
   intervalDays: number;
-  confidence: number; // 0-1
+  confidence: number;
   occurrences: number;
   nextPredictedDate: string;
   lastDate: string;
   cadence: 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
   totalAnnualCost: number;
+  contributingTxIds: string[];
+}
+
+export interface RecurringOutput {
+  results: RecurringPattern[];
+  explanation: AlgorithmExplanation;
 }
 
 interface Tx {
@@ -36,28 +43,45 @@ function normalize(s: string): string {
 }
 
 /**
- * Fuzzy-cluster transactions by payee similarity (>= 0.78 Jaro-ish via Levenshtein),
- * then for each cluster:
- *  - Compute inter-arrival intervals
- *  - Score candidate cadences with autocorrelation + interval stability
- *  - Predict next occurrence with EMA-corrected interval
+ * Elite recurring detection:
+ *  - Levenshtein-based payee fuzzy clustering (similarity ≥ 0.78)
+ *  - Per-cluster autocorrelation peak detection finds true periodicity
+ *  - Confidence blends interval stability, amount consistency, cadence match,
+ *    autocorrelation strength, and sample size
+ *  - Predicts next occurrence using cadence-snapped interval
  */
-export function detectRecurring(txs: Tx[]): RecurringPattern[] {
+export function detectRecurring(txs: Tx[]): RecurringOutput {
   const expenses = txs.filter(t => t.type === 'expense' && t.payee);
-  if (expenses.length < 3) return [];
+  const baseExpl = (summary: string, patterns: RecurringPattern[] = []): AlgorithmExplanation => ({
+    algorithm: 'Recurring Detection',
+    summary,
+    method: 'Levenshtein fuzzy clustering + autocorrelation periodicity',
+    formula: 'conf = 0.30·stability + 0.25·amountConsistency + 0.20·acfStrength + cadenceBonus + sampleBonus',
+    features: [
+      { name: 'Clusters analyzed', value: patterns.length, description: 'Each cluster groups merchants whose names are ≥78% similar.' },
+      { name: 'Total annual cost', value: patterns.reduce((s, r) => s + r.totalAnnualCost, 0).toFixed(2), description: 'Sum of average amounts annualized by cadence.' },
+    ],
+    evidence: patterns.slice(0, 6).map(r => ({
+      date: r.lastDate, payee: r.payee, amount: r.averageAmount,
+      reason: `${r.cadence} · next ~${r.nextPredictedDate} · ${Math.round(r.confidence * 100)}% conf`,
+      weight: r.confidence,
+    })),
+    diagnostics: [
+      { label: 'Expenses with payee', value: `${expenses.length}` },
+      { label: 'Patterns surfaced', value: `${patterns.length}` },
+    ],
+    confidence: patterns.length ? mean(patterns.map(p => p.confidence)) : 0,
+  });
 
-  // Cluster payees
+  if (expenses.length < 3) return { results: [], explanation: baseExpl('Need at least 3 payee-tagged expenses to detect recurrence.') };
+
   const clusters: { key: string; items: Tx[] }[] = [];
   for (const t of expenses) {
     const norm = normalize(t.payee!);
     if (!norm) continue;
     let added = false;
     for (const c of clusters) {
-      if (similarity(norm, c.key) >= 0.78) {
-        c.items.push(t);
-        added = true;
-        break;
-      }
+      if (similarity(norm, c.key) >= 0.78) { c.items.push(t); added = true; break; }
     }
     if (!added) clusters.push({ key: norm, items: [t] });
   }
@@ -74,34 +98,34 @@ export function detectRecurring(txs: Tx[]): RecurringPattern[] {
     if (!intervals.length) continue;
 
     const { mean: avgInterval, stdev: intervalStdev } = welford(intervals);
-    if (avgInterval < 4) continue; // ignore burst noise
+    if (avgInterval < 4) continue;
 
-    // Match to nearest cadence bucket
     const bucket = CADENCE_BUCKETS.reduce((best, b) =>
       Math.abs(b.days - avgInterval) < Math.abs(best.days - avgInterval) ? b : best
     );
-
     const inBucket = Math.abs(bucket.days - avgInterval) <= bucket.tolerance;
     const cadence = inBucket ? bucket.label : 'custom';
 
-    // Confidence: inverse coefficient of variation + cadence match + sample bonus
+    // Autocorrelation strength on the interval series boosts confidence
+    const acfStrength = intervals.length >= 4
+      ? Math.max(0, dominantPeriod(intervals, 1, Math.min(5, intervals.length - 1)).strength)
+      : 0;
+
     const cv = avgInterval > 0 ? intervalStdev / avgInterval : 1;
     const stability = Math.max(0, 1 - cv);
-    const cadenceBonus = inBucket ? 0.2 : 0;
+    const cadenceBonus = inBucket ? 0.15 : 0;
     const sampleBonus = Math.min(0.15, sorted.length * 0.025);
 
-    // Amount consistency
     const amounts = sorted.map(t => Number(t.amount));
     const { mean: avgAmt, stdev: amtStdev } = welford(amounts);
     const amountConsistency = avgAmt > 0 ? Math.max(0, 1 - amtStdev / avgAmt) : 0;
 
-    const confidence = Math.min(1, 0.35 * stability + 0.25 * amountConsistency + cadenceBonus + sampleBonus + 0.1);
+    const confidence = Math.min(1, 0.30 * stability + 0.25 * amountConsistency + 0.20 * acfStrength + cadenceBonus + sampleBonus + 0.05);
     if (confidence < 0.4 || sorted.length < 3) continue;
 
     const lastDate = sorted[sorted.length - 1].date;
     const predictedInterval = inBucket ? bucket.days : Math.round(avgInterval);
     const nextDate = format(addDays(parseISO(lastDate), predictedInterval), 'yyyy-MM-dd');
-
     const annualMultiplier = 365 / Math.max(1, predictedInterval);
 
     patterns.push({
@@ -116,11 +140,20 @@ export function detectRecurring(txs: Tx[]): RecurringPattern[] {
       lastDate,
       cadence,
       totalAnnualCost: avgAmt * annualMultiplier,
+      contributingTxIds: sorted.map(t => t.id),
     });
   }
 
-  return patterns.sort((a, b) => b.totalAnnualCost - a.totalAnnualCost);
+  patterns.sort((a, b) => b.totalAnnualCost - a.totalAnnualCost);
+  return {
+    results: patterns,
+    explanation: baseExpl(
+      patterns.length
+        ? `Detected ${patterns.length} recurring pattern${patterns.length > 1 ? 's' : ''} totaling ${patterns.reduce((s, r) => s + r.totalAnnualCost, 0).toFixed(0)}/yr.`
+        : 'No stable recurring patterns yet — keep logging transactions.',
+      patterns,
+    ),
+  };
 }
 
-// Re-export for convenience
 export { autocorrelation, mean };
