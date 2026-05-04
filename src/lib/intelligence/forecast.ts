@@ -1,5 +1,6 @@
-import { parseISO, format, addDays, startOfMonth, differenceInDays } from 'date-fns';
-import { ema, linearRegression, welford, percentile } from './statistics';
+import { parseISO, format, addDays } from 'date-fns';
+import { ema, linearRegression, welford, percentile, hampelFilter, holtLinear } from './statistics';
+import type { AlgorithmExplanation } from './explanations';
 
 interface Tx {
   amount: number | string;
@@ -12,17 +13,20 @@ export interface CashflowForecast {
   endOfMonthBalance: number;
   endOfMonthLower: number;
   endOfMonthUpper: number;
-  burnRate: number; // avg net daily
+  burnRate: number;
   runwayDays: number | null;
   trend: 'improving' | 'declining' | 'stable';
-  trendStrength: number; // r²
+  trendStrength: number;
+  explanation: AlgorithmExplanation;
 }
 
 /**
- * Hybrid cashflow forecast:
- *  1. Aggregates daily net (income - expense) over last 90d
- *  2. Decomposes into trend (linear regression) + level (EMA)
- *  3. Runs 1,000-iteration Monte Carlo using residual distribution for confidence bands
+ * Elite cashflow forecast:
+ *  1. Aggregate daily net (income - expense) over last 90d
+ *  2. Hampel filter neutralizes one-off spikes that would skew regression
+ *  3. Holt linear smoothing extracts level + trend (more robust than pure OLS)
+ *  4. Linear regression provides r² and slope for direction confidence
+ *  5. Monte Carlo (default 1,000 iters) using residual stdev → 10/50/90 bands
  */
 export function forecastCashflow(
   txs: Tx[],
@@ -33,7 +37,6 @@ export function forecastCashflow(
   const today = new Date();
   const start = addDays(today, -90);
 
-  // Bucket daily net
   const netByDay = new Map<string, number>();
   for (const t of txs) {
     const d = parseISO(t.date);
@@ -49,15 +52,19 @@ export function forecastCashflow(
     series.push(netByDay.get(k) || 0);
   }
 
-  const { slope, intercept, r2 } = linearRegression(series);
-  const smoothed = ema(series, 0.2);
-  const baseline = smoothed[smoothed.length - 1] || 0;
+  // Hampel filter for clean trend extraction
+  const { cleaned, outlierIndices } = hampelFilter(series, 7, 3);
 
-  // Residuals for Monte Carlo
-  const residuals = series.map((v, i) => v - (slope * i + intercept));
+  const { slope, intercept, r2 } = linearRegression(cleaned);
+  const { level: hwLevel, trend: hwTrend } = holtLinear(cleaned, 0.4, 0.2);
+  const smoothed = ema(cleaned, 0.2);
+  // Blend Holt level with EMA for stability
+  const baseline = 0.6 * hwLevel + 0.4 * (smoothed[smoothed.length - 1] || 0);
+  const driftPerDay = 0.7 * hwTrend + 0.3 * slope;
+
+  const residuals = cleaned.map((v, i) => v - (slope * i + intercept));
   const { stdev: resStdev } = welford(residuals);
 
-  // Generate Monte Carlo trajectories
   const finalBalances: number[] = [];
   const dailyP50: number[] = new Array(horizonDays).fill(0);
   const dailyLower: number[] = new Array(horizonDays).fill(0);
@@ -68,16 +75,15 @@ export function forecastCashflow(
     let bal = currentBalance;
     const path: number[] = [];
     for (let d = 0; d < horizonDays; d++) {
-      const trend = baseline + slope * d * 0.3; // dampened forward trend
+      const drift = baseline + driftPerDay * d * 0.3;
       const shock = gaussian() * resStdev;
-      bal += trend + shock;
+      bal += drift + shock;
       path.push(bal);
     }
     trajectories.push(path);
     finalBalances.push(bal);
   }
 
-  // Percentile aggregation per day
   for (let d = 0; d < horizonDays; d++) {
     const slice = trajectories.map(p => p[d]);
     dailyP50[d] = percentile(slice, 0.5);
@@ -96,22 +102,49 @@ export function forecastCashflow(
   const runwayDays = burnRate < 0 ? Math.max(0, Math.floor(currentBalance / -burnRate)) : null;
 
   let trend: CashflowForecast['trend'] = 'stable';
-  if (slope > 1 && r2 > 0.1) trend = 'improving';
-  else if (slope < -1 && r2 > 0.1) trend = 'declining';
+  if (driftPerDay > 1 && r2 > 0.1) trend = 'improving';
+  else if (driftPerDay < -1 && r2 > 0.1) trend = 'declining';
+
+  const eomP50 = percentile(finalBalances, 0.5);
+  const eomLower = percentile(finalBalances, 0.1);
+  const eomUpper = percentile(finalBalances, 0.9);
+
+  const explanation: AlgorithmExplanation = {
+    algorithm: 'Cashflow Forecast',
+    summary: `30-day projected balance ${eomP50.toFixed(0)} (80% CI ${eomLower.toFixed(0)} → ${eomUpper.toFixed(0)}). Trend: ${trend} (r²=${r2.toFixed(2)}).`,
+    method: 'Hampel-cleaned series → Holt linear smoothing + OLS → Monte Carlo with Gaussian shocks',
+    formula: 'baseline = 0.6·HoltLevel + 0.4·EMA · drift = 0.7·HoltTrend + 0.3·slope · path[d] = bal + drift·d + N(0,σ_residual)',
+    features: [
+      { name: 'Holt level', value: hwLevel.toFixed(2), description: 'Smoothed current daily net flow.' },
+      { name: 'Holt trend', value: hwTrend.toFixed(3), description: 'Drift per day extracted by double-exponential smoothing.' },
+      { name: 'OLS slope', value: slope.toFixed(3), description: 'Linear regression slope on cleaned series.' },
+      { name: 'OLS r²', value: r2.toFixed(3), description: 'Variance explained by the trend line.', contribution: r2 },
+      { name: 'Residual σ', value: resStdev.toFixed(2), description: 'Stdev of regression residuals — drives Monte Carlo shock width.' },
+      { name: 'Hampel outliers removed', value: outlierIndices.length, description: 'One-off spikes neutralized before fitting trend.' },
+      { name: 'Monte Carlo iterations', value: iterations, description: 'Independent forward simulations.' },
+    ],
+    evidence: [],
+    diagnostics: [
+      { label: 'Series length', value: `${series.length} days` },
+      { label: 'Burn rate', value: `${burnRate.toFixed(2)}/day` },
+      { label: 'Runway', value: runwayDays === null ? '∞ (positive)' : `${runwayDays} days` },
+    ],
+    confidence: Math.min(1, 0.5 + r2 * 0.5),
+  };
 
   return {
     daily,
-    endOfMonthBalance: percentile(finalBalances, 0.5),
-    endOfMonthLower: percentile(finalBalances, 0.1),
-    endOfMonthUpper: percentile(finalBalances, 0.9),
+    endOfMonthBalance: eomP50,
+    endOfMonthLower: eomLower,
+    endOfMonthUpper: eomUpper,
     burnRate,
     runwayDays,
     trend,
     trendStrength: r2,
+    explanation,
   };
 }
 
-/** Box-Muller standard normal sample. */
 function gaussian(): number {
   let u = 0, v = 0;
   while (u === 0) u = Math.random();
