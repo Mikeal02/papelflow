@@ -14,6 +14,7 @@ import { memo, useMemo, useCallback } from 'react';
 import { useThemeTransition } from '@/hooks/useThemeTransition';
 import { Separator } from '@/components/ui/separator';
 import { useRoutePreloader } from '@/hooks/useRoutePreloader';
+import { ActionCenterTrigger } from '@/components/action-center/ActionCenterTrigger';
 
 const navGroups = [
   {
@@ -132,14 +133,17 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
             <Plus className="h-3.5 w-3.5" />
             New Transaction
           </Button>
-          <button
-            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          >
-            <Command className="h-3 w-3" />
-            <span>Quick Search</span>
-            <kbd className="ml-auto pointer-events-none inline-flex h-[18px] select-none items-center gap-0.5 rounded border border-border/50 bg-muted/50 px-1 font-mono text-[9px] font-medium text-muted-foreground/60">⌘K</kbd>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+              className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors border border-border/40"
+            >
+              <Command className="h-3 w-3" />
+              <span>Search</span>
+              <kbd className="ml-auto pointer-events-none inline-flex h-[16px] select-none items-center gap-0.5 rounded border border-border/50 bg-muted/50 px-1 font-mono text-[9px] font-medium text-muted-foreground/60">⌘K</kbd>
+            </button>
+            <ActionCenterTrigger />
+          </div>
         </div>
 
         {/* Grouped Navigation */}
