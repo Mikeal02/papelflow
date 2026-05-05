@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AnimatedLayout } from "@/components/layout/AnimatedLayout";
+import { ActionCenterProvider } from "@/contexts/ActionCenterContext";
 import { RouteLoadingFallback } from "@/components/ui/elite-skeleton";
 import Auth from "./pages/Auth";
 
@@ -46,6 +47,7 @@ const App = () => (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <AuthProvider>
         <CurrencyProvider>
+          <ActionCenterProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -74,6 +76,7 @@ const App = () => (
               </Routes>
             </BrowserRouter>
           </TooltipProvider>
+          </ActionCenterProvider>
         </CurrencyProvider>
       </AuthProvider>
     </ThemeProvider>
