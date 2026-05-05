@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { ActionCenterTrigger } from '@/components/action-center/ActionCenterTrigger';
 
 const bottomTabs = [
   { icon: LayoutDashboard, label: 'Home', path: '/' },
@@ -95,12 +96,14 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
             </div>
           </Link>
 
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
+          <div className="flex items-center gap-2">
+            <ActionCenterTrigger />
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background/98 backdrop-blur-2xl border-border/20 p-0">
               <div className="flex flex-col h-full">
                 <div className="flex items-center gap-2.5 h-14 px-5 border-b border-border/20">
@@ -176,7 +179,8 @@ export function MobileNav({ onAddTransaction }: MobileNavProps) {
                 </div>
               </div>
             </SheetContent>
-          </Sheet>
+            </Sheet>
+          </div>
         </div>
       </div>
 
