@@ -128,7 +128,7 @@ export function ActionCenter() {
             </div>
           )}
 
-          <div className="flex gap-1.5 mt-3 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+          <div className="flex gap-1.5 mt-3 overflow-x-auto -mx-1 px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {FILTERS.map(f => (
               <button
                 key={f.id}
