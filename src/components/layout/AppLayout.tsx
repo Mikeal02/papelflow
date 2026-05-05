@@ -4,6 +4,7 @@ import { MobileNav } from './MobileNav';
 import { AddTransactionModal } from '@/components/transactions/AddTransactionModal';
 import { FloatingActionMenu } from '@/components/ui/floating-action-menu';
 import { CommandPalette } from '@/components/CommandPalette';
+import { ActionCenter } from '@/components/action-center/ActionCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppLayoutProps {
@@ -44,6 +45,9 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
       />
+
+      {/* Global Action Center */}
+      <ActionCenter />
     </div>
   );
 });
