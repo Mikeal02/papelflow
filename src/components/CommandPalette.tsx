@@ -35,6 +35,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useActionCenterUI } from '@/contexts/ActionCenterContext';
 
 const pages = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/', keywords: 'home overview' },
@@ -63,6 +64,7 @@ export function CommandPalette({ onAddTransaction }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { setOpen: setActionCenterOpen } = useActionCenterUI();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -90,6 +92,11 @@ export function CommandPalette({ onAddTransaction }: CommandPaletteProps) {
             <Plus className="mr-2 h-4 w-4" />
             <span>Add Transaction</span>
             <span className="ml-auto text-xs text-muted-foreground">Quick add</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => setActionCenterOpen(true))}>
+            <Zap className="mr-2 h-4 w-4" />
+            <span>Open Action Center</span>
+            <span className="ml-auto text-xs text-muted-foreground">⌘J</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => setTheme(theme === 'dark' ? 'light' : 'dark'))}>
             {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
