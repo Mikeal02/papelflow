@@ -198,7 +198,7 @@ export function ActionCenter() {
 
   type FilterId = 'all' | ActionSeverity | ActionCategory;
   const filterOptions: { id: FilterId; label: string; n?: number }[] = ([
-    { id: 'all' as FilterId, label: 'All', n: total },
+    { id: 'all', label: 'All', n: total },
     { id: 'critical', label: 'Critical', n: counts.critical },
     { id: 'high', label: 'High', n: counts.high },
     { id: 'anomaly', label: 'Anomalies', n: byCategory.anomaly },
@@ -210,7 +210,7 @@ export function ActionCenter() {
     { id: 'goal', label: 'Goals', n: byCategory.goal },
     { id: 'health', label: 'Health', n: byCategory.health },
     { id: 'forecast', label: 'Forecast', n: byCategory.forecast },
-  ].filter(f => f.id === 'all' || (f.n ?? 0) > 0);
+  ] as { id: FilterId; label: string; n?: number }[]).filter(f => f.id === 'all' || (f.n ?? 0) > 0);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
