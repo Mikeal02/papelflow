@@ -196,8 +196,9 @@ export function ActionCenter() {
     refresh();
   };
 
-  const filterOptions: { id: 'all' | ActionSeverity | ActionCategory; label: string; n?: number }[] = [
-    { id: 'all', label: 'All', n: total },
+  type FilterId = 'all' | ActionSeverity | ActionCategory;
+  const filterOptions: { id: FilterId; label: string; n?: number }[] = ([
+    { id: 'all' as FilterId, label: 'All', n: total },
     { id: 'critical', label: 'Critical', n: counts.critical },
     { id: 'high', label: 'High', n: counts.high },
     { id: 'anomaly', label: 'Anomalies', n: byCategory.anomaly },
