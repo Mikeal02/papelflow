@@ -4,11 +4,15 @@ import { useTransactions } from './useTransactions';
 import { useBudgets } from './useBudgets';
 import { useSubscriptions } from './useSubscriptions';
 import { useGoals } from './useGoals';
-import { generateActions, summarizeBySeverity, type PriorityAction } from '@/lib/intelligence/actions';
+import { useAccounts } from './useAccounts';
+import { generateActions, summarizeBySeverity, summarizeByCategory, totalEffortMinutes, totalImpact, type PriorityAction } from '@/lib/intelligence/actions';
 
 export function useActionCenter(): {
   actions: PriorityAction[];
   counts: ReturnType<typeof summarizeBySeverity>;
+  byCategory: ReturnType<typeof summarizeByCategory>;
+  totalMinutes: number;
+  totalImpact: number;
   total: number;
   isLoading: boolean;
 } {
@@ -17,6 +21,7 @@ export function useActionCenter(): {
   const { data: budgets = [] } = useBudgets();
   const { data: subscriptions = [] } = useSubscriptions();
   const { data: goals = [] } = useGoals();
+  const { data: accounts = [] } = useAccounts();
 
   const actions = useMemo(() => {
     if (!report) return [];
@@ -26,12 +31,16 @@ export function useActionCenter(): {
       budgets: budgets as any[],
       subscriptions: subscriptions as any[],
       goals: goals as any[],
+      accounts: accounts as any[],
     });
-  }, [report, transactions, budgets, subscriptions, goals]);
+  }, [report, transactions, budgets, subscriptions, goals, accounts]);
 
   return {
     actions,
     counts: summarizeBySeverity(actions),
+    byCategory: summarizeByCategory(actions),
+    totalMinutes: totalEffortMinutes(actions),
+    totalImpact: totalImpact(actions),
     total: actions.length,
     isLoading: il,
   };
