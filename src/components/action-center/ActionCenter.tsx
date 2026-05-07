@@ -554,11 +554,12 @@ function ActionCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.15 } }}
-      transition={{ duration: 0.2, delay: Math.min(index * 0.015, 0.15) }}
+      transition={{ duration: 0.22, delay: Math.min(index * 0.02, 0.18), ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -2 }}
       className={cn(
-        'relative rounded-xl border bg-card/60 hover:bg-card/90 transition-colors overflow-hidden group',
-        selected ? 'border-primary/60 ring-1 ring-primary/30' : 'border-border/40',
-        pinned && 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary'
+        'elite-card shine-sweep relative group',
+        selected && 'ring-2 ring-primary/40 border-primary/50',
+        pinned && 'before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r before:bg-primary before:z-10'
       )}
     >
       {/* priority bar */}
