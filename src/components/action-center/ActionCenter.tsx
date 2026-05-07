@@ -216,15 +216,24 @@ export function ActionCenter() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col">
         {/* HEADER */}
-        <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/40 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/25 via-primary/10 to-accent/15 flex items-center justify-center border border-border/30 shadow-sm">
-              <Zap className="h-5 w-5 text-primary" />
+        <SheetHeader className="relative px-5 pt-5 pb-3 border-b border-border/40 space-y-3 mesh-bg overflow-hidden">
+          {/* Decorative orbs */}
+          <motion.div
+            aria-hidden
+            className="absolute -top-20 -right-16 w-56 h-56 rounded-full blur-3xl bg-primary/15 pointer-events-none"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <div className="relative flex items-center gap-3">
+            <div className="relative h-11 w-11 rounded-xl conic-ring bg-card flex items-center justify-center shadow-sm">
+              <Zap className="h-5 w-5 text-primary relative z-10" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-base font-bold tracking-tight">Action Center</SheetTitle>
-              <SheetDescription className="text-[11px]">
-                {total === 0 ? 'You are all caught up ✨' : `${total} prioritized insights · ⌘J`}
+              <SheetTitle className="text-base font-bold tracking-tight">
+                <span className="holo-ticker">Action Center</span>
+              </SheetTitle>
+              <SheetDescription className="text-[11px] eyebrow-bar">
+                {total === 0 ? 'You are all caught up' : `${total} prioritized insights · ⌘J`}
               </SheetDescription>
             </div>
             <DropdownMenu>
@@ -248,11 +257,11 @@ export function ActionCenter() {
 
           {/* SUMMARY TILES */}
           {total > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              <Stat label="Critical" value={counts.critical} tone="text-destructive" />
-              <Stat label="High" value={counts.high} tone="text-warning" />
-              <Stat label="Save / yr" value={Math.round(totalImpact)} tone="text-success" prefix="$" />
-              <Stat label="Time" value={totalMinutes} tone="text-foreground" suffix="m" />
+            <div className="relative grid grid-cols-4 gap-2">
+              <Stat label="Critical" value={counts.critical} tone="text-destructive" accent="--destructive" />
+              <Stat label="High" value={counts.high} tone="text-warning" accent="--warning" />
+              <Stat label="Save / yr" value={Math.round(totalImpact)} tone="text-success" accent="--success" prefix="$" />
+              <Stat label="Time" value={totalMinutes} tone="text-foreground" accent="--primary" suffix="m" />
             </div>
           )}
 
