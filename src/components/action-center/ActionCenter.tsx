@@ -493,9 +493,9 @@ function EmptyState({ filter, totalAll, tab }: { filter: string; totalAll: numbe
 function HistoryView({ entries, formatCurrency }: { entries: ActionHistoryEntry[]; formatCurrency: (n: number) => string }) {
   if (entries.length === 0) {
     return (
-      <div className="text-center py-12 px-4">
-        <div className="mx-auto h-12 w-12 rounded-2xl bg-muted/40 flex items-center justify-center mb-3">
-          <History className="h-5 w-5 text-muted-foreground" />
+      <div className="text-center py-12 px-4 elite-card mesh-bg">
+        <div className="mx-auto h-12 w-12 rounded-2xl conic-ring bg-card flex items-center justify-center mb-3">
+          <History className="h-5 w-5 text-muted-foreground relative z-10" />
         </div>
         <p className="text-sm font-semibold mb-1">No history yet</p>
         <p className="text-[11px] text-muted-foreground">Resolved, dismissed and snoozed actions will appear here.</p>
