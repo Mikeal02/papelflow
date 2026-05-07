@@ -91,28 +91,28 @@ export const QuickStats = memo(function QuickStats() {
       {quickStats.map((stat, i) => (
         <motion.div
           key={stat.label}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 + i * 0.05 }}
+          initial={{ opacity: 0, scale: 0.92, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 0.2 + i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+          whileHover={{ y: -3 }}
+          className="elite-card shine-sweep p-3 group"
         >
           <div
-            className={cn(
-              'rounded-xl p-3 bg-gradient-to-br border border-border/30 h-full',
-              'transition-all duration-200 hover:scale-[1.03] hover:shadow-md hover:border-border/50',
-              stat.color
+            aria-hidden
+            className={cn('absolute inset-0 opacity-60 bg-gradient-to-br pointer-events-none', stat.color)}
+          />
+          <div className="relative flex items-center justify-between mb-2">
+            <div className={cn('flex items-center justify-center h-7 w-7 rounded-lg bg-background/60 backdrop-blur-sm border border-border/40')}>
+              <stat.icon className={cn('h-3.5 w-3.5 shrink-0', stat.iconColor)} />
+            </div>
+            {stat.progress !== undefined && (
+              <ProgressRing progress={stat.progress} size={26} strokeWidth={3} color={stat.progressColor} showGlow={false} />
             )}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <stat.icon className={cn('h-4 w-4 shrink-0', stat.iconColor)} />
-              {stat.progress !== undefined && (
-                <ProgressRing progress={stat.progress} size={24} strokeWidth={3} color={stat.progressColor} showGlow={false} />
-              )}
-              {stat.trend && <span className="text-xs">{stat.trend}</span>}
-            </div>
-            <div className="min-w-0 overflow-hidden">
-              <CountUpValue value={stat.value} className="text-sm sm:text-base md:text-lg font-bold block truncate" duration={1000} />
-              <p className="text-[10px] text-muted-foreground truncate">{stat.sub || stat.label}</p>
-            </div>
+            {stat.trend && <span className="text-sm">{stat.trend}</span>}
+          </div>
+          <div className="relative min-w-0 overflow-hidden">
+            <CountUpValue value={stat.value} className="text-sm sm:text-base md:text-lg font-bold block truncate tnum" duration={1000} />
+            <p className="text-[10px] text-muted-foreground/80 truncate uppercase tracking-wider">{stat.sub || stat.label}</p>
           </div>
         </motion.div>
       ))}

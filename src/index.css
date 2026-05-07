@@ -1067,6 +1067,161 @@ html {
   animation: textShimmer 4s linear infinite;
 }
 
+/* ===================== ELITE++ UI LAYER ===================== */
+
+/* Mesh gradient background — multi-radial, ultra subtle */
+.mesh-bg {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(at 8% 12%, hsl(var(--primary) / 0.10) 0px, transparent 45%),
+    radial-gradient(at 92% 18%, hsl(var(--accent) / 0.08) 0px, transparent 50%),
+    radial-gradient(at 78% 88%, hsl(var(--chart-6) / 0.08) 0px, transparent 50%),
+    radial-gradient(at 18% 92%, hsl(var(--chart-4) / 0.06) 0px, transparent 55%);
+}
+
+/* Tactile grain noise overlay */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Conic gradient ring border (for badges, cards) */
+.conic-ring {
+  position: relative;
+  isolation: isolate;
+}
+.conic-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    hsl(var(--primary) / 0.6),
+    hsl(var(--accent) / 0.5),
+    hsl(var(--chart-6) / 0.55),
+    hsl(var(--chart-4) / 0.5),
+    hsl(var(--primary) / 0.6)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: angle-spin 8s linear infinite;
+  pointer-events: none;
+}
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes angle-spin {
+  to { --angle: 360deg; }
+}
+
+/* Premium card: layered depth, subtle inner highlight + perimeter glow on hover */
+.elite-card {
+  position: relative;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.92) 100%);
+  border: 1px solid hsl(var(--border) / 0.55);
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.05) inset,
+    0 1px 2px hsl(var(--foreground) / 0.04),
+    0 12px 28px -16px hsl(var(--foreground) / 0.10);
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .3s ease;
+  overflow: hidden;
+}
+.elite-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, -20%),
+    hsl(var(--primary) / 0.10), transparent 40%);
+  opacity: 0;
+  transition: opacity .4s ease;
+  pointer-events: none;
+}
+.elite-card:hover {
+  transform: translateY(-3px);
+  border-color: hsl(var(--primary) / 0.35);
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.08) inset,
+    0 8px 22px -12px hsl(var(--primary) / 0.30),
+    0 24px 48px -22px hsl(var(--foreground) / 0.18);
+}
+.elite-card:hover::after { opacity: 1; }
+
+/* Shine sweep across a card on hover */
+.shine-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.shine-sweep::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent 30%, hsl(0 0% 100% / 0.18) 50%, transparent 70%);
+  transform: skewX(-18deg);
+  transition: left .9s cubic-bezier(.22,1,.36,1);
+  pointer-events: none;
+}
+.shine-sweep:hover::before { left: 150%; }
+
+/* Holographic ticker text */
+.holo-ticker {
+  background: linear-gradient(90deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--accent)) 35%,
+    hsl(var(--chart-6)) 70%,
+    hsl(var(--primary)) 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: holo-flow 5s linear infinite;
+}
+@keyframes holo-flow { to { background-position: 250% center; } }
+
+/* Marquee for live status row */
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Section eyebrow with gradient bar */
+.eyebrow-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+.eyebrow-bar::before {
+  content: '';
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+}
+
+/* Tabular numerals helper (already used widely) */
+.tnum { font-variant-numeric: tabular-nums; }
+
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

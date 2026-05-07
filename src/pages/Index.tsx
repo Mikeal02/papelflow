@@ -46,8 +46,8 @@ WidgetFallback.displayName = 'WidgetFallback';
 
 const SectionHeader = memo(({ title, description }: { title: string; description?: string }) => (
   <div className="space-y-0.5 mb-3">
-    <h2 className="text-xs font-medium text-muted-foreground/60 uppercase tracking-[0.08em]">{title}</h2>
-    {description && <p className="text-xs text-muted-foreground/40">{description}</p>}
+    <h2 className="eyebrow-bar text-[11px] font-medium text-muted-foreground/70 uppercase tracking-[0.12em]">{title}</h2>
+    {description && <p className="text-xs text-muted-foreground/50 ml-6">{description}</p>}
   </div>
 ));
 SectionHeader.displayName = 'SectionHeader';
