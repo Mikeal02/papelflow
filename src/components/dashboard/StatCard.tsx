@@ -1,5 +1,5 @@
-import { useMemo, memo } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, memo, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTransactions } from '@/hooks/useTransactions';
