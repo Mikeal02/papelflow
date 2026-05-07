@@ -460,22 +460,33 @@ function Stat({ label, value, tone, prefix, suffix, accent }: { label: string; v
 
 function EmptyState({ filter, totalAll, tab }: { filter: string; totalAll: number; tab: string }) {
   return (
-    <div className="text-center py-12 px-4">
-      <div className="mx-auto h-12 w-12 rounded-2xl bg-success/10 flex items-center justify-center mb-3">
-        <Sparkles className="h-5 w-5 text-success" />
+    <motion.div
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      className="relative text-center py-14 px-4 elite-card mesh-bg overflow-hidden"
+    >
+      <motion.div
+        aria-hidden
+        className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full blur-3xl bg-success/15 pointer-events-none"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="relative">
+        <div className="mx-auto h-14 w-14 rounded-2xl conic-ring bg-card flex items-center justify-center mb-3">
+          <Sparkles className="h-6 w-6 text-success relative z-10" />
+        </div>
+        <p className="text-sm font-semibold mb-1 holo-ticker inline-block">
+          {tab === 'pinned' ? 'No pinned insights' :
+            totalAll === 0 ? 'Nothing needs your attention' : `No ${filter} items match`}
+        </p>
+        <p className="text-[11px] text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
+          {tab === 'pinned'
+            ? 'Pin any action to keep it at the top of your inbox across sessions.'
+            : totalAll === 0
+              ? 'Anomaly detection, recurring trackers, savings monitors, and budget watchers will surface insights here.'
+              : 'Try a different filter, search term, or grouping.'}
+        </p>
       </div>
-      <p className="text-sm font-semibold mb-1">
-        {tab === 'pinned' ? 'No pinned insights' :
-          totalAll === 0 ? 'Nothing needs your attention' : `No ${filter} items match`}
-      </p>
-      <p className="text-[11px] text-muted-foreground max-w-[260px] mx-auto">
-        {tab === 'pinned'
-          ? 'Pin any action to keep it at the top of your inbox across sessions.'
-          : totalAll === 0
-            ? 'Anomaly detection, recurring trackers, savings monitors, and budget watchers will surface insights here.'
-            : 'Try a different filter, search term, or grouping.'}
-      </p>
-    </div>
+    </motion.div>
   );
 }
 
