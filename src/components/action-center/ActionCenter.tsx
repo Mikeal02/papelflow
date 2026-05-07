@@ -441,13 +441,19 @@ export function ActionCenter() {
   );
 }
 
-function Stat({ label, value, tone, prefix, suffix }: { label: string; value: number; tone: string; prefix?: string; suffix?: string }) {
+function Stat({ label, value, tone, prefix, suffix, accent }: { label: string; value: number; tone: string; prefix?: string; suffix?: string; accent?: string }) {
   return (
-    <div className="rounded-lg bg-muted/30 border border-border/30 px-2 py-1.5 text-center">
+    <div className="elite-card p-2 text-center overflow-hidden">
+      {accent && (
+        <div
+          className="absolute inset-x-0 top-0 h-[2px] opacity-70"
+          style={{ background: `linear-gradient(90deg, transparent, hsl(var(${accent})), transparent)` }}
+        />
+      )}
       <div className={cn('text-base font-bold tabular-nums leading-none', tone)}>
         {prefix}{value}{suffix}
       </div>
-      <div className="text-[9px] text-muted-foreground uppercase tracking-wide mt-0.5 truncate">{label}</div>
+      <div className="text-[9px] text-muted-foreground uppercase tracking-wide mt-1 truncate">{label}</div>
     </div>
   );
 }
