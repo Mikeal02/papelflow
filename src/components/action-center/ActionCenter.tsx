@@ -216,15 +216,24 @@ export function ActionCenter() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col">
         {/* HEADER */}
-        <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/40 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/25 via-primary/10 to-accent/15 flex items-center justify-center border border-border/30 shadow-sm">
-              <Zap className="h-5 w-5 text-primary" />
+        <SheetHeader className="relative px-5 pt-5 pb-3 border-b border-border/40 space-y-3 mesh-bg overflow-hidden">
+          {/* Decorative orbs */}
+          <motion.div
+            aria-hidden
+            className="absolute -top-20 -right-16 w-56 h-56 rounded-full blur-3xl bg-primary/15 pointer-events-none"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <div className="relative flex items-center gap-3">
+            <div className="relative h-11 w-11 rounded-xl conic-ring bg-card flex items-center justify-center shadow-sm">
+              <Zap className="h-5 w-5 text-primary relative z-10" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-base font-bold tracking-tight">Action Center</SheetTitle>
-              <SheetDescription className="text-[11px]">
-                {total === 0 ? 'You are all caught up ✨' : `${total} prioritized insights · ⌘J`}
+              <SheetTitle className="text-base font-bold tracking-tight">
+                <span className="holo-ticker">Action Center</span>
+              </SheetTitle>
+              <SheetDescription className="text-[11px] eyebrow-bar">
+                {total === 0 ? 'You are all caught up' : `${total} prioritized insights · ⌘J`}
               </SheetDescription>
             </div>
             <DropdownMenu>
@@ -248,11 +257,11 @@ export function ActionCenter() {
 
           {/* SUMMARY TILES */}
           {total > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              <Stat label="Critical" value={counts.critical} tone="text-destructive" />
-              <Stat label="High" value={counts.high} tone="text-warning" />
-              <Stat label="Save / yr" value={Math.round(totalImpact)} tone="text-success" prefix="$" />
-              <Stat label="Time" value={totalMinutes} tone="text-foreground" suffix="m" />
+            <div className="relative grid grid-cols-4 gap-2">
+              <Stat label="Critical" value={counts.critical} tone="text-destructive" accent="--destructive" />
+              <Stat label="High" value={counts.high} tone="text-warning" accent="--warning" />
+              <Stat label="Save / yr" value={Math.round(totalImpact)} tone="text-success" accent="--success" prefix="$" />
+              <Stat label="Time" value={totalMinutes} tone="text-foreground" accent="--primary" suffix="m" />
             </div>
           )}
 
@@ -432,44 +441,61 @@ export function ActionCenter() {
   );
 }
 
-function Stat({ label, value, tone, prefix, suffix }: { label: string; value: number; tone: string; prefix?: string; suffix?: string }) {
+function Stat({ label, value, tone, prefix, suffix, accent }: { label: string; value: number; tone: string; prefix?: string; suffix?: string; accent?: string }) {
   return (
-    <div className="rounded-lg bg-muted/30 border border-border/30 px-2 py-1.5 text-center">
+    <div className="elite-card p-2 text-center overflow-hidden">
+      {accent && (
+        <div
+          className="absolute inset-x-0 top-0 h-[2px] opacity-70"
+          style={{ background: `linear-gradient(90deg, transparent, hsl(var(${accent})), transparent)` }}
+        />
+      )}
       <div className={cn('text-base font-bold tabular-nums leading-none', tone)}>
         {prefix}{value}{suffix}
       </div>
-      <div className="text-[9px] text-muted-foreground uppercase tracking-wide mt-0.5 truncate">{label}</div>
+      <div className="text-[9px] text-muted-foreground uppercase tracking-wide mt-1 truncate">{label}</div>
     </div>
   );
 }
 
 function EmptyState({ filter, totalAll, tab }: { filter: string; totalAll: number; tab: string }) {
   return (
-    <div className="text-center py-12 px-4">
-      <div className="mx-auto h-12 w-12 rounded-2xl bg-success/10 flex items-center justify-center mb-3">
-        <Sparkles className="h-5 w-5 text-success" />
+    <motion.div
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      className="relative text-center py-14 px-4 elite-card mesh-bg overflow-hidden"
+    >
+      <motion.div
+        aria-hidden
+        className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full blur-3xl bg-success/15 pointer-events-none"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="relative">
+        <div className="mx-auto h-14 w-14 rounded-2xl conic-ring bg-card flex items-center justify-center mb-3">
+          <Sparkles className="h-6 w-6 text-success relative z-10" />
+        </div>
+        <p className="text-sm font-semibold mb-1 holo-ticker inline-block">
+          {tab === 'pinned' ? 'No pinned insights' :
+            totalAll === 0 ? 'Nothing needs your attention' : `No ${filter} items match`}
+        </p>
+        <p className="text-[11px] text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
+          {tab === 'pinned'
+            ? 'Pin any action to keep it at the top of your inbox across sessions.'
+            : totalAll === 0
+              ? 'Anomaly detection, recurring trackers, savings monitors, and budget watchers will surface insights here.'
+              : 'Try a different filter, search term, or grouping.'}
+        </p>
       </div>
-      <p className="text-sm font-semibold mb-1">
-        {tab === 'pinned' ? 'No pinned insights' :
-          totalAll === 0 ? 'Nothing needs your attention' : `No ${filter} items match`}
-      </p>
-      <p className="text-[11px] text-muted-foreground max-w-[260px] mx-auto">
-        {tab === 'pinned'
-          ? 'Pin any action to keep it at the top of your inbox across sessions.'
-          : totalAll === 0
-            ? 'Anomaly detection, recurring trackers, savings monitors, and budget watchers will surface insights here.'
-            : 'Try a different filter, search term, or grouping.'}
-      </p>
-    </div>
+    </motion.div>
   );
 }
 
 function HistoryView({ entries, formatCurrency }: { entries: ActionHistoryEntry[]; formatCurrency: (n: number) => string }) {
   if (entries.length === 0) {
     return (
-      <div className="text-center py-12 px-4">
-        <div className="mx-auto h-12 w-12 rounded-2xl bg-muted/40 flex items-center justify-center mb-3">
-          <History className="h-5 w-5 text-muted-foreground" />
+      <div className="text-center py-12 px-4 elite-card mesh-bg">
+        <div className="mx-auto h-12 w-12 rounded-2xl conic-ring bg-card flex items-center justify-center mb-3">
+          <History className="h-5 w-5 text-muted-foreground relative z-10" />
         </div>
         <p className="text-sm font-semibold mb-1">No history yet</p>
         <p className="text-[11px] text-muted-foreground">Resolved, dismissed and snoozed actions will appear here.</p>
@@ -528,11 +554,12 @@ function ActionCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.15 } }}
-      transition={{ duration: 0.2, delay: Math.min(index * 0.015, 0.15) }}
+      transition={{ duration: 0.22, delay: Math.min(index * 0.02, 0.18), ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -2 }}
       className={cn(
-        'relative rounded-xl border bg-card/60 hover:bg-card/90 transition-colors overflow-hidden group',
-        selected ? 'border-primary/60 ring-1 ring-primary/30' : 'border-border/40',
-        pinned && 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary'
+        'elite-card shine-sweep relative group',
+        selected && 'ring-2 ring-primary/40 border-primary/50',
+        pinned && 'before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r before:bg-primary before:z-10'
       )}
     >
       {/* priority bar */}
@@ -548,8 +575,8 @@ function ActionCard({
             className="mt-0.5 h-3.5 w-3.5"
             aria-label="Select"
           />
-          <div className={cn('h-8 w-8 rounded-lg bg-muted/40 ring-1 flex items-center justify-center shrink-0', tone.ring)}>
-            <Icon className={cn('h-4 w-4', tone.label)} />
+          <div className={cn('relative h-9 w-9 rounded-xl conic-ring bg-card flex items-center justify-center shrink-0')}>
+            <Icon className={cn('h-4 w-4 relative z-10', tone.label)} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">

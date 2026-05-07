@@ -2,11 +2,18 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, onMouseMove, ...props }, ref) => (
   <div
     ref={ref}
+    onMouseMove={(e) => {
+      const el = e.currentTarget as HTMLDivElement;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
+      el.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
+      onMouseMove?.(e);
+    }}
     className={cn(
-      "rounded-xl border border-border/50 bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:border-border/70 overflow-hidden",
+      "elite-card shine-sweep text-card-foreground",
       className,
     )}
     {...props}
