@@ -575,8 +575,8 @@ function ActionCard({
             className="mt-0.5 h-3.5 w-3.5"
             aria-label="Select"
           />
-          <div className={cn('h-8 w-8 rounded-lg bg-muted/40 ring-1 flex items-center justify-center shrink-0', tone.ring)}>
-            <Icon className={cn('h-4 w-4', tone.label)} />
+          <div className={cn('relative h-9 w-9 rounded-xl conic-ring bg-card flex items-center justify-center shrink-0')}>
+            <Icon className={cn('h-4 w-4 relative z-10', tone.label)} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
