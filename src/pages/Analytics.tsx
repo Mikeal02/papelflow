@@ -10,6 +10,8 @@ import { AnomalyDetector } from '@/components/analytics/AnomalyDetector';
 import { CategoryTreemap } from '@/components/analytics/CategoryTreemap';
 import { MerchantIntelligence } from '@/components/analytics/MerchantIntelligence';
 import { TimePatternAnalysis } from '@/components/analytics/TimePatternAnalysis';
+import { ScenarioLab } from '@/components/analytics/ScenarioLab';
+import { SpendingDNA } from '@/components/analytics/SpendingDNA';
 
 const Analytics = () => {
   return (
@@ -51,6 +53,10 @@ const Analytics = () => {
 
       {/* Intelligence Engine — composite algorithmic layer */}
       <IntelligenceEngine />
+
+      {/* Elite features */}
+      <ScenarioLab />
+      <SpendingDNA />
 
       {/* Main Analytics Grid */}
       <div className="grid gap-5 lg:grid-cols-3">
