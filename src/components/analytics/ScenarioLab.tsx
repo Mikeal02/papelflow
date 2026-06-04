@@ -277,6 +277,9 @@ export function ScenarioLab() {
                       <Area type="monotone" dataKey="p50" stroke="hsl(var(--primary))" strokeWidth={2} fill="none" />
                       <Area type="monotone" dataKey="p25" stroke="hsl(var(--primary))" strokeOpacity={0.5} fill="none" />
                       <Area type="monotone" dataKey="p5"  stroke="hsl(var(--primary))" strokeOpacity={0.3} fill="none" />
+                      {[0,1,2,3,4,5].map(k => (
+                        <Area key={k} type="monotone" dataKey={`s${k}`} stroke="hsl(var(--accent))" strokeOpacity={0.35} strokeWidth={1} fill="none" dot={false} isAnimationActive={false} connectNulls />
+                      ))}
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
