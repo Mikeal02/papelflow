@@ -21,11 +21,21 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export function SpendingDNA() {
   const { data: transactions = [] } = useTransactions();
   const report = useMemo(() => analyzeSpendingDna(transactions as any[]), [transactions]);
+  const markov = useMemo(() => buildMerchantMarkov(transactions as any[], 8), [transactions]);
+  const drift = useMemo(() => analyzeDrift(transactions as any[]), [transactions]);
+  const shadow = useMemo(() => simulateShadowGenome(report), [report]);
+  const forecast = useMemo(() => forecast30DaySpend(transactions as any[]), [transactions]);
 
   const radarData = report.genome.map(g => ({
     axis: g.label.split(' ')[0],
     you: Math.round(g.value),
     peer: Math.round(g.benchmark),
+  }));
+
+  const shadowRadar = shadow.shadow.map((s, i) => ({
+    axis: s.label.split(' ')[0],
+    current: Math.round(shadow.current[i].value),
+    shadow: Math.round(s.value),
   }));
 
   return (
