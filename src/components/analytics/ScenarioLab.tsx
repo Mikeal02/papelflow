@@ -1,8 +1,8 @@
 import { useMemo, useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
-import { FlaskConical, Play, Sliders, TrendingUp, AlertTriangle, Target, Activity, Zap } from 'lucide-react';
+import { FlaskConical, Play, Sliders, TrendingUp, AlertTriangle, Target, Activity, Zap, Gauge, Compass, Wand2, ShieldAlert } from 'lucide-react';
 import {
-  Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine,
+  Area, AreaChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Bar, BarChart,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
-import { runScenarioLab, DEFAULT_SCENARIO_INPUTS, type ScenarioInputs, type ScenarioReport } from '@/lib/intelligence/scenarioLab';
+import {
+  runScenarioLab, DEFAULT_SCENARIO_INPUTS, runSensitivityAnalysis, optimizeContribution,
+  findSafeWithdrawalRate, analyzeSequenceRisk, sampleTrajectories,
+  type ScenarioInputs, type ScenarioReport, type SensitivityReport, type OptimizerResult,
+  type WithdrawalReport, type SequenceRiskReport,
+} from '@/lib/intelligence/scenarioLab';
 import { cn } from '@/lib/utils';
+
 
 function fmt(v: number): string {
   if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
@@ -76,6 +82,11 @@ export function ScenarioLab() {
 
   const [inputs, setInputs] = useState<ScenarioInputs>(seeded);
   const [report, setReport] = useState<ScenarioReport | null>(null);
+  const [sensitivity, setSensitivity] = useState<SensitivityReport | null>(null);
+  const [optimizer, setOptimizer] = useState<OptimizerResult | null>(null);
+  const [withdrawal, setWithdrawal] = useState<WithdrawalReport | null>(null);
+  const [sequence, setSequence] = useState<SequenceRiskReport | null>(null);
+  const [savedScenarios, setSavedScenarios] = useState<{ name: string; report: ScenarioReport; inputs: ScenarioInputs }[]>([]);
 
   const update = <K extends keyof ScenarioInputs>(k: K, v: ScenarioInputs[K]) =>
     setInputs(prev => ({ ...prev, [k]: v }));
@@ -84,17 +95,39 @@ export function ScenarioLab() {
     startTransition(() => {
       const r = runScenarioLab(inputs);
       setReport(r);
+      // Reset derived analyses on a fresh run
+      setSensitivity(null); setOptimizer(null); setWithdrawal(null); setSequence(null);
     });
   };
 
-  const chartData = useMemo(() => report?.bands.map(b => ({
-    year: (b.month / 12).toFixed(1),
-    p5: Math.round(b.p5),
-    p25: Math.round(b.p25),
-    p50: Math.round(b.p50),
-    p75: Math.round(b.p75),
-    p95: Math.round(b.p95),
-  })) ?? [], [report]);
+  const handleSensitivity = () => startTransition(() => setSensitivity(runSensitivityAnalysis(inputs, 500)));
+  const handleOptimize = () => startTransition(() => setOptimizer(optimizeContribution(inputs, 0.8, 500, 12)));
+  const handleWithdrawal = () => startTransition(() => {
+    if (!report) return;
+    setWithdrawal(findSafeWithdrawalRate(report.endpointP50, inputs, 30, 0.95, 700));
+  });
+  const handleSequence = () => startTransition(() => setSequence(analyzeSequenceRisk(inputs, 600)));
+  const handleSave = () => {
+    if (!report) return;
+    setSavedScenarios(prev => [...prev, { name: `Scenario ${prev.length + 1}`, report, inputs: { ...inputs } }].slice(-4));
+  };
+
+  const spaghetti = useMemo(() => report ? sampleTrajectories(inputs, 6) : [], [report, inputs]);
+
+  const chartData = useMemo(() => {
+    if (!report) return [];
+    return report.bands.map(b => {
+      const yr = (b.month / 12).toFixed(1);
+      const row: any = { year: yr, p5: Math.round(b.p5), p25: Math.round(b.p25), p50: Math.round(b.p50), p75: Math.round(b.p75), p95: Math.round(b.p95) };
+      // Attach spaghetti paths by month
+      for (let k = 0; k < 6; k++) {
+        const found = spaghetti.find(s => s.path === k && s.month === b.month);
+        if (found) row['s' + k] = found.value;
+      }
+      return row;
+    });
+  }, [report, spaghetti]);
+
 
   return (
     <Card className="elite-card overflow-hidden">
@@ -186,11 +219,18 @@ export function ScenarioLab() {
             </div>
           ) : (
             <Tabs defaultValue="forecast" className="space-y-4">
-              <TabsList className="grid grid-cols-3 max-w-md">
-                <TabsTrigger value="forecast">Forecast</TabsTrigger>
-                <TabsTrigger value="stress">Stress Tests</TabsTrigger>
-                <TabsTrigger value="metrics">Metrics</TabsTrigger>
-              </TabsList>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <TabsList className="grid grid-cols-5 max-w-2xl">
+                  <TabsTrigger value="forecast">Forecast</TabsTrigger>
+                  <TabsTrigger value="stress">Stress</TabsTrigger>
+                  <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
+                  <TabsTrigger value="optimize">Optimize</TabsTrigger>
+                  <TabsTrigger value="metrics">Metrics</TabsTrigger>
+                </TabsList>
+                <Button size="sm" variant="outline" onClick={handleSave} className="gap-1.5 text-xs h-7">
+                  <Wand2 className="h-3 w-3" /> Snapshot
+                </Button>
+              </div>
 
               {/* FORECAST */}
               <TabsContent value="forecast" className="space-y-4 m-0">
@@ -237,6 +277,9 @@ export function ScenarioLab() {
                       <Area type="monotone" dataKey="p50" stroke="hsl(var(--primary))" strokeWidth={2} fill="none" />
                       <Area type="monotone" dataKey="p25" stroke="hsl(var(--primary))" strokeOpacity={0.5} fill="none" />
                       <Area type="monotone" dataKey="p5"  stroke="hsl(var(--primary))" strokeOpacity={0.3} fill="none" />
+                      {[0,1,2,3,4,5].map(k => (
+                        <Area key={k} type="monotone" dataKey={`s${k}`} stroke="hsl(var(--accent))" strokeOpacity={0.35} strokeWidth={1} fill="none" dot={false} isAnimationActive={false} connectNulls />
+                      ))}
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -301,7 +344,190 @@ export function ScenarioLab() {
                 </div>
               </TabsContent>
 
-              {/* METRICS */}
+              {/* SENSITIVITY */}
+              <TabsContent value="sensitivity" className="space-y-3 m-0">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Gauge className="h-3.5 w-3.5 text-primary" /> Tornado analysis — perturbs each parameter ±15–50% and re-runs ~500 trajectories.
+                  </div>
+                  <Button size="sm" onClick={handleSensitivity} disabled={isPending} className="gap-1.5 text-xs h-7">
+                    <Play className="h-3 w-3" /> {sensitivity ? 'Re-run' : 'Analyze'}
+                  </Button>
+                </div>
+                {!sensitivity ? (
+                  <div className="rounded-xl border border-dashed border-border/40 p-6 text-center text-xs text-muted-foreground">
+                    Run the sensitivity sweep to rank drivers of your wealth outcome by elasticity.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart layout="vertical" data={sensitivity.results.map(r => ({
+                          label: r.label,
+                          low: r.lowEndpointP50 - sensitivity.base.endpointP50,
+                          high: r.highEndpointP50 - sensitivity.base.endpointP50,
+                          elasticity: r.elasticity,
+                        }))} margin={{ top: 4, right: 20, left: 80, bottom: 4 }}>
+                          <XAxis type="number" tickFormatter={(v) => fmt(Number(v))} tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                          <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={120} stroke="hsl(var(--muted-foreground))" />
+                          <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }} formatter={(v: number) => fmt(v)} />
+                          <ReferenceLine x={0} stroke="hsl(var(--border))" />
+                          <Bar dataKey="low" stackId="a" fill="hsl(var(--expense))" fillOpacity={0.7} />
+                          <Bar dataKey="high" stackId="a" fill="hsl(var(--income))" fillOpacity={0.7} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {sensitivity.results.slice(0, 6).map(r => (
+                        <div key={r.parameter} className="rounded-lg border border-border/30 bg-card/60 backdrop-blur-sm p-2.5 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">{r.label}</span>
+                            <Badge variant="secondary" className="text-[10px]">ε = {r.elasticity.toFixed(2)}</Badge>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+                            Swing {fmt(r.swing)} · success {(r.lowSuccess * 100).toFixed(0)}% → {(r.highSuccess * 100).toFixed(0)}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* OPTIMIZE */}
+              <TabsContent value="optimize" className="space-y-3 m-0">
+                <div className="grid md:grid-cols-3 gap-3">
+                  {/* Contribution optimizer */}
+                  <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3.5 space-y-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <Target className="h-3.5 w-3.5 text-primary" />
+                      <div className="text-xs font-semibold">Contribution Optimizer</div>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">Binary search for the monthly $ needed to hit ≥80% success.</div>
+                    <Button size="sm" onClick={handleOptimize} disabled={isPending} className="w-full gap-1.5 text-xs h-7">
+                      <Play className="h-3 w-3" /> {optimizer ? 'Re-optimize' : 'Optimize'}
+                    </Button>
+                    {optimizer && (
+                      <div className="space-y-1.5 pt-1">
+                        {optimizer.contributionRequired === null ? (
+                          <div className="text-xs text-expense font-semibold">Infeasible at current parameters.</div>
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Required</span>
+                              <span className="font-mono font-bold tabular-nums">{fmt(optimizer.contributionRequired)}/mo</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Δ vs current</span>
+                              <span className={cn('font-mono tabular-nums font-medium', optimizer.delta > 0 ? 'text-expense' : 'text-income')}>
+                                {optimizer.delta > 0 ? '+' : ''}{fmt(optimizer.delta)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Success</span>
+                              <span className="font-mono tabular-nums font-medium">{(optimizer.successAtRequired * 100).toFixed(0)}%</span>
+                            </div>
+                            <div className="h-16 mt-1">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={optimizer.searched}>
+                                  <Line type="monotone" dataKey="success" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                                  <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 6, fontSize: 11 }} formatter={(v: number, _n, p: any) => [(v * 100).toFixed(0) + '%', `@ ${fmt(p?.payload?.contribution || 0)}`]} />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Safe Withdrawal Rate */}
+                  <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3.5 space-y-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <Compass className="h-3.5 w-3.5 text-primary" />
+                      <div className="text-xs font-semibold">Safe Withdrawal Rate</div>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">30y decumulation from P50 endpoint with 95% survival.</div>
+                    <Button size="sm" onClick={handleWithdrawal} disabled={isPending} className="w-full gap-1.5 text-xs h-7">
+                      <Play className="h-3 w-3" /> {withdrawal ? 'Re-compute' : 'Compute SWR'}
+                    </Button>
+                    {withdrawal && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="text-2xl font-bold tabular-nums text-center holo-ticker">{(withdrawal.swr * 100).toFixed(2)}%</div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Annual draw</span>
+                          <span className="font-mono tabular-nums">{fmt(withdrawal.annualWithdrawal)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Survival</span>
+                          <span className="font-mono tabular-nums font-medium">{(withdrawal.successProbability * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Median terminal</span>
+                          <span className="font-mono tabular-nums">{fmt(withdrawal.medianTerminalBalance)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sequence Risk */}
+                  <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3.5 space-y-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <ShieldAlert className="h-3.5 w-3.5 text-warning" />
+                      <div className="text-xs font-semibold">Sequence-of-Returns Risk</div>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">Compares "bad-first" vs "bad-last" return ordering.</div>
+                    <Button size="sm" onClick={handleSequence} disabled={isPending} className="w-full gap-1.5 text-xs h-7">
+                      <Play className="h-3 w-3" /> {sequence ? 'Re-run' : 'Analyze'}
+                    </Button>
+                    {sequence && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Bad early P50</span>
+                          <span className="font-mono tabular-nums">{fmt(sequence.badEarlyEndpointP50)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Bad late P50</span>
+                          <span className="font-mono tabular-nums">{fmt(sequence.badLateEndpointP50)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Asymmetry</span>
+                          <span className={cn('font-mono tabular-nums font-medium', sequence.asymmetry > 0.2 ? 'text-warning' : 'text-income')}>
+                            {(sequence.asymmetry * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground pt-1 border-t border-border/30">
+                          {sequence.asymmetry > 0.2
+                            ? 'Material path-dependence — consider glide-path allocation.'
+                            : 'Outcome is largely path-independent.'}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Saved snapshots comparison */}
+                {savedScenarios.length > 0 && (
+                  <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Snapshots</div>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                      {savedScenarios.map((s, i) => (
+                        <div key={i} className="rounded-lg border border-border/20 bg-card/50 p-2 text-xs">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-semibold">{s.name}</span>
+                            <Badge variant="secondary" className="text-[10px]">{(s.report.successProbability * 100).toFixed(0)}%</Badge>
+                          </div>
+                          <div className="font-mono tabular-nums text-sm">{fmt(s.report.endpointP50)}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            μ {(s.inputs.expectedReturnAnnual * 100).toFixed(1)}% · σ {(s.inputs.returnVolatilityAnnual * 100).toFixed(0)}% · contrib {fmt(s.inputs.monthlyContribution)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+
               <TabsContent value="metrics" className="space-y-3 m-0">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   <Metric label="Best case (P99)" value={fmt(report.bestCase)} />
