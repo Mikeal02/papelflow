@@ -81,10 +81,11 @@ export function SpendingDNA() {
           </div>
         ) : (
           <Tabs defaultValue="genome" className="space-y-4">
-            <TabsList className="grid grid-cols-4 max-w-xl">
+            <TabsList className="grid grid-cols-5 max-w-2xl">
               <TabsTrigger value="genome">Genome</TabsTrigger>
               <TabsTrigger value="patterns">Patterns</TabsTrigger>
               <TabsTrigger value="predict">Predict</TabsTrigger>
+              <TabsTrigger value="evolve">Evolution</TabsTrigger>
               <TabsTrigger value="optimize">Optimize</TabsTrigger>
             </TabsList>
 
