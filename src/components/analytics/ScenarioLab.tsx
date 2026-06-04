@@ -82,6 +82,11 @@ export function ScenarioLab() {
 
   const [inputs, setInputs] = useState<ScenarioInputs>(seeded);
   const [report, setReport] = useState<ScenarioReport | null>(null);
+  const [sensitivity, setSensitivity] = useState<SensitivityReport | null>(null);
+  const [optimizer, setOptimizer] = useState<OptimizerResult | null>(null);
+  const [withdrawal, setWithdrawal] = useState<WithdrawalReport | null>(null);
+  const [sequence, setSequence] = useState<SequenceRiskReport | null>(null);
+  const [savedScenarios, setSavedScenarios] = useState<{ name: string; report: ScenarioReport; inputs: ScenarioInputs }[]>([]);
 
   const update = <K extends keyof ScenarioInputs>(k: K, v: ScenarioInputs[K]) =>
     setInputs(prev => ({ ...prev, [k]: v }));
@@ -90,17 +95,39 @@ export function ScenarioLab() {
     startTransition(() => {
       const r = runScenarioLab(inputs);
       setReport(r);
+      // Reset derived analyses on a fresh run
+      setSensitivity(null); setOptimizer(null); setWithdrawal(null); setSequence(null);
     });
   };
 
-  const chartData = useMemo(() => report?.bands.map(b => ({
-    year: (b.month / 12).toFixed(1),
-    p5: Math.round(b.p5),
-    p25: Math.round(b.p25),
-    p50: Math.round(b.p50),
-    p75: Math.round(b.p75),
-    p95: Math.round(b.p95),
-  })) ?? [], [report]);
+  const handleSensitivity = () => startTransition(() => setSensitivity(runSensitivityAnalysis(inputs, 500)));
+  const handleOptimize = () => startTransition(() => setOptimizer(optimizeContribution(inputs, 0.8, 500, 12)));
+  const handleWithdrawal = () => startTransition(() => {
+    if (!report) return;
+    setWithdrawal(findSafeWithdrawalRate(report.endpointP50, inputs, 30, 0.95, 700));
+  });
+  const handleSequence = () => startTransition(() => setSequence(analyzeSequenceRisk(inputs, 600)));
+  const handleSave = () => {
+    if (!report) return;
+    setSavedScenarios(prev => [...prev, { name: `Scenario ${prev.length + 1}`, report, inputs: { ...inputs } }].slice(-4));
+  };
+
+  const spaghetti = useMemo(() => report ? sampleTrajectories(inputs, 6) : [], [report, inputs]);
+
+  const chartData = useMemo(() => {
+    if (!report) return [];
+    return report.bands.map(b => {
+      const yr = (b.month / 12).toFixed(1);
+      const row: any = { year: yr, p5: Math.round(b.p5), p25: Math.round(b.p25), p50: Math.round(b.p50), p75: Math.round(b.p75), p95: Math.round(b.p95) };
+      // Attach spaghetti paths by month
+      for (let k = 0; k < 6; k++) {
+        const found = spaghetti.find(s => s.path === k && s.month === b.month);
+        if (found) row['s' + k] = found.value;
+      }
+      return row;
+    });
+  }, [report, spaghetti]);
+
 
   return (
     <Card className="elite-card overflow-hidden">
