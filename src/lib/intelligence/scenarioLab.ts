@@ -282,3 +282,216 @@ export const DEFAULT_SCENARIO_INPUTS: ScenarioInputs = {
   incomeShockSigma: 0.05,
   expenseShockSigma: 0.07,
 };
+
+/* =====================================================================
+ * ELITE EXTENSIONS — sensitivity, optimizer, decumulation, sequence risk,
+ * glide path, raw path sampling.
+ * ===================================================================*/
+
+export interface SensitivityResult {
+  parameter: keyof ScenarioInputs;
+  label: string;
+  baseValue: number;
+  lowValue: number;
+  highValue: number;
+  lowEndpointP50: number;
+  highEndpointP50: number;
+  lowSuccess: number;
+  highSuccess: number;
+  elasticity: number;
+  swing: number;
+}
+
+const SENSITIVITY_PARAMS: { key: keyof ScenarioInputs; label: string; delta: number }[] = [
+  { key: 'expectedReturnAnnual',   label: 'Expected Return',        delta: 0.2 },
+  { key: 'returnVolatilityAnnual', label: 'Return Volatility',      delta: 0.2 },
+  { key: 'inflationAnnual',        label: 'Inflation',              delta: 0.25 },
+  { key: 'monthlyContribution',    label: 'Monthly Contribution',   delta: 0.25 },
+  { key: 'monthlyExpenses',        label: 'Monthly Expenses',       delta: 0.15 },
+  { key: 'monthlyIncome',          label: 'Monthly Income',         delta: 0.15 },
+  { key: 'blackSwanAnnualProb',    label: 'Black-Swan Probability', delta: 0.5 },
+  { key: 'taxRateOnReturns',       label: 'Tax on Returns',         delta: 0.25 },
+];
+
+export interface SensitivityReport {
+  base: { endpointP50: number; successProbability: number };
+  results: SensitivityResult[];
+  durationMs: number;
+}
+
+function quickRun(inputs: ScenarioInputs, iterations = 600): { endpointP50: number; successProb: number } {
+  const sim = runSimulation({ ...inputs, iterations });
+  const sortedF = [...sim.finals].sort((a, b) => a - b);
+  return {
+    endpointP50: percentile(sortedF, 0.5),
+    successProb: sim.finals.filter(v => v >= inputs.wealthTarget).length / sim.finals.length,
+  };
+}
+
+export function runSensitivityAnalysis(inputs: ScenarioInputs, iterations = 600): SensitivityReport {
+  const t0 = performance.now();
+  const base = quickRun(inputs, iterations);
+  const results: SensitivityResult[] = SENSITIVITY_PARAMS.map(p => {
+    const baseValue = inputs[p.key] as number;
+    const lowValue = baseValue * (1 - p.delta);
+    const highValue = baseValue * (1 + p.delta);
+    const lo = quickRun({ ...inputs, [p.key]: lowValue } as ScenarioInputs, iterations);
+    const hi = quickRun({ ...inputs, [p.key]: highValue } as ScenarioInputs, iterations);
+    const elasticity = base.endpointP50 > 0
+      ? ((hi.endpointP50 - lo.endpointP50) / base.endpointP50) / (2 * p.delta)
+      : 0;
+    return {
+      parameter: p.key, label: p.label, baseValue, lowValue, highValue,
+      lowEndpointP50: lo.endpointP50, highEndpointP50: hi.endpointP50,
+      lowSuccess: lo.successProb, highSuccess: hi.successProb,
+      elasticity, swing: Math.abs(hi.endpointP50 - lo.endpointP50),
+    };
+  });
+  results.sort((a, b) => b.swing - a.swing);
+  return { base: { endpointP50: base.endpointP50, successProbability: base.successProb }, results, durationMs: Math.round(performance.now() - t0) };
+}
+
+export interface OptimizerResult {
+  contributionRequired: number | null;
+  successAtRequired: number;
+  delta: number;
+  iterations: number;
+  searched: { contribution: number; success: number }[];
+  durationMs: number;
+}
+
+export function optimizeContribution(
+  inputs: ScenarioInputs,
+  targetSuccess = 0.8,
+  searchIterations = 500,
+  maxSteps = 12,
+): OptimizerResult {
+  const t0 = performance.now();
+  let lo = 0;
+  let hi = Math.max(inputs.monthlyIncome * 0.8, inputs.monthlyContribution * 5, 1000);
+  const trace: { contribution: number; success: number }[] = [];
+  const high = quickRun({ ...inputs, monthlyContribution: hi }, searchIterations);
+  trace.push({ contribution: hi, success: high.successProb });
+  if (high.successProb < targetSuccess) {
+    return { contributionRequired: null, successAtRequired: high.successProb, delta: hi - inputs.monthlyContribution, iterations: searchIterations, searched: trace, durationMs: Math.round(performance.now() - t0) };
+  }
+  let best = hi, bestSuccess = high.successProb;
+  for (let step = 0; step < maxSteps; step++) {
+    const mid = (lo + hi) / 2;
+    const r = quickRun({ ...inputs, monthlyContribution: mid }, searchIterations);
+    trace.push({ contribution: mid, success: r.successProb });
+    if (r.successProb >= targetSuccess) { best = mid; bestSuccess = r.successProb; hi = mid; }
+    else { lo = mid; }
+  }
+  return { contributionRequired: Math.round(best), successAtRequired: bestSuccess, delta: Math.round(best) - inputs.monthlyContribution, iterations: searchIterations, searched: trace.sort((a, b) => a.contribution - b.contribution), durationMs: Math.round(performance.now() - t0) };
+}
+
+export interface WithdrawalReport {
+  initialBalance: number;
+  annualWithdrawal: number;
+  horizonYears: number;
+  successProbability: number;
+  medianTerminalBalance: number;
+  medianYearOfRuin: number | null;
+  swr: number;
+}
+
+export function simulateWithdrawal(initialBalance: number, withdrawalRate: number, inputs: ScenarioInputs, years = 30, iterations = 1500): WithdrawalReport {
+  const months = years * 12;
+  const annualWithdrawal = initialBalance * withdrawalRate;
+  const monthlyWithdrawal = annualWithdrawal / 12;
+  const monthlyReturn = inputs.expectedReturnAnnual / 12;
+  const monthlyVol = inputs.returnVolatilityAnnual / Math.sqrt(12);
+  const monthlyInflation = Math.pow(1 + inputs.inflationAnnual, 1 / 12) - 1;
+  const monthlyBlackSwan = inputs.blackSwanAnnualProb / 12;
+  let successes = 0;
+  const terminals: number[] = [];
+  const ruinMonths: number[] = [];
+  for (let it = 0; it < iterations; it++) {
+    let bal = initialBalance, wd = monthlyWithdrawal, ruined = -1;
+    for (let m = 1; m <= months; m++) {
+      wd *= 1 + monthlyInflation;
+      const r = monthlyReturn + monthlyVol * gauss();
+      let pnl = bal * r;
+      if (pnl > 0) pnl *= 1 - inputs.taxRateOnReturns;
+      bal = bal + pnl - wd;
+      if (Math.random() < monthlyBlackSwan) bal *= 1 - inputs.blackSwanMagnitude;
+      if (bal <= 0 && ruined < 0) { ruined = m; bal = 0; break; }
+    }
+    if (bal > 0) successes++;
+    terminals.push(Math.max(0, bal));
+    if (ruined > 0) ruinMonths.push(ruined);
+  }
+  const sortedT = terminals.sort((a, b) => a - b);
+  return {
+    initialBalance, annualWithdrawal, horizonYears: years,
+    successProbability: successes / iterations,
+    medianTerminalBalance: percentile(sortedT, 0.5),
+    medianYearOfRuin: ruinMonths.length ? percentile([...ruinMonths].sort((a, b) => a - b), 0.5) / 12 : null,
+    swr: withdrawalRate,
+  };
+}
+
+export function findSafeWithdrawalRate(initialBalance: number, inputs: ScenarioInputs, years = 30, targetSurvival = 0.95, iterations = 800): WithdrawalReport {
+  let lo = 0.005, hi = 0.12;
+  let best: WithdrawalReport | null = null;
+  for (let step = 0; step < 10; step++) {
+    const mid = (lo + hi) / 2;
+    const r = simulateWithdrawal(initialBalance, mid, inputs, years, iterations);
+    if (r.successProbability >= targetSurvival) { best = r; lo = mid; }
+    else { hi = mid; }
+  }
+  return best ?? simulateWithdrawal(initialBalance, 0.04, inputs, years, iterations);
+}
+
+export interface SequenceRiskReport {
+  badEarlyEndpointP50: number;
+  badLateEndpointP50: number;
+  delta: number;
+  asymmetry: number;
+}
+
+function runSimulationBiased(p: ScenarioInputs, iterations: number, badFirst: boolean): { finals: number[] } {
+  const half = Math.floor(p.horizonMonths / 2);
+  const monthlyReturn = p.expectedReturnAnnual / 12;
+  const monthlyVol = p.returnVolatilityAnnual / Math.sqrt(12);
+  const monthlyIncomeGrowth = Math.pow(1 + p.incomeGrowthAnnual, 1 / 12) - 1;
+  const monthlyInflation = Math.pow(1 + p.inflationAnnual, 1 / 12) - 1;
+  const skew = 0.6;
+  const finals: number[] = [];
+  for (let it = 0; it < iterations; it++) {
+    let nw = p.startingNetWorth, inc = p.monthlyIncome, exp = p.monthlyExpenses, contrib = p.monthlyContribution;
+    for (let m = 1; m <= p.horizonMonths; m++) {
+      inc *= 1 + monthlyIncomeGrowth; exp *= 1 + monthlyInflation; contrib *= 1 + monthlyIncomeGrowth;
+      const inFirst = m <= half;
+      const shift = (inFirst === badFirst ? -1 : 1) * skew * monthlyVol;
+      const r = monthlyReturn + shift + monthlyVol * gauss();
+      let pnl = nw * r;
+      if (pnl > 0) pnl *= 1 - p.taxRateOnReturns;
+      nw += (inc - exp) + contrib + pnl;
+    }
+    finals.push(nw);
+  }
+  return { finals };
+}
+
+export function analyzeSequenceRisk(inputs: ScenarioInputs, iterations = 800): SequenceRiskReport {
+  const badEarly = percentile(runSimulationBiased(inputs, iterations, true).finals.sort((a, b) => a - b), 0.5);
+  const badLate = percentile(runSimulationBiased(inputs, iterations, false).finals.sort((a, b) => a - b), 0.5);
+  const delta = badLate - badEarly;
+  const meanEnd = (badLate + badEarly) / 2;
+  return { badEarlyEndpointP50: badEarly, badLateEndpointP50: badLate, delta, asymmetry: meanEnd > 0 ? Math.abs(delta) / meanEnd : 0 };
+}
+
+export function sampleTrajectories(inputs: ScenarioInputs, n = 8): { month: number; value: number; path: number }[] {
+  const sim = runSimulation({ ...inputs, iterations: Math.max(n, 50) });
+  const step = Math.max(1, Math.floor(sim.trajectories.length / n));
+  const out: { month: number; value: number; path: number }[] = [];
+  for (let k = 0; k < n; k++) {
+    const path = sim.trajectories[k * step];
+    if (!path) continue;
+    const every = Math.max(1, Math.floor(path.length / 60));
+    for (let m = 0; m < path.length; m += every) out.push({ month: m, value: Math.round(path[m]), path: k });
+  }
+  return out;
+}
