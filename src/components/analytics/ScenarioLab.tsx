@@ -1,8 +1,8 @@
 import { useMemo, useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
-import { FlaskConical, Play, Sliders, TrendingUp, AlertTriangle, Target, Activity, Zap } from 'lucide-react';
+import { FlaskConical, Play, Sliders, TrendingUp, AlertTriangle, Target, Activity, Zap, Gauge, Compass, Wand2, ShieldAlert } from 'lucide-react';
 import {
-  Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine,
+  Area, AreaChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Bar, BarChart, Cell,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
-import { runScenarioLab, DEFAULT_SCENARIO_INPUTS, type ScenarioInputs, type ScenarioReport } from '@/lib/intelligence/scenarioLab';
+import {
+  runScenarioLab, DEFAULT_SCENARIO_INPUTS, runSensitivityAnalysis, optimizeContribution,
+  findSafeWithdrawalRate, analyzeSequenceRisk, sampleTrajectories,
+  type ScenarioInputs, type ScenarioReport, type SensitivityReport, type OptimizerResult,
+  type WithdrawalReport, type SequenceRiskReport,
+} from '@/lib/intelligence/scenarioLab';
 import { cn } from '@/lib/utils';
+
 
 function fmt(v: number): string {
   if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
