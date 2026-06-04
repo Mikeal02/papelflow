@@ -1,15 +1,18 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Dna, Clock, Calendar, Sparkles, AlertCircle, Target, Fingerprint, TrendingUp } from 'lucide-react';
+import { Dna, Clock, Calendar, Sparkles, AlertCircle, Target, Fingerprint, TrendingUp, GitBranch, Network, Telescope } from 'lucide-react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTransactions } from '@/hooks/useTransactions';
-import { analyzeSpendingDna } from '@/lib/intelligence/spendingDna';
+import {
+  analyzeSpendingDna, buildMerchantMarkov, analyzeDrift, simulateShadowGenome, forecast30DaySpend,
+} from '@/lib/intelligence/spendingDna';
 import { cn } from '@/lib/utils';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
