@@ -219,11 +219,18 @@ export function ScenarioLab() {
             </div>
           ) : (
             <Tabs defaultValue="forecast" className="space-y-4">
-              <TabsList className="grid grid-cols-3 max-w-md">
-                <TabsTrigger value="forecast">Forecast</TabsTrigger>
-                <TabsTrigger value="stress">Stress Tests</TabsTrigger>
-                <TabsTrigger value="metrics">Metrics</TabsTrigger>
-              </TabsList>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <TabsList className="grid grid-cols-5 max-w-2xl">
+                  <TabsTrigger value="forecast">Forecast</TabsTrigger>
+                  <TabsTrigger value="stress">Stress</TabsTrigger>
+                  <TabsTrigger value="sensitivity">Sensitivity</TabsTrigger>
+                  <TabsTrigger value="optimize">Optimize</TabsTrigger>
+                  <TabsTrigger value="metrics">Metrics</TabsTrigger>
+                </TabsList>
+                <Button size="sm" variant="outline" onClick={handleSave} className="gap-1.5 text-xs h-7">
+                  <Wand2 className="h-3 w-3" /> Snapshot
+                </Button>
+              </div>
 
               {/* FORECAST */}
               <TabsContent value="forecast" className="space-y-4 m-0">
