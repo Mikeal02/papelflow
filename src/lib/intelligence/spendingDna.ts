@@ -366,3 +366,217 @@ function emptyReport(): SpendingDnaReport {
     diagnostics: [],
   };
 }
+
+/* =====================================================================
+ * ELITE EXTENSIONS — Markov chain, drift, shadow genome, 30d forecast,
+ * anomaly correlation.
+ * ===================================================================*/
+
+export interface MarkovTransition {
+  from: string;
+  to: string;
+  probability: number;
+  count: number;
+}
+
+export interface MarkovReport {
+  states: string[];
+  topTransitions: MarkovTransition[];
+  stationary: { merchant: string; probability: number }[];
+  predictedNext: { merchant: string; probability: number }[];
+  entropyBits: number;
+}
+
+/** Build a 1st-order Markov chain over the chronological sequence of merchants. */
+export function buildMerchantMarkov(txs: Tx[], topN = 10): MarkovReport {
+  const exp = txs
+    .filter(t => t.type === 'expense')
+    .map(t => ({ date: parseISO(t.date), merchant: normalizeMerchant(t.payee || t.description || t.category?.name || 'Unknown') }))
+    .filter(t => !isNaN(t.date.getTime()))
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  if (exp.length < 5) return { states: [], topTransitions: [], stationary: [], predictedNext: [], entropyBits: 0 };
+
+  // Keep the top-N merchants; collapse others into "Other"
+  const counts = new Map<string, number>();
+  exp.forEach(e => counts.set(e.merchant, (counts.get(e.merchant) || 0) + 1));
+  const top = new Set([...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, topN).map(([m]) => m));
+  const seq = exp.map(e => (top.has(e.merchant) ? e.merchant : 'Other'));
+
+  const states = Array.from(new Set(seq));
+  const idx = new Map(states.map((s, i) => [s, i]));
+  const N = states.length;
+  const m: number[][] = Array.from({ length: N }, () => Array(N).fill(0));
+  for (let i = 1; i < seq.length; i++) m[idx.get(seq[i - 1])!][idx.get(seq[i])!]++;
+
+  // Row-normalize → transition probabilities
+  const T: number[][] = m.map(row => {
+    const s = row.reduce((a, b) => a + b, 0);
+    return s === 0 ? row.map(() => 0) : row.map(v => v / s);
+  });
+
+  // Top transitions by absolute count
+  const transitions: MarkovTransition[] = [];
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    if (m[i][j] > 0) transitions.push({ from: states[i], to: states[j], probability: T[i][j], count: m[i][j] });
+  }
+  transitions.sort((a, b) => b.count - a.count);
+
+  // Stationary distribution via power iteration
+  let pi = new Array(N).fill(1 / N);
+  for (let iter = 0; iter < 60; iter++) {
+    const next = new Array(N).fill(0);
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) next[j] += pi[i] * T[i][j];
+    const s = next.reduce((a, b) => a + b, 0) || 1;
+    pi = next.map(v => v / s);
+  }
+
+  // Predict next merchant: one step from the last observed state
+  const lastState = seq[seq.length - 1];
+  const lastIdx = idx.get(lastState)!;
+  const predictedNext = T[lastIdx]
+    .map((p, i) => ({ merchant: states[i], probability: p }))
+    .filter(p => p.probability > 0)
+    .sort((a, b) => b.probability - a.probability)
+    .slice(0, 5);
+
+  // Shannon entropy of stationary distribution
+  let h = 0;
+  for (const p of pi) if (p > 0) h -= p * Math.log2(p);
+
+  return {
+    states,
+    topTransitions: transitions.slice(0, 12),
+    stationary: states.map((s, i) => ({ merchant: s, probability: pi[i] })).sort((a, b) => b.probability - a.probability).slice(0, 8),
+    predictedNext,
+    entropyBits: h,
+  };
+}
+
+/** Split history into two halves and compute per-axis drift. */
+export interface DriftReport {
+  axisDrift: { key: DnaAxis['key']; label: string; before: number; after: number; delta: number; direction: 'up' | 'down' | 'flat' }[];
+  overallDrift: number;     // L2 norm of axis deltas, 0..100
+  trajectory: 'improving' | 'stable' | 'degrading';
+  windowDays: { before: number; after: number };
+}
+
+export function analyzeDrift(txs: Tx[]): DriftReport {
+  const exp = txs.filter(t => t.type === 'expense' && Number(t.amount) > 0).sort((a, b) => a.date.localeCompare(b.date));
+  if (exp.length < 20) return { axisDrift: [], overallDrift: 0, trajectory: 'stable', windowDays: { before: 0, after: 0 } };
+  const mid = Math.floor(exp.length / 2);
+  const before = analyzeSpendingDna(exp.slice(0, mid));
+  const after = analyzeSpendingDna(exp.slice(mid));
+  const axisDrift = before.genome.map((g, i) => {
+    const a = after.genome[i]?.value ?? g.value;
+    const delta = a - g.value;
+    return {
+      key: g.key,
+      label: g.label,
+      before: g.value,
+      after: a,
+      delta,
+      direction: (Math.abs(delta) < 2 ? 'flat' : delta > 0 ? 'up' : 'down') as 'up' | 'down' | 'flat',
+    };
+  });
+  const l2 = Math.sqrt(axisDrift.reduce((a, b) => a + b.delta * b.delta, 0)) / Math.sqrt(axisDrift.length || 1);
+  const healthDelta = (after.overallScore || 0) - (before.overallScore || 0);
+  return {
+    axisDrift,
+    overallDrift: Math.min(100, l2),
+    trajectory: healthDelta > 3 ? 'improving' : healthDelta < -3 ? 'degrading' : 'stable',
+    windowDays: { before: mid, after: exp.length - mid },
+  };
+}
+
+/** Simulate genome IF user adopted all recommendations. */
+export interface ShadowGenomeReport {
+  current: { key: DnaAxis['key']; label: string; value: number }[];
+  shadow:  { key: DnaAxis['key']; label: string; value: number }[];
+  healthGain: number;
+  monthlySavings: number;
+}
+
+export function simulateShadowGenome(report: SpendingDnaReport): ShadowGenomeReport {
+  const factors: Record<DnaAxis['key'], number> = {
+    circadian: 1, weekendBias: 1, impulse: 0.6, discretionary: 0.7,
+    loyalty: 1.0, velocity: 0.85, emotional: 0.55,
+  };
+  const shadow = report.genome.map(g => ({ key: g.key, label: g.label, value: Math.max(0, Math.min(100, g.value * factors[g.key])) }));
+  const fakeReport = { ...report, genome: shadow.map((s, i) => ({ ...report.genome[i], value: s.value })) };
+  // recompute simple health
+  const m = Object.fromEntries(shadow.map(s => [s.key, s.value])) as Record<string, number>;
+  const newHealth = Math.max(0, Math.min(100,
+    100 - 0.25 * (m.impulse || 0) - 0.25 * (m.discretionary || 0) - 0.2 * (m.emotional || 0)
+    + 0.15 * (m.loyalty || 0) + 0.1 * (100 - Math.abs((m.velocity || 50) - 50) * 2) + 0.05 * (m.circadian || 0)
+  ));
+  const monthlySavings = report.recommendations.reduce((a, r) => a + r.impactUSD, 0);
+  return {
+    current: report.genome.map(g => ({ key: g.key, label: g.label, value: g.value })),
+    shadow,
+    healthGain: newHealth - report.overallScore,
+    monthlySavings,
+  };
+}
+
+/** 30-day spend forecast via block-bootstrap of historical daily spend. */
+export interface SpendForecastReport {
+  p10: number; p50: number; p90: number;
+  expected: number;
+  byCategory: { category: string; p50: number; share: number }[];
+  samples: number[];
+}
+
+export function forecast30DaySpend(txs: Tx[], samples = 800): SpendForecastReport {
+  const exp = txs.filter(t => t.type === 'expense' && Number(t.amount) > 0);
+  if (!exp.length) return { p10: 0, p50: 0, p90: 0, expected: 0, byCategory: [], samples: [] };
+
+  const dailyByCat = new Map<string, Map<string, number>>();
+  for (const t of exp) {
+    const cat = t.category?.name || 'Uncategorized';
+    const d = t.date.slice(0, 10);
+    if (!dailyByCat.has(cat)) dailyByCat.set(cat, new Map());
+    const m = dailyByCat.get(cat)!;
+    m.set(d, (m.get(d) || 0) + Number(t.amount));
+  }
+  const dailyTotals = new Map<string, number>();
+  for (const t of exp) {
+    const d = t.date.slice(0, 10);
+    dailyTotals.set(d, (dailyTotals.get(d) || 0) + Number(t.amount));
+  }
+  const arr = [...dailyTotals.values()];
+  if (!arr.length) return { p10: 0, p50: 0, p90: 0, expected: 0, byCategory: [], samples: [] };
+
+  const block = 7;
+  const sims: number[] = [];
+  for (let s = 0; s < samples; s++) {
+    let total = 0;
+    for (let d = 0; d < 30; d += block) {
+      const start = Math.floor(Math.random() * Math.max(1, arr.length - block));
+      for (let k = 0; k < block && d + k < 30; k++) total += arr[(start + k) % arr.length] || 0;
+    }
+    sims.push(total);
+  }
+  const sorted = sims.sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length * 0.5)];
+  // Per-category contribution proportionally
+  const totalSpend = exp.reduce((a, b) => a + Number(b.amount), 0);
+  const byCategory: SpendForecastReport['byCategory'] = [];
+  const catTotals = new Map<string, number>();
+  exp.forEach(t => {
+    const c = t.category?.name || 'Uncategorized';
+    catTotals.set(c, (catTotals.get(c) || 0) + Number(t.amount));
+  });
+  [...catTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).forEach(([c, v]) => {
+    const share = v / totalSpend;
+    byCategory.push({ category: c, p50: median * share, share });
+  });
+  return {
+    p10: sorted[Math.floor(sorted.length * 0.1)],
+    p50: median,
+    p90: sorted[Math.floor(sorted.length * 0.9)],
+    expected: sorted.reduce((a, b) => a + b, 0) / sorted.length,
+    byCategory,
+    samples: sorted,
+  };
+}
