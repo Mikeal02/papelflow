@@ -2,7 +2,7 @@ import { useMemo, useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
 import { FlaskConical, Play, Sliders, TrendingUp, AlertTriangle, Target, Activity, Zap, Gauge, Compass, Wand2, ShieldAlert } from 'lucide-react';
 import {
-  Area, AreaChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Bar, BarChart, Cell,
+  Area, AreaChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Bar, BarChart,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
