@@ -12,6 +12,7 @@ import { MerchantIntelligence } from '@/components/analytics/MerchantIntelligenc
 import { TimePatternAnalysis } from '@/components/analytics/TimePatternAnalysis';
 import { ScenarioLab } from '@/components/analytics/ScenarioLab';
 import { SpendingDNA } from '@/components/analytics/SpendingDNA';
+import { IntelligenceAlerts } from '@/components/analytics/IntelligenceAlerts';
 
 const Analytics = () => {
   return (
@@ -72,6 +73,7 @@ const Analytics = () => {
 
         {/* Right Column - Insights */}
         <div className="space-y-5">
+          <IntelligenceAlerts />
           <AnomalyDetector />
           <CategoryTreemap />
           <MerchantIntelligence />
