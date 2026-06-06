@@ -181,6 +181,63 @@ export type Database = {
         }
         Relationships: []
       }
+      intelligence_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          body: string | null
+          created_at: string
+          dedup_key: string
+          dismissed_at: string | null
+          fired_count: number
+          id: string
+          kind: string
+          last_fired_at: string
+          payload: Json
+          scheduled_for: string
+          severity: string
+          snooze_until: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          body?: string | null
+          created_at?: string
+          dedup_key: string
+          dismissed_at?: string | null
+          fired_count?: number
+          id?: string
+          kind: string
+          last_fired_at?: string
+          payload?: Json
+          scheduled_for?: string
+          severity: string
+          snooze_until?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          body?: string | null
+          created_at?: string
+          dedup_key?: string
+          dismissed_at?: string | null
+          fired_count?: number
+          id?: string
+          kind?: string
+          last_fired_at?: string
+          payload?: Json
+          scheduled_for?: string
+          severity?: string
+          snooze_until?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
