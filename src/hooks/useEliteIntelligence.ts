@@ -10,6 +10,7 @@ import {
 import type { EliteAnomalyReport } from '@/lib/intelligence/anomalyElite';
 import type { MerchantReport } from '@/lib/intelligence/merchantElite';
 import { evaluateRules, type DraftAlert, type ExistingAlert } from '@/lib/intelligence/rulesEngine';
+import { loadAlertSettings, meetsMinSeverity } from '@/lib/intelligence/alertSettings';
 
 type WorkerResp = {
   id: string; ok: boolean; durationMs: number; error?: string;
@@ -149,9 +150,16 @@ async function syncAlerts(
     .eq('user_id', userId);
 
   const ex: ExistingAlert[] = (existing || []) as any;
-  const { upserts } = evaluateRules(anomalies, merchants, ex, {
-    quietHourStart: 22, quietHourEnd: 7, maxPerRun: 40,
+  const settings = loadAlertSettings();
+  const { upserts: rawUpserts } = evaluateRules(anomalies, merchants, ex, {
+    quietHourStart: settings.quietHourStart,
+    quietHourEnd: settings.quietHourEnd,
+    maxPerRun: settings.maxPerRun,
   });
+  const upserts = rawUpserts.filter(u =>
+    settings.enabledKinds[u.kind] !== false &&
+    meetsMinSeverity(u.severity, settings.minSeverity)
+  );
 
   if (upserts.length === 0) return;
 
