@@ -996,8 +996,9 @@
 }
 
 /* Stable Theme Rendering */
-html {
+html,body {
   transition: none;
+  overflow-x: hidden;
 }
 
 /* Keep only motion-related default transitions to avoid color flicker */
@@ -1197,8 +1198,8 @@ html {
 /* Marquee for live status row */
 .marquee {
   display: flex;
-  width: max-content;
   animation: marquee 40s linear infinite;
+  will-change: transform;
 }
 @keyframes marquee {
   from { transform: translateX(0); }

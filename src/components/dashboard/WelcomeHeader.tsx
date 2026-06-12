@@ -65,7 +65,7 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-      className="relative overflow-hidden rounded-2xl border border-border/50 mesh-bg"
+   className="relative overflow-x-hidden overflow-y-hidden rounded-2xl border border-border/50 mesh-bg"
     >
       {/* Animated decorative orbs */}
       <motion.div
@@ -82,13 +82,13 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
       />
 
       <div className="relative p-5 sm:p-7">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 min-w-0">
           <div className="min-w-0 space-y-2">
             <p className="eyebrow-bar text-[11px] font-medium text-muted-foreground/80 uppercase tracking-[0.14em]">
               <span>{emoji}</span>
               <span>{currentDate}</span>
             </p>
-            <h1 className="text-2xl md:text-4xl font-semibold tracking-tight">
+            <h1 className="text-2xl md:text-4xl font-semibold tracking-tight overflow-hidden text-ellipsis">
               {greeting},{' '}
               <span className="holo-ticker font-semibold">{firstName}</span>
             </h1>
@@ -112,8 +112,8 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
                       : 'bg-expense/8 text-expense'
                 )}
               >
-                <Activity className="h-3.5 w-3.5" />
-                <span className="tnum">{savingsRate >= 0 ? '+' : ''}{savingsRate}% saved</span>
+                <Activity className="h-3.5 w-3.5 shrink-0" />
+                <span className="relative min-w-fit conic-ring flex items-center gap-2 flex-wrap text-xs font-medium px-3.5 py-2 rounded-full">{savingsRate >= 0 ? '+' : ''}{savingsRate}% saved</span>
               </motion.div>
             )}
             {streakLabel && savingsRate >= 20 && (
@@ -131,7 +131,7 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
         </div>
 
         {/* Live ticker */}
-        <div className="mt-5 -mx-5 sm:-mx-7 overflow-hidden border-y border-border/40 bg-card/40 backdrop-blur-sm">
+        <div className="mt-5 overflow-hidden border-y border-border/40 bg-card/40 backdrop-blur-sm">
           <div className="marquee py-2.5">
             {[...tickerItems, ...tickerItems].map((it, i) => {
               const toneCls = it.tone === 'income' ? 'text-income' : it.tone === 'expense' ? 'text-expense' : it.tone === 'accent' ? 'text-accent' : it.tone === 'warning' ? 'text-warning' : 'text-primary';

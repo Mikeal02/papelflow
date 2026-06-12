@@ -285,20 +285,20 @@ const Reports = () => {
 
         {/* Tabs for different views */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="bg-muted/30">
-            <TabsTrigger value="overview" className="gap-1.5">
+        <TabsList className="bg-muted/30 flex w-full flex-nowrap overflow-x-auto overflow-y-hidden py-3 items-center">
+            <TabsTrigger value="overview" className="gap-1.5 shrink-0 whitespace-nowrap leading-none"> 
               <BarChart3 className="h-3.5 w-3.5" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="categories" className="gap-1.5">
+            <TabsTrigger value="categories" className="gap-1.5 shrink-0 whitespace-nowrap leading-none">
               <PieChartIcon className="h-3.5 w-3.5" />
               Categories
             </TabsTrigger>
-            <TabsTrigger value="trends" className="gap-1.5">
+            <TabsTrigger value="trends" className="gap-1.5 shrink-0 whitespace-nowrap leading-none">
               <Activity className="h-3.5 w-3.5" />
               Trends
             </TabsTrigger>
-            <TabsTrigger value="merchants" className="gap-1.5">
+            <TabsTrigger value="merchants" className="gap-1.5 shrink-0 whitespace-nowrap leading-none">
               <DollarSign className="h-3.5 w-3.5" />
               Merchants
             </TabsTrigger>

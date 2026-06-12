@@ -598,18 +598,18 @@ export const IntelligenceAlerts = () => {
             <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input value={query} onChange={e => setQuery(e.target.value)}
               placeholder="Search alerts… (press a=ack, d=dismiss, s=snooze)"
-              className="h-8 pl-8 text-xs" />
+              className=" h-8 pl-8 text-xs" />
           </div>
 
           {/* Tabs + view toggle */}
-          <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-2">
             <Tabs value={filter} onValueChange={v => setFilter(v as Filter)} className="flex-1 min-w-0">
-              <TabsList className="grid grid-cols-5 w-full h-8">
-                <TabsTrigger value="open" className="text-[11px]">Open</TabsTrigger>
-                <TabsTrigger value="scheduled" className="text-[11px]">Scheduled</TabsTrigger>
-                <TabsTrigger value="snoozed" className="text-[11px]">Snoozed</TabsTrigger>
-                <TabsTrigger value="acknowledged" className="text-[11px]">Acked</TabsTrigger>
-                <TabsTrigger value="all" className="text-[11px]">All</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5 sm:h-auto sm:grid-cols-5 gap-1 p-1">
+                <TabsTrigger value="open" className="  flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">Open</TabsTrigger>
+                <TabsTrigger value="scheduled" className="  flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1 ">Scheduled</TabsTrigger>
+                <TabsTrigger value="snoozed" className=" flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">Snoozed</TabsTrigger>
+                <TabsTrigger value="acknowledged" className=" flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">Acked</TabsTrigger>
+                <TabsTrigger value="all" className="  flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">All</TabsTrigger>
               </TabsList>
             </Tabs>
             <div className="flex items-center gap-0.5 rounded-md border border-border/40 p-0.5">

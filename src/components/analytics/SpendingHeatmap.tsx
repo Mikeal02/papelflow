@@ -258,10 +258,10 @@ export const SpendingHeatmap = () => {
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + i * 0.05 }}
-                className="text-center p-2 rounded-xl bg-muted/15 border border-border/5 hover:bg-muted/30 transition-colors"
+               className="text-center p-2 rounded-xl bg-muted/15 border border-border/5 hover:bg-muted/30 transition-colors min-w-0"
               >
                 <stat.icon className={cn('h-3.5 w-3.5 mx-auto mb-1', stat.color)} />
-                <p className="text-sm font-bold tabular-nums leading-none">{stat.value}</p>
+                <p className="text-sm font-bold tabular-nums leading-none truncate">{stat.value}</p>
                 <p className="text-[8px] text-muted-foreground font-medium mt-1">{stat.label}</p>
               </motion.div>
             ))}

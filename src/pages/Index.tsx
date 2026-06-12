@@ -73,7 +73,7 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <PageTransition>
-          <div className="space-y-6 md:space-y-10">
+         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6 md:space-y-10">
             <WelcomeHeader />
 
             {/* Key Metrics */}
@@ -103,8 +103,8 @@ const Dashboard = () => {
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid gap-5 lg:gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 space-y-6">
+            <div className="grid gap-5 lg:gap-6 lg:grid-cols-3 min-w-0">
+              <div className="lg:col-span-2 space-y-6 min-w-0">
                 <div>
                   <SectionHeader title="Activity" />
                   <RecentTransactions />
