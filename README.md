@@ -98,9 +98,12 @@ Add a GIF showing transaction entry, charts updating, or AI advisor interaction.
 - A Supabase project
 
 ---
-### Dashboard
+### 🏠Dashboard
 <img src="public/Dashboard.png" alt="Papelflow Logo" width=100% />
-### Installation
+
+---
+
+### ⚙️ Installation
 
 1.Clone the repository:
 ```bash
