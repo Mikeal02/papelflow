@@ -1,4 +1,4 @@
-# Finflow  
+# <img src="public/favicon.png" alt="Papelflow Logo" width="40" /> Finflow  
 **A smart, AI-powered personal finance management platform**
 
 <!--
@@ -101,8 +101,8 @@ Add a GIF showing transaction entry, charts updating, or AI advisor interaction.
 
 1.Clone the repository:
 ```bash
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
+git clone https://github.com/<your-username>/papelflow.git
+cd papelflow
 ```
 
 2. Install Dependencies:
@@ -221,26 +221,7 @@ Finflow is built with a focus on clarity, intelligence, and real-world financial
 
 
 ---
-```markdown
-### Why this README is solid
-- Accurate to the **actual codebase**
-- Professional but not bloated
-- AI features explained without hype
-- Clear architecture and flow
-- Strong portfolio presence
-
-If you want next:
-- A **short README summary** for recruiters
-- A **system-design diagram**
-- Resume bullet points derived from this project
-- A lighter “public demo” version
-
-Just point the compass.
-Spending forecasts based on habits and upcoming bills
-
-Smart insights highlighting unusual spending or income changes
-```
-
+ <img src="public/favicon.png" alt="Papelflow Logo" width="40" />
 AI-driven financial guidance tailored to user data
 
 Interactive charts and dashboards for clarity and decision-making
