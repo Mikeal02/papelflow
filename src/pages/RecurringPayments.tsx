@@ -262,7 +262,7 @@ export default function RecurringPayments() {
 
             {/* CALENDAR TAB */}
             <TabsContent value="calendar" className="space-y-4">
-              <Card className="glass-card border-border/30">
+              <Card className="stat-card">
                 <CardContent className="p-4">
                   {/* Day headers */}
                   <div className="grid grid-cols-7 gap-1 mb-1">
