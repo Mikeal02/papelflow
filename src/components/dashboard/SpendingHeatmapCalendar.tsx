@@ -75,7 +75,7 @@ export function SpendingHeatmapCalendar() {
   const maxWeekdayTotal = Math.max(...weekdayTotals, 1);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="stat-card overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2.5">
