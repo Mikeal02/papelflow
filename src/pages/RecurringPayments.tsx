@@ -346,7 +346,7 @@ export default function RecurringPayments() {
               <AnimatePresence>
                 {selectedDay && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                    <Card className="glass-card border-border/30">
+                    <Card className="stat-card">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base">{format(selectedDay, 'EEEE, MMMM d, yyyy')}</CardTitle>
                         <CardDescription>{dayPayments(selectedDay).length} payment(s)</CardDescription>
