@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, today, type DateValue } from "@internationalized/date";
 import type { ComponentProps } from "react";
 import {
   Button,
@@ -21,8 +21,17 @@ interface BaseCalendarProps {
   className?: string;
 }
 
-type CalendarProps = ComponentProps<typeof CalendarRac> & BaseCalendarProps;
-type RangeCalendarProps = ComponentProps<typeof RangeCalendarRac> & BaseCalendarProps;
+type CalendarProps = Omit<ComponentProps<typeof CalendarRac>, 'onChange' | 'value' | 'defaultValue'> & BaseCalendarProps & {
+  value?: DateValue | null;
+  defaultValue?: DateValue | null;
+  onChange?: (value: DateValue | null) => void;
+};
+
+type RangeCalendarProps = Omit<ComponentProps<typeof RangeCalendarRac>, 'onChange' | 'value' | 'defaultValue'> & BaseCalendarProps & {
+  value?: { start: DateValue; end: DateValue } | null;
+  defaultValue?: { start: DateValue; end: DateValue } | null;
+  onChange?: (value: { start: DateValue; end: DateValue } | null) => void;
+};
 
 const CalendarHeader = () => (
   <header className="flex w-full items-center gap-2 pb-3">
@@ -84,7 +93,7 @@ const Calendar = ({ className, ...props }: CalendarProps) => {
       {...props}
       className={composeRenderProps(className, (cls) =>
         cn(
-          "w-fit rounded-2xl border border-border/40 bg-card/60 p-4 shadow-sm backdrop-blur-md",
+          "w-fit p-1",
           cls
         )
       )}
@@ -101,7 +110,7 @@ const RangeCalendar = ({ className, ...props }: RangeCalendarProps) => {
       {...props}
       className={composeRenderProps(className, (cls) =>
         cn(
-          "w-fit rounded-2xl border border-border/40 bg-card/60 p-4 shadow-sm backdrop-blur-md",
+          "w-fit p-1",
           cls
         )
       )}

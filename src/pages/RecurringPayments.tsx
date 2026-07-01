@@ -19,6 +19,8 @@ import { useCategories } from '@/hooks/useCategories';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
+import { Calendar as RACCalendar } from '@/components/ui/calendar-rac';
+import { CalendarDate, getLocalTimeZone } from '@internationalized/date';
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths,
   isSameMonth, isSameDay, isToday, isBefore, addWeeks, addYears, differenceInDays,
@@ -230,7 +232,7 @@ export default function RecurringPayments() {
           </div>
 
           {/* Progress bar */}
-          <Card className="glass-card border-border/30">
+          <Card className="stat-card">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">Monthly Payment Progress</span>
@@ -260,7 +262,7 @@ export default function RecurringPayments() {
 
             {/* CALENDAR TAB */}
             <TabsContent value="calendar" className="space-y-4">
-              <Card className="glass-card border-border/30">
+              <Card className="stat-card">
                 <CardContent className="p-4">
                   {/* Day headers */}
                   <div className="grid grid-cols-7 gap-1 mb-1">
@@ -344,7 +346,7 @@ export default function RecurringPayments() {
               <AnimatePresence>
                 {selectedDay && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                    <Card className="glass-card border-border/30">
+                    <Card className="stat-card">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base">{format(selectedDay, 'EEEE, MMMM d, yyyy')}</CardTitle>
                         <CardDescription>{dayPayments(selectedDay).length} payment(s)</CardDescription>
@@ -403,7 +405,7 @@ export default function RecurringPayments() {
 
               <div className="space-y-2">
                 {filteredPayments.length === 0 ? (
-                  <Card className="glass-card border-border/30">
+                  <Card className="stat-card">
                     <CardContent className="p-8 text-center">
                       <CalendarClock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
                       <p className="text-sm text-muted-foreground">No payments found for this filter</p>
@@ -480,7 +482,7 @@ export default function RecurringPayments() {
 
             {/* HISTORY TAB */}
             <TabsContent value="history" className="space-y-4">
-              <Card className="glass-card border-border/30">
+              <Card className="stat-card">
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <History className="h-4 w-4 text-primary" />
