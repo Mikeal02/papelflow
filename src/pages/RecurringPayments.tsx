@@ -232,7 +232,7 @@ export default function RecurringPayments() {
           </div>
 
           {/* Progress bar */}
-          <Card className="glass-card border-border/30">
+          <Card className="stat-card">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">Monthly Payment Progress</span>
