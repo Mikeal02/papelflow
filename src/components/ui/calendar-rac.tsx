@@ -84,7 +84,7 @@ const Calendar = ({ className, ...props }: CalendarProps) => {
       {...props}
       className={composeRenderProps(className, (cls) =>
         cn(
-          "w-fit rounded-2xl border border-border/40 bg-card/60 p-4 shadow-sm backdrop-blur-md",
+          "w-fit p-1",
           cls
         )
       )}
@@ -101,7 +101,7 @@ const RangeCalendar = ({ className, ...props }: RangeCalendarProps) => {
       {...props}
       className={composeRenderProps(className, (cls) =>
         cn(
-          "w-fit rounded-2xl border border-border/40 bg-card/60 p-4 shadow-sm backdrop-blur-md",
+          "w-fit p-1",
           cls
         )
       )}
