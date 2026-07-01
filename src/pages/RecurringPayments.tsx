@@ -482,7 +482,7 @@ export default function RecurringPayments() {
 
             {/* HISTORY TAB */}
             <TabsContent value="history" className="space-y-4">
-              <Card className="glass-card border-border/30">
+              <Card className="stat-card">
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <History className="h-4 w-4 text-primary" />
