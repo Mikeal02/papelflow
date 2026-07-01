@@ -405,7 +405,7 @@ export default function RecurringPayments() {
 
               <div className="space-y-2">
                 {filteredPayments.length === 0 ? (
-                  <Card className="glass-card border-border/30">
+                  <Card className="stat-card">
                     <CardContent className="p-8 text-center">
                       <CalendarClock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
                       <p className="text-sm text-muted-foreground">No payments found for this filter</p>
