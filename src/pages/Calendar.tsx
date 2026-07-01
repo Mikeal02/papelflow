@@ -3,11 +3,12 @@ import { motion } from 'framer-motion';
 import { CalendarDays, CalendarRange } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, RangeCalendar } from '@/components/ui/calendar-rac';
-import { getLocalTimeZone, today, CalendarDate } from '@internationalized/date';
+import { getLocalTimeZone, today } from '@internationalized/date';
+import type { DateValue } from 'react-aria-components';
 
 export default function CalendarPage() {
   const now = today(getLocalTimeZone());
-  const [date, setDate] = useState<CalendarDate>(now);
+  const [date, setDate] = useState<DateValue>(now);
 
   return (
     <div className="space-y-6">
