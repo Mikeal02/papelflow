@@ -110,10 +110,10 @@ export async function drain(userId: string) {
         const res = await apply(m);
         const fresh = await db.get('mutation_queue', m.id);
         if (!fresh) continue; // was cleared elsewhere
-        if (res.ok) {
+        if (res.ok === true) {
           await db.delete('mutation_queue', m.id);
         } else {
-          const err = res.error;
+          const err: string = res.error;
           const attempts = fresh.attempts + 1;
           if (attempts >= MAX_ATTEMPTS) {
             await db.put('mutation_queue', { ...fresh, attempts, lastError: err, nextAttemptAt: now + BACKOFF_CAP_MS });
