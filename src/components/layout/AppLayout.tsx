@@ -5,6 +5,7 @@ import { AddTransactionModal } from '@/components/transactions/AddTransactionMod
 import { FloatingActionMenu } from '@/components/ui/floating-action-menu';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ActionCenter } from '@/components/action-center/ActionCenter';
+import { DataPipelineIndicator } from '@/components/data/DataPipelineIndicator';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppLayoutProps {
@@ -17,6 +18,11 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Global data pipeline status */}
+      <div className="fixed top-3 right-3 z-50 hidden md:block">
+        <DataPipelineIndicator />
+      </div>
+
       {/* Command Palette */}
       <CommandPalette onAddTransaction={() => setIsAddModalOpen(true)} />
       
