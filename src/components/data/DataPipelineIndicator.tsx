@@ -1,5 +1,5 @@
 import { useDataPipeline } from '@/hooks/useDataPipeline';
-import { CloudCheck, CloudOff, Loader2, RefreshCcw, AlertTriangle } from 'lucide-react';
+import { CloudCog, CloudOff, Loader2, RefreshCcw, AlertTriangle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { drain, purgeQueue, listQueue } from '@/lib/data/offlineQueue';
