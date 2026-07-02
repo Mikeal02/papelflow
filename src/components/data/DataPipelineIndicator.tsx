@@ -36,7 +36,7 @@ export function DataPipelineIndicator() {
   };
 
   const icon = state === 'offline' ? <CloudOff className="w-3.5 h-3.5" />
-    : state === 'ready' ? <CloudCheck className="w-3.5 h-3.5" />
+    : state === 'ready' ? <CloudCog className="w-3.5 h-3.5" />
     : state === 'error' ? <AlertTriangle className="w-3.5 h-3.5" />
     : <Loader2 className="w-3.5 h-3.5 animate-spin" />;
 
