@@ -113,13 +113,13 @@ export async function drain(userId: string) {
         if (res.ok) {
           await db.delete('mutation_queue', m.id);
         } else {
+          const err = res.error;
           const attempts = fresh.attempts + 1;
           if (attempts >= MAX_ATTEMPTS) {
-            // park permanently until manual intervention
-            await db.put('mutation_queue', { ...fresh, attempts, lastError: res.error, nextAttemptAt: now + BACKOFF_CAP_MS });
-            state.lastError = res.error;
+            await db.put('mutation_queue', { ...fresh, attempts, lastError: err, nextAttemptAt: now + BACKOFF_CAP_MS });
+            state.lastError = err;
           } else {
-            await db.put('mutation_queue', { ...fresh, attempts, lastError: res.error, nextAttemptAt: now + backoff(attempts) });
+            await db.put('mutation_queue', { ...fresh, attempts, lastError: err, nextAttemptAt: now + backoff(attempts) });
           }
         }
       }
