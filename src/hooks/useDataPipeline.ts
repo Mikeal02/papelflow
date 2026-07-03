@@ -4,12 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { bootstrapSync, subscribeRealtime } from '@/lib/data/syncEngine';
 import { bindOnlineEvents, drain, subscribe as subscribeQueue, type QueueState } from '@/lib/data/offlineQueue';
 import { getDB } from '@/lib/data/db';
+import { getUserKey, keyringInfo } from '@/lib/data/crypto';
 
 export interface PipelineStatus {
   hydrated: boolean;
   hydratingError: string | null;
   queue: QueueState;
   lastHydratedAt: number | null;
+  encryption: { enabled: boolean; keyCreatedAt: number | null };
 }
 
 /**
@@ -27,6 +29,7 @@ export function useDataPipeline(): PipelineStatus {
     hydrated: false, hydratingError: null,
     queue: { size: 0, pending: 0, failing: 0, draining: false, online: true, lastDrainAt: null, lastError: null },
     lastHydratedAt: null,
+    encryption: { enabled: false, keyCreatedAt: null },
   });
   const unsubs = useRef<Array<() => void>>([]);
 
@@ -39,6 +42,9 @@ export function useDataPipeline(): PipelineStatus {
     (async () => {
       try {
         await getDB(user.id); // ensure open
+        await getUserKey(user.id); // provisions per-user AES-GCM key before any I/O
+        const info = await keyringInfo(user.id);
+        setStatus(s => ({ ...s, encryption: { enabled: info.hasKey, keyCreatedAt: info.createdAt } }));
         await bootstrapSync(user.id);
         if (cancelled) return;
         setStatus(s => ({ ...s, hydrated: true, lastHydratedAt: Date.now() }));
