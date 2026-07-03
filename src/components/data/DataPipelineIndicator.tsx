@@ -1,10 +1,13 @@
 import { useDataPipeline } from '@/hooks/useDataPipeline';
-import { CloudCog, CloudOff, Loader2, RefreshCcw, AlertTriangle } from 'lucide-react';
+import { CloudCog, CloudOff, Loader2, RefreshCcw, AlertTriangle, ShieldCheck, KeyRound } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { drain, purgeQueue, listQueue } from '@/lib/data/offlineQueue';
+import { rotateUserKey } from '@/lib/data/crypto';
+import { readAudit } from '@/lib/data/audit';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 /**
  * Compact status pill for the elite data pipeline: shows hydration,
@@ -12,13 +15,27 @@ import { useEffect, useState } from 'react';
  */
 export function DataPipelineIndicator() {
   const { user } = useAuth();
-  const { hydrated, queue, hydratingError, lastHydratedAt } = useDataPipeline();
+  const { hydrated, queue, hydratingError, lastHydratedAt, encryption } = useDataPipeline();
   const [preview, setPreview] = useState<any[]>([]);
+  const [audit, setAudit] = useState<any[]>([]);
+  const [rotating, setRotating] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     void listQueue(user.id).then(setPreview);
+    void readAudit(user.id, 8).then(setAudit);
   }, [user?.id, queue.size, queue.lastDrainAt]);
+
+  async function handleRotate() {
+    if (!user) return;
+    setRotating(true);
+    try {
+      const { rotated } = await rotateUserKey(user.id);
+      toast({ title: 'Encryption key rotated', description: `${rotated} rows re-sealed under a fresh key.` });
+    } catch (e: any) {
+      toast({ title: 'Rotation failed', description: e?.message ?? String(e), variant: 'destructive' });
+    } finally { setRotating(false); }
+  }
 
   const state =
     hydratingError ? 'error' :
