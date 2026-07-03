@@ -100,8 +100,8 @@ async function sealValue(key: CryptoKey, plaintext: unknown, aad: string): Promi
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const bytes = enc.encode(JSON.stringify(plaintext));
   const ct = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv, additionalData: enc.encode(aad) },
-    key, bytes,
+    { name: 'AES-GCM', iv: iv as BufferSource, additionalData: enc.encode(aad) as BufferSource },
+    key, bytes as BufferSource,
   );
   return `${ENVELOPE_PREFIX}${b64(iv)}:${b64(ct)}`;
 }
@@ -112,8 +112,8 @@ async function openValue(key: CryptoKey, envelope: string, aad: string): Promise
   const iv = unb64(ivB64);
   const ct = unb64(ctB64);
   const pt = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv, additionalData: enc.encode(aad) },
-    key, ct,
+    { name: 'AES-GCM', iv: iv as BufferSource, additionalData: enc.encode(aad) as BufferSource },
+    key, ct as BufferSource,
   );
   return JSON.parse(dec.decode(pt));
 }
