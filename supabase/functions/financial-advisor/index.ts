@@ -1,22 +1,44 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const MAX_MESSAGES = 40;
+const MAX_MESSAGE_LEN = 4000;
+const ALLOWED_ROLES = new Set(["user", "assistant", "system"]);
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+  const authed = await requireAuth(req);
+  if (authed instanceof Response) return authed;
 
   try {
-    const { messages, financialContext } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const body = await req.json().catch(() => null);
+    const rawMessages = Array.isArray(body?.messages) ? body.messages : null;
+    if (!rawMessages || rawMessages.length === 0 || rawMessages.length > MAX_MESSAGES) {
+      return json({ error: "invalid_messages" }, 400);
     }
+    const messages = rawMessages.map((m: any) => ({
+      role: ALLOWED_ROLES.has(m?.role) ? m.role : "user",
+      content: typeof m?.content === "string" ? m.content.slice(0, MAX_MESSAGE_LEN) : "",
+    })).filter((m: { content: string }) => m.content.length > 0);
+    if (messages.length === 0) return json({ error: "invalid_messages" }, 400);
+
+    // Never trust client-supplied financial context verbatim — coerce to a
+    // small, plain object of primitive fields the model can safely read.
+    const fc = body?.financialContext ?? null;
+    const financialContext = fc && typeof fc === "object" ? {
+      totalBalance: fc.totalBalance,
+      monthlyIncome: fc.monthlyIncome,
+      monthlyExpenses: fc.monthlyExpenses,
+      savingsRate: fc.savingsRate,
+      topCategories: Array.isArray(fc.topCategories) ? fc.topCategories.slice(0, 10).map(String) : [],
+      activeGoals: fc.activeGoals,
+      budgetStatus: typeof fc.budgetStatus === "string" ? fc.budgetStatus.slice(0, 200) : undefined,
+    } : null;
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) return json({ error: "ai_service_unavailable" }, 503);
 
     const systemPrompt = `You are a helpful AI financial advisor assistant. You help users understand their finances, provide budgeting tips, and offer personalized advice based on their spending patterns.
 
