@@ -407,7 +407,7 @@ export type Database = {
     }
     Functions: {
       add_income_categories_for_user: {
-        Args: { p_user_id: string }
+        Args: { p_user_id?: string }
         Returns: undefined
       }
     }
