@@ -1,40 +1,29 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-// Free exchange rate API (no key required)
-const API_URL = 'https://api.exchangerate-api.com/v4/latest';
+const API_URL = "https://api.exchangerate-api.com/v4/latest";
+const CURRENCY_RE = /^[A-Z]{3}$/;
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+  // Require auth so anonymous clients cannot burn our upstream quota.
+  const authed = await requireAuth(req);
+  if (authed instanceof Response) return authed;
+
+  let body: any = {};
+  try { body = await req.json(); } catch { /* body optional */ }
+  const raw = (body?.base ?? "USD").toString().toUpperCase();
+  const base = CURRENCY_RE.test(raw) ? raw : "USD";
 
   try {
-    const { base = 'USD' } = await req.json();
-
     const response = await fetch(`${API_URL}/${base}`);
-    if (!response.ok) {
-      throw new Error(`Exchange rate API failed [${response.status}]`);
-    }
-
+    if (!response.ok) return json({ error: `Exchange rate API failed [${response.status}]` }, 502);
     const data = await response.json();
-
-    return new Response(JSON.stringify({
-      base: data.base,
-      rates: data.rates,
-      timestamp: data.time_last_updated,
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ base: data.base, rates: data.rates, timestamp: data.time_last_updated });
   } catch (error) {
-    console.error('Exchange rate error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error("Exchange rate error:", error);
+    return json({ error: "upstream_failure" }, 502);
   }
 });

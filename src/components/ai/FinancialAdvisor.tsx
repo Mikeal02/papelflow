@@ -10,6 +10,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useGoals } from '@/hooks/useGoals';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -95,11 +96,15 @@ export const FinancialAdvisor = () => {
     let assistantContent = '';
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not signed in');
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/financial-advisor`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          // Pass the user's JWT so the edge function can verify identity.
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({
           messages: [...messages, userMessage],

@@ -1,22 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const MAX_PAYLOAD_CHARS = 24_000;
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+  const authed = await requireAuth(req);
+  if (authed instanceof Response) return authed;
 
   try {
-    const { spendingData } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const body = await req.json().catch(() => null);
+    const spendingData = body?.spendingData;
+    if (!spendingData || typeof spendingData !== "object") return json({ error: "invalid_spending_data" }, 400);
+    // Bound the size before shipping to the model.
+    const serialised = JSON.stringify(spendingData);
+    if (serialised.length > MAX_PAYLOAD_CHARS) return json({ error: "payload_too_large" }, 413);
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) return json({ error: "ai_service_unavailable" }, 503);
 
     const systemPrompt = `You are an expert personal finance analyst. Analyze the user's spending data and provide actionable insights.
 
@@ -47,7 +50,7 @@ Return a JSON object with this exact structure (no markdown, no code fences, jus
 Provide 3-5 insights and 2-3 recommendations. Be specific with dollar amounts.`;
 
     const userPrompt = `Analyze this spending data:
-${JSON.stringify(spendingData, null, 2)}
+${serialised}
 
 Provide personalized spending insights and savings recommendations.`;
 
@@ -102,8 +105,6 @@ Provide personalized spending insights and savings recommendations.`;
     });
   } catch (error) {
     console.error("Spending insights error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: "internal_error" }, 500);
   }
 });

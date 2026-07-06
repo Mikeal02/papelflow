@@ -11,6 +11,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCreateTransaction } from '@/hooks/useTransactions';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ScannedData {
   merchant: string | null;
@@ -69,11 +70,14 @@ export const ReceiptScanner = () => {
     setScannedData(null);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not signed in');
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-receipt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ imageBase64 }),
       });
