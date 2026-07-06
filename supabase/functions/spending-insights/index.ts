@@ -50,7 +50,7 @@ Return a JSON object with this exact structure (no markdown, no code fences, jus
 Provide 3-5 insights and 2-3 recommendations. Be specific with dollar amounts.`;
 
     const userPrompt = `Analyze this spending data:
-${JSON.stringify(spendingData, null, 2)}
+${serialised}
 
 Provide personalized spending insights and savings recommendations.`;
 
@@ -105,8 +105,6 @@ Provide personalized spending insights and savings recommendations.`;
     });
   } catch (error) {
     console.error("Spending insights error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: "internal_error" }, 500);
   }
 });
