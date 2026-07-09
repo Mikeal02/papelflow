@@ -69,6 +69,26 @@ const Settings = () => {
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (profile) setFullName(profile.full_name || ''); }, [profile]);
 
+  // Preview stats for the Login activity row.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [{ count }, { data: last }] = await Promise.all([
+        supabase.from('login_events').select('id', { count: 'exact', head: true })
+          .eq('event_type', 'sign_in').gte('created_at', since),
+        supabase.from('login_events').select('created_at')
+          .eq('event_type', 'sign_in').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setRecentLogins(count ?? 0);
+      setLastLoginAt(last?.created_at ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user, showLoginActivity]);
+
+
   const dataStats = useMemo(() => {
     const accountAge = user?.created_at ? differenceInDays(new Date(), new Date(user.created_at)) : 0;
     const totalRecords = transactions.length + accounts.length + budgets.length + categories.length + goals.length + subscriptions.length;
