@@ -26,6 +26,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
 import { ExportDataModal } from '@/components/settings/ExportDataModal';
+import { LoginActivityModal } from '@/components/settings/LoginActivityModal';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useTransactions } from '@/hooks/useTransactions';
 import { triggerWeeklySummary } from '@/lib/email-service';
