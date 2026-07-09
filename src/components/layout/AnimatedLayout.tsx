@@ -37,7 +37,7 @@ export function AnimatedLayout() {
           initial="initial"
           animate="enter"
           exit="exit"
-          className="relative will-change-[opacity,transform]"
+          className="relative will-change-[opacity,transform] origin-top"
         >
           <Outlet />
         </motion.div>
