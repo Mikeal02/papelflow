@@ -57,6 +57,10 @@ const Settings = () => {
   const [fullName, setFullName] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showLoginActivity, setShowLoginActivity] = useState(false);
+  const [recentLogins, setRecentLogins] = useState<number>(0);
+  const [lastLoginAt, setLastLoginAt] = useState<string | null>(null);
+
   const [mounted, setMounted] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingSummary, setIsSendingSummary] = useState(false);
