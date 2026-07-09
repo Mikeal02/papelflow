@@ -397,6 +397,8 @@ const Settings = () => {
         onOpenChange={setShowExportModal}
         data={{ profile, accounts, transactions, budgets, categories, goals, subscriptions }}
       />
+      <LoginActivityModal open={showLoginActivity} onOpenChange={setShowLoginActivity} />
+
     </>
   );
 };
