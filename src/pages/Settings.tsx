@@ -314,10 +314,30 @@ const Settings = () => {
               <span className="flex items-center gap-2.5"><Fingerprint className="h-4 w-4 text-muted-foreground" />Two-factor authentication</span>
               <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
             </Button>
-            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50 group">
-              <span className="flex items-center gap-2.5"><Eye className="h-4 w-4 text-muted-foreground" />Login activity</span>
-              <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
+            <Button
+              variant="outline"
+              className="w-full justify-between h-12 hover:bg-muted/50 group"
+              onClick={() => setShowLoginActivity(true)}
+            >
+              <span className="flex items-center gap-2.5">
+                <Eye className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                Login activity
+              </span>
+              <div className="flex items-center gap-1.5">
+                {recentLogins > 0 && (
+                  <Badge variant="outline" className="text-[10px] tabular-nums">
+                    {recentLogins} in 30d
+                  </Badge>
+                )}
+                {lastLoginAt && (
+                  <span className="hidden sm:inline text-[11px] text-muted-foreground tabular-nums">
+                    {format(new Date(lastLoginAt), 'MMM d, HH:mm')}
+                  </span>
+                )}
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
             </Button>
+
           </div>
         </motion.div>
 
