@@ -26,6 +26,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
 import { ExportDataModal } from '@/components/settings/ExportDataModal';
+import { LoginActivityModal } from '@/components/settings/LoginActivityModal';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useTransactions } from '@/hooks/useTransactions';
 import { triggerWeeklySummary } from '@/lib/email-service';
@@ -55,6 +57,10 @@ const Settings = () => {
   const [fullName, setFullName] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showLoginActivity, setShowLoginActivity] = useState(false);
+  const [recentLogins, setRecentLogins] = useState<number>(0);
+  const [lastLoginAt, setLastLoginAt] = useState<string | null>(null);
+
   const [mounted, setMounted] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingSummary, setIsSendingSummary] = useState(false);
@@ -62,6 +68,26 @@ const Settings = () => {
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (profile) setFullName(profile.full_name || ''); }, [profile]);
+
+  // Preview stats for the Login activity row.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [{ count }, { data: last }] = await Promise.all([
+        supabase.from('login_events').select('id', { count: 'exact', head: true })
+          .eq('event_type', 'sign_in').gte('created_at', since),
+        supabase.from('login_events').select('created_at')
+          .eq('event_type', 'sign_in').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setRecentLogins(count ?? 0);
+      setLastLoginAt(last?.created_at ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user, showLoginActivity]);
+
 
   const dataStats = useMemo(() => {
     const accountAge = user?.created_at ? differenceInDays(new Date(), new Date(user.created_at)) : 0;
@@ -288,10 +314,30 @@ const Settings = () => {
               <span className="flex items-center gap-2.5"><Fingerprint className="h-4 w-4 text-muted-foreground" />Two-factor authentication</span>
               <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
             </Button>
-            <Button variant="outline" className="w-full justify-between h-12 hover:bg-muted/50 group">
-              <span className="flex items-center gap-2.5"><Eye className="h-4 w-4 text-muted-foreground" />Login activity</span>
-              <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
+            <Button
+              variant="outline"
+              className="w-full justify-between h-12 hover:bg-muted/50 group"
+              onClick={() => setShowLoginActivity(true)}
+            >
+              <span className="flex items-center gap-2.5">
+                <Eye className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                Login activity
+              </span>
+              <div className="flex items-center gap-1.5">
+                {recentLogins > 0 && (
+                  <Badge variant="outline" className="text-[10px] tabular-nums">
+                    {recentLogins} in 30d
+                  </Badge>
+                )}
+                {lastLoginAt && (
+                  <span className="hidden sm:inline text-[11px] text-muted-foreground tabular-nums">
+                    {format(new Date(lastLoginAt), 'MMM d, HH:mm')}
+                  </span>
+                )}
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
             </Button>
+
           </div>
         </motion.div>
 
@@ -351,6 +397,8 @@ const Settings = () => {
         onOpenChange={setShowExportModal}
         data={{ profile, accounts, transactions, budgets, categories, goals, subscriptions }}
       />
+      <LoginActivityModal open={showLoginActivity} onOpenChange={setShowLoginActivity} />
+
     </>
   );
 };
