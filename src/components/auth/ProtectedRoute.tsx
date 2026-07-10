@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccounts } from '@/hooks/useAccounts';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { useCriticalRoutePrewarm } from '@/hooks/useRoutePreloader';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,6 +14,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const navigate = useNavigate();
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+
+  // Warm the most likely next-navigation chunks during browser idle time,
+  // but only once the user is actually authenticated.
+  useCriticalRoutePrewarm(!!user && !loading);
+
 
   useEffect(() => {
     if (!loading && !user) {
