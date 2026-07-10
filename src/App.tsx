@@ -32,12 +32,41 @@ const RecurringPayments = lazy(() => import("./pages/RecurringPayments"));
 const Challenges = lazy(() => import("./pages/Challenges"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 
+/**
+ * Elite React Query defaults.
+ *
+ * - `staleTime` 2 min stops the dashboard from re-fetching identical data as
+ *   users tab between routes.
+ * - `gcTime` 15 min keeps warm caches around long enough that back-nav is
+ *   instant, but not so long that memory bloats on long sessions.
+ * - `retry` uses exponential backoff capped at 4 s — network blips recover
+ *   without hammering the edge.
+ * - `structuralSharing` is on by default; we make it explicit so referential
+ *   equality holds and downstream memoized selectors don't re-render.
+ * - `networkMode: 'online'` prevents runaway retries when the tab is offline.
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 min stale time
-      gcTime: 1000 * 60 * 10, // 10 min cache
+      staleTime: 1000 * 60 * 2,
+      gcTime: 1000 * 60 * 15,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      retry: (failureCount, err: unknown) => {
+        // Do not retry auth/permission errors — they will never recover.
+        const status = (err as { status?: number; statusCode?: number } | null)?.status
+          ?? (err as { statusCode?: number } | null)?.statusCode;
+        if (status && [400, 401, 403, 404, 422].includes(status)) return false;
+        return failureCount < 2;
+      },
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
+      structuralSharing: true,
+      networkMode: 'online',
+    },
+    mutations: {
+      retry: 1,
+      retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 2000),
+      networkMode: 'online',
     },
   },
 });
