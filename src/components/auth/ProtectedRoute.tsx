@@ -15,6 +15,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
+  // Warm the most likely next-navigation chunks during browser idle time,
+  // but only once the user is actually authenticated.
+  useCriticalRoutePrewarm(!!user && !loading);
+
+
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
