@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccounts } from '@/hooks/useAccounts';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { useCriticalRoutePrewarm } from '@/hooks/useRoutePreloader';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
