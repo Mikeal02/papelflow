@@ -219,7 +219,7 @@ serve(async (req) => {
   const cronHeader = req.headers.get("x-cron-secret");
   let onlyUserId: string | undefined;
   if (cronHeader) {
-    if (!CRON_SECRET || cronHeader !== CRON_SECRET) return json({ error: "unauthorized" }, 401);
+    if (!CRON_SECRET || !timingSafeEqual(cronHeader, CRON_SECRET)) return json({ error: "unauthorized" }, 401);
   } else {
     const authed = await requireAuth(req);
     if (authed instanceof Response) return authed;
