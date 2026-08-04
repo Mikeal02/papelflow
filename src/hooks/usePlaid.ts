@@ -40,7 +40,7 @@ export function usePlaid() {
 
     try {
       const { data, error } = await supabase.functions.invoke('plaid', {
-        body: { action: 'create_link_token', user_id: user.id },
+        body: { action: 'create_link_token' },
       });
 
       if (error) throw error;
