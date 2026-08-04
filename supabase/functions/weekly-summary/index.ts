@@ -149,6 +149,16 @@ function generateEmailHtml(summary: UserSummary, insights: AIInsight, period: st
 </body></html>`;
 }
 
+/** Length-independent constant-time string comparison for shared secrets. */
+function timingSafeEqual(a: string, b: string): boolean {
+  const ea = new TextEncoder().encode(a);
+  const eb = new TextEncoder().encode(b);
+  let diff = ea.length ^ eb.length;
+  const len = Math.max(ea.length, eb.length);
+  for (let i = 0; i < len; i++) diff |= (ea[i] ?? 0) ^ (eb[i] ?? 0);
+  return diff === 0;
+}
+
 async function summariseUsers(
   supabase: ReturnType<typeof createClient>,
   startDate: string,
@@ -164,14 +174,25 @@ async function summariseUsers(
   const { data: transactions, error: txError } = await txQuery;
   if (txError) { console.error("Error fetching transactions:", txError); return []; }
 
-  const { data: profiles, error: profileError } = await supabase
-    .from('profiles')
-    .select('user_id, full_name, preferred_currency');
+  // Scope reads to the target user when this is a user-triggered run: never
+  // pull the whole profile table / auth user list for a single-user summary.
+  let profileQuery = supabase.from('profiles').select('user_id, full_name, preferred_currency');
+  if (onlyUserId) profileQuery = profileQuery.eq('user_id', onlyUserId);
+  const { data: profiles, error: profileError } = await profileQuery;
   if (profileError) { console.error("Error fetching profiles:", profileError); return []; }
 
-  const { data: usersResp, error: usersError } = await supabase.auth.admin.listUsers();
-  if (usersError) { console.error("Error fetching users:", usersError); return []; }
-  const users = (usersResp as any)?.users ?? [];
+  let users: any[] = [];
+  if (onlyUserId) {
+    const { data: one, error: oneErr } = await supabase.auth.admin.getUserById(onlyUserId);
+    if (oneErr || !one?.user) { console.error("Error fetching user"); return []; }
+    users = [one.user];
+  } else {
+    const { data: usersResp, error: usersError } = await supabase.auth.admin.listUsers();
+    if (usersError) { console.error("Error fetching users:", usersError); return []; }
+    users = (usersResp as any)?.users ?? [];
+  }
+
+
 
   const userMap = new Map<string, UserSummary>();
   for (const tx of (transactions as any[]) || []) {
