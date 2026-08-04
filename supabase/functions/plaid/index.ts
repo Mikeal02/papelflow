@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
+import { openToken, sealToken } from "../_shared/seal.ts";
+import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const PLAID_ENV = Deno.env.get("PLAID_ENV") || "sandbox";
 const PLAID_BASE_URL =
@@ -28,6 +30,9 @@ serve(async (req) => {
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
 
+  const rl = rateLimit(authed.id, "plaid", { limit: 30, windowSec: 60 }, { limit: 300, windowSec: 86400 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
+
   const PLAID_CLIENT_ID = Deno.env.get("PLAID_CLIENT_ID");
   const PLAID_SECRET = Deno.env.get("PLAID_SECRET");
   if (!PLAID_CLIENT_ID || !PLAID_SECRET) {
@@ -38,6 +43,16 @@ serve(async (req) => {
   try { payload = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
   const { action, ...params } = payload ?? {};
   if (!ALLOWED_ACTIONS.has(action)) return json({ error: "unknown_action" }, 400);
+
+  // Provider access tokens are only ever handed back to the client sealed
+  // (AES-GCM, AAD-bound to the caller's user id). Redeem them here.
+  const redeem = async (): Promise<string | Response> => {
+    const raw = await openToken(authed.id, params.access_token);
+    if (!raw) return json({ error: "invalid_access_token" }, 403);
+    return raw;
+  };
+
+
 
   const callPlaid = async (path: string, body: Record<string, unknown>) => {
     const r = await fetch(`${PLAID_BASE_URL}${path}`, {
@@ -67,22 +82,26 @@ serve(async (req) => {
       if (!isStr(params.public_token)) return json({ error: "invalid_public_token" }, 400);
       const { ok, data } = await callPlaid("/item/public_token/exchange", { public_token: params.public_token });
       if (!ok) { console.error("Plaid exchange error:", data); return json({ error: data?.error_message || "Failed to exchange token" }, 400); }
-      return json({ access_token: data.access_token, item_id: data.item_id });
+      // Never expose the raw Plaid access token to the browser.
+      return json({ access_token: await sealToken(authed.id, String(data.access_token)), item_id: data.item_id });
     }
 
     if (action === "get_accounts") {
-      if (!isStr(params.access_token)) return json({ error: "invalid_access_token" }, 400);
-      const { ok, data } = await callPlaid("/accounts/get", { access_token: params.access_token });
+      const token = await redeem();
+      if (token instanceof Response) return token;
+      const { ok, data } = await callPlaid("/accounts/get", { access_token: token });
       if (!ok) { console.error("Plaid get_accounts error:", data); return json({ error: data?.error_message || "Failed to get accounts" }, 400); }
       return json({ accounts: data.accounts });
     }
 
     if (action === "get_transactions") {
-      if (!isStr(params.access_token)) return json({ error: "invalid_access_token" }, 400);
+      const token = await redeem();
+      if (token instanceof Response) return token;
       const cursor = typeof params.cursor === "string" && params.cursor.length <= 2048 ? params.cursor : "";
-      const { ok, data } = await callPlaid("/transactions/sync", { access_token: params.access_token, cursor });
+      const { ok, data } = await callPlaid("/transactions/sync", { access_token: token, cursor });
       if (!ok) { console.error("Plaid get_transactions error:", data); return json({ error: data?.error_message || "Failed to get transactions" }, 400); }
       return json({ added: data.added, modified: data.modified, removed: data.removed, next_cursor: data.next_cursor, has_more: data.has_more });
+
     }
 
     if (action === "get_institution") {

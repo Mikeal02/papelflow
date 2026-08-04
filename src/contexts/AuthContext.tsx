@@ -34,14 +34,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Dedupe SIGNED_IN across tabs/refreshes for the same access token.
+        // Dedupe SIGNED_IN across tabs/refreshes. Only a short, non-reusable
+        // fingerprint of the token is persisted — never the JWT itself.
         const token = session?.access_token;
-        if (event === 'SIGNED_IN' && token) {
+        const fingerprint = token ? token.slice(-16) : null;
+        if (event === 'SIGNED_IN' && fingerprint) {
           const key = 'flow.lastLoggedToken';
-          if (typeof window !== 'undefined' && window.localStorage.getItem(key) !== token) {
-            window.localStorage.setItem(key, token);
-            setTimeout(() => logEvent('sign_in', token.slice(-16)), 0);
+          if (typeof window !== 'undefined' && window.localStorage.getItem(key) !== fingerprint) {
+            window.localStorage.setItem(key, fingerprint);
+            setTimeout(() => logEvent('sign_in', fingerprint), 0);
           }
+
         } else if (event === 'SIGNED_OUT') {
           if (typeof window !== 'undefined') window.localStorage.removeItem('flow.lastLoggedToken');
           setTimeout(() => logEvent('sign_out'), 0);

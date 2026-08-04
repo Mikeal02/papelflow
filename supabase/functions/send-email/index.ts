@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { corsHeaders, json, requireAuth, escapeHtml, num } from "../_shared/security.ts";
+import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -117,6 +118,9 @@ serve(async (req) => {
   // Require authenticated caller — email is always sent to the caller's own address.
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
+
+  const rl = rateLimit(authed.id, "email", { limit: 5, windowSec: 3600 }, { limit: 20, windowSec: 86400 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
   if (!authed.email) return json({ error: "no_email_on_account" }, 400);
 
   if (!RESEND_API_KEY) return json({ error: "email_service_unavailable" }, 503);
