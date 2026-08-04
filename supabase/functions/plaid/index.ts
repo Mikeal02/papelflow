@@ -30,6 +30,9 @@ serve(async (req) => {
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
 
+  const rl = rateLimit(authed.id, "plaid", { limit: 30, windowSec: 60 }, { limit: 300, windowSec: 86400 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
+
   const PLAID_CLIENT_ID = Deno.env.get("PLAID_CLIENT_ID");
   const PLAID_SECRET = Deno.env.get("PLAID_SECRET");
   if (!PLAID_CLIENT_ID || !PLAID_SECRET) {
@@ -40,6 +43,16 @@ serve(async (req) => {
   try { payload = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
   const { action, ...params } = payload ?? {};
   if (!ALLOWED_ACTIONS.has(action)) return json({ error: "unknown_action" }, 400);
+
+  // Provider access tokens are only ever handed back to the client sealed
+  // (AES-GCM, AAD-bound to the caller's user id). Redeem them here.
+  const redeem = async (): Promise<string | Response> => {
+    const raw = await openToken(authed.id, params.access_token);
+    if (!raw) return json({ error: "invalid_access_token" }, 403);
+    return raw;
+  };
+
+
 
   const callPlaid = async (path: string, body: Record<string, unknown>) => {
     const r = await fetch(`${PLAID_BASE_URL}${path}`, {
