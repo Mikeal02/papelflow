@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
+import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const API_URL = "https://api.exchangerate-api.com/v4/latest";
 const CURRENCY_RE = /^[A-Z]{3}$/;
@@ -11,6 +12,9 @@ serve(async (req) => {
   // Require auth so anonymous clients cannot burn our upstream quota.
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
+
+  const rl = rateLimit(authed.id, "fx", { limit: 60, windowSec: 60 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   let body: any = {};
   try { body = await req.json(); } catch { /* body optional */ }
