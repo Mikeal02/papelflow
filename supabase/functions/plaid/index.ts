@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
+import { openToken, sealToken } from "../_shared/seal.ts";
+import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const PLAID_ENV = Deno.env.get("PLAID_ENV") || "sandbox";
 const PLAID_BASE_URL =
