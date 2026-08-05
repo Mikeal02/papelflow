@@ -118,6 +118,31 @@ export function useDeleteTransaction() {
   });
 }
 
+/**
+ * Bulk delete in a single round-trip.
+ * The previous approach looped `useDeleteTransaction` per row, producing one
+ * request, one cache invalidation and one toast per selected transaction.
+ */
+export function useDeleteTransactions() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      if (ids.length === 0) return 0;
+      const { error } = await supabase.from('transactions').delete().in('id', ids);
+      if (error) throw error;
+      return ids.length;
+    },
+    onSuccess: (count) => {
+      invalidateDomains(queryClient, 'transactions');
+      if (count) toast({ title: `Deleted ${count} transaction${count === 1 ? '' : 's'}` });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to delete transactions', description: error.message, variant: 'destructive' });
+    },
+  });
+}
+
 export function useMonthlyStats() {
   const { user } = useAuth();
   const currentMonth = new Date().toISOString().slice(0, 7);
