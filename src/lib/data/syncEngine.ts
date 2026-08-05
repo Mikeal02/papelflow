@@ -7,9 +7,20 @@ import { supabase } from '@/integrations/supabase/client';
 import type { QueryClient } from '@tanstack/react-query';
 import { repos } from './repositories';
 import { getDB } from './db';
+import { qk, invalidateDomains, type Domain } from '@/lib/queryKeys';
 
 const TABLES = ['transactions', 'accounts', 'budgets', 'goals', 'subscriptions', 'categories'] as const;
 type Tbl = typeof TABLES[number];
+
+/** Maps a synced table to its cache domain so dependents refresh too. */
+const TABLE_DOMAIN: Record<Tbl, Domain> = {
+  transactions: 'transactions',
+  accounts: 'accounts',
+  budgets: 'budgets',
+  goals: 'goals',
+  subscriptions: 'subscriptions',
+  categories: 'categories',
+};
 
 async function fullHydrate(userId: string, table: Tbl) {
   const { data, error } = await supabase.from(table as any).select('*').eq('user_id', userId);

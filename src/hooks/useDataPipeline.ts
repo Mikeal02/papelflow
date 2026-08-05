@@ -5,6 +5,7 @@ import { bootstrapSync, subscribeRealtime } from '@/lib/data/syncEngine';
 import { bindOnlineEvents, drain, subscribe as subscribeQueue, type QueueState } from '@/lib/data/offlineQueue';
 import { getDB } from '@/lib/data/db';
 import { getUserKey, keyringInfo } from '@/lib/data/crypto';
+import { invalidateDomains, ALL_DOMAINS } from '@/lib/queryKeys';
 
 export interface PipelineStatus {
   hydrated: boolean;
