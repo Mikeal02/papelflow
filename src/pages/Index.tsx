@@ -40,9 +40,7 @@ const CurrencyConverter = lazy(() => import('@/components/dashboard/CurrencyConv
 const UpcomingBills = lazy(() => import('@/components/dashboard/UpcomingBills').then(m => ({ default: m.UpcomingBills })));
 const FinancialAdvisor = lazy(() => import('@/components/ai/FinancialAdvisor').then(m => ({ default: m.FinancialAdvisor })));
 
-const WidgetFallback = memo(() => (
-  <div className="rounded-xl border border-border/30 bg-card animate-pulse h-48" />
-));
+const WidgetFallback = memo(() => <WidgetPlaceholder />);
 WidgetFallback.displayName = 'WidgetFallback';
 
 const SectionHeader = memo(({ title, description }: { title: string; description?: string }) => (
@@ -65,8 +63,15 @@ const Dashboard = () => {
   useBillReminders();
   useRealtimeTransactions();
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
-  const isInitialLoading = statsLoading && accountsLoading && txLoading;
+  const totalBalance = useMemo(
+    () => accounts.reduce((sum, acc) => sum + Number(acc.balance ?? 0), 0),
+    [accounts],
+  );
+
+  // Show the skeleton until the core datasets are all settled. Previously this
+  // used `&&`, so the page painted with zeroed metrics the moment any single
+  // query resolved and then visibly re-flowed.
+  const isInitialLoading = statsLoading || accountsLoading || txLoading;
 
   return (
     <>
