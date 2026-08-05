@@ -142,40 +142,65 @@ const Transactions = () => {
     }
   }, [dateRange]);
 
+  // Keeps typing responsive: the input updates at full speed while the (much
+  // more expensive) filter + regroup pass runs against a deferred value.
+  const deferredSearch = useDeferredValue(searchQuery);
+
   const filteredTransactions = useMemo(() => {
+    const needle = deferredSearch.trim().toLowerCase();
+    // Precompute timestamps once instead of per-row inside the predicate.
+    const from = dateInterval ? dateInterval.start.getTime() : null;
+    const to = dateInterval ? dateInterval.end.getTime() : null;
+
     return transactions.filter((transaction) => {
-      const matchesSearch =
-        searchQuery === '' ||
-        transaction.payee?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        transaction.notes?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
-      const matchesAccount = accountFilter === 'all' || transaction.account_id === accountFilter;
-      const matchesCategory = categoryFilter === 'all' || transaction.category_id === categoryFilter;
-      const matchesDate = !dateInterval || isWithinInterval(new Date(transaction.date), dateInterval);
-      return matchesSearch && matchesType && matchesAccount && matchesCategory && matchesDate;
+      if (needle) {
+        const haystack = `${transaction.payee ?? ''} ${transaction.notes ?? ''}`.toLowerCase();
+        if (!haystack.includes(needle)) return false;
+      }
+      if (typeFilter !== 'all' && transaction.type !== typeFilter) return false;
+      if (accountFilter !== 'all' && transaction.account_id !== accountFilter) return false;
+      if (categoryFilter !== 'all' && transaction.category_id !== categoryFilter) return false;
+      if (from !== null && to !== null) {
+        const ts = new Date(transaction.date).getTime();
+        if (ts < from || ts > to) return false;
+      }
+      return true;
     });
-  }, [transactions, searchQuery, typeFilter, accountFilter, categoryFilter, dateInterval]);
+  }, [transactions, deferredSearch, typeFilter, accountFilter, categoryFilter, dateInterval]);
 
-  const totalPages = Math.ceil(filteredTransactions.length / PAGE_SIZE);
-  const paginatedTransactions = filteredTransactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
 
-  // Summary stats for filtered
+  // Narrowing the filters used to leave the user stranded on a page index that
+  // no longer exists, rendering an empty list with no way back.
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  const paginatedTransactions = useMemo(
+    () => filteredTransactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filteredTransactions, currentPage],
+  );
+
+  // Summary stats for filtered — single pass over the rows.
   const filteredStats = useMemo(() => {
-    const income = filteredTransactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
-    const expenses = filteredTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+    let income = 0;
+    let expenses = 0;
+    for (const t of filteredTransactions) {
+      if (t.type === 'income') income += Number(t.amount);
+      else if (t.type === 'expense') expenses += Number(t.amount);
+    }
     return { income, expenses, net: income - expenses, count: filteredTransactions.length };
   }, [filteredTransactions]);
 
-  const groupedTransactions = paginatedTransactions.reduce((groups, transaction) => {
-    const date = transaction.date;
-    if (!groups[date]) groups[date] = [];
-    groups[date].push(transaction);
-    return groups;
-  }, {} as Record<string, typeof transactions>);
-
-  const sortedDates = Object.keys(groupedTransactions).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
-  );
+  const { groupedTransactions, sortedDates } = useMemo(() => {
+    const groups: Record<string, typeof transactions> = {};
+    for (const transaction of paginatedTransactions) {
+      (groups[transaction.date] ||= []).push(transaction);
+    }
+    // Dates are ISO `YYYY-MM-DD`, so lexicographic sort is correct and avoids
+    // constructing two Date objects per comparison.
+    return { groupedTransactions: groups, sortedDates: Object.keys(groups).sort().reverse() };
+  }, [paginatedTransactions]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -194,11 +219,9 @@ const Transactions = () => {
   };
 
   const handleBulkDelete = async () => {
-    for (const id of selectedIds) {
-      await deleteTransaction.mutateAsync(id);
-    }
+    if (selectedIds.size === 0) return;
+    await deleteTransactions.mutateAsync([...selectedIds]);
     setSelectedIds(new Set());
-    toast({ title: `Deleted ${selectedIds.size} transactions` });
   };
 
   const handleExport = () => {
