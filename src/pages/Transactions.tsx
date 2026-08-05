@@ -83,10 +83,14 @@ const Transactions = () => {
   const [pendingDuplicate, setPendingDuplicate] = useState<Transaction | null>(null);
   const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
 
-  const { data: transactions = [], isLoading } = useTransactions();
+  // This page pages and filters over history, so it needs a wider window than
+  // the dashboard widgets. The limit is part of the cache key, so both windows
+  // coexist instead of evicting each other.
+  const { data: transactions = [], isLoading } = useTransactions(HISTORY_TX_LIMIT);
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
   const deleteTransaction = useDeleteTransaction();
+  const deleteTransactions = useDeleteTransactions();
   const createTransaction = useCreateTransaction();
   const { formatCurrency } = useCurrency();
 
