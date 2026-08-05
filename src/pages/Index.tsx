@@ -95,7 +95,7 @@ const Dashboard = () => {
 
             <QuickStats />
 
-            {/* Insights & Net Worth */}
+            {/* Insights & Net Worth — first fold, load eagerly */}
             <div>
               <SectionHeader title="Wealth Overview" />
               <Suspense fallback={<div className="grid gap-5 lg:grid-cols-2"><WidgetFallback /><WidgetFallback /></div>}>
@@ -108,36 +108,41 @@ const Dashboard = () => {
               </Suspense>
             </div>
 
-            {/* Main Content Grid */}
+            {/*
+              Everything below the fold is gated on visibility. Mounting all 20+
+              code-split widgets at once meant ~20 parallel chunk requests plus
+              every widget's mount-time computation competing for the main
+              thread during first paint.
+            */}
             <div className="grid gap-5 lg:gap-6 lg:grid-cols-3 min-w-0">
               <div className="lg:col-span-2 space-y-6 min-w-0">
                 <div>
                   <SectionHeader title="Activity" />
                   <RecentTransactions />
                 </div>
-                <Suspense fallback={<WidgetFallback />}><MoneyFlowSankey /></Suspense>
+                <Deferred fallback={<WidgetFallback />}><MoneyFlowSankey /></Deferred>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <Suspense fallback={<WidgetFallback />}><CashFlowChart /></Suspense>
-                  <Suspense fallback={<WidgetFallback />}><SavingsRateGauge /></Suspense>
+                  <Deferred fallback={<WidgetFallback />}><CashFlowChart /></Deferred>
+                  <Deferred fallback={<WidgetFallback />}><SavingsRateGauge /></Deferred>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <Suspense fallback={<WidgetFallback />}><BudgetOverview /></Suspense>
-                  <Suspense fallback={<WidgetFallback />}><TopCategories /></Suspense>
+                  <Deferred fallback={<WidgetFallback />}><BudgetOverview /></Deferred>
+                  <Deferred fallback={<WidgetFallback />}><TopCategories /></Deferred>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <Suspense fallback={<WidgetFallback />}><FinancialCalendar /></Suspense>
-                  <Suspense fallback={<WidgetFallback />}><SpendingForecast /></Suspense>
+                  <Deferred fallback={<WidgetFallback />}><FinancialCalendar /></Deferred>
+                  <Deferred fallback={<WidgetFallback />}><SpendingForecast /></Deferred>
                 </div>
               </div>
 
               <div className="space-y-5">
                 <SectionHeader title="Intelligence" />
-                <Suspense fallback={<WidgetFallback />}><FinancialHealthScore /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><AISpendingInsights /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><SpendingHeatmapCalendar /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><WhatIfScenario /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><FutureYouSimulator /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><GoalsMini /></Suspense>
+                <Deferred fallback={<WidgetFallback />} eager><FinancialHealthScore /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><AISpendingInsights /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><SpendingHeatmapCalendar /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><WhatIfScenario /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><FutureYouSimulator /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><GoalsMini /></Deferred>
               </div>
             </div>
 
@@ -145,14 +150,14 @@ const Dashboard = () => {
             <div>
               <SectionHeader title="Tracking & Accounts" />
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <Suspense fallback={<WidgetFallback />}><DailySpendingTracker /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><SpendingByTimeOfDay /></Suspense>
-                <Suspense fallback={<WidgetFallback />}><AccountsOverview /></Suspense>
+                <Deferred fallback={<WidgetFallback />}><DailySpendingTracker /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><SpendingByTimeOfDay /></Deferred>
+                <Deferred fallback={<WidgetFallback />}><AccountsOverview /></Deferred>
               </div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Suspense fallback={<WidgetFallback />}><CurrencyConverter /></Suspense>
-              <Suspense fallback={<WidgetFallback />}><UpcomingBills /></Suspense>
+              <Deferred fallback={<WidgetFallback />}><CurrencyConverter /></Deferred>
+              <Deferred fallback={<WidgetFallback />}><UpcomingBills /></Deferred>
             </div>
           </div>
         </PageTransition>
