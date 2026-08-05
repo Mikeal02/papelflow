@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useDeferredValue } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, subDays, startOfMonth, endOfMonth, subMonths, isWithinInterval } from 'date-fns';
 import {
@@ -39,7 +39,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
 import { CSVImportModal } from '@/components/transactions/CSVImportModal';
 import { Upload } from 'lucide-react';
-import { useTransactions, useDeleteTransaction, type Transaction } from '@/hooks/useTransactions';
+import {
+  useTransactions,
+  useDeleteTransaction,
+  useDeleteTransactions,
+  HISTORY_TX_LIMIT,
+  type Transaction,
+} from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useCurrency } from '@/contexts/CurrencyContext';
