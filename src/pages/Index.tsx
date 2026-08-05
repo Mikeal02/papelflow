@@ -1,4 +1,4 @@
-import { lazy, Suspense, memo } from 'react';
+import { lazy, Suspense, memo, useMemo } from 'react';
 import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -7,6 +7,7 @@ import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { DashboardSkeleton } from '@/components/ui/elite-skeleton';
+import { Deferred, WidgetPlaceholder } from '@/components/ui/deferred';
 import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
