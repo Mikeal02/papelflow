@@ -57,10 +57,8 @@ export function subscribeRealtime(userId: string, qc: QueryClient) {
         } else if (payload.new) {
           await r.upsertFromServer(payload.new);
         }
-        qc.invalidateQueries({ queryKey: [table] });
-        qc.invalidateQueries({ queryKey: ['monthly-stats'] });
-        qc.invalidateQueries({ queryKey: ['pipeline', table] });
-        qc.invalidateQueries({ queryKey: ['aggregations'] });
+        invalidateDomains(qc, TABLE_DOMAIN[table]);
+        qc.invalidateQueries({ queryKey: qk.pipeline(table) });
       }
     );
   }

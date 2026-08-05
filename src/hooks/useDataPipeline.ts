@@ -48,7 +48,9 @@ export function useDataPipeline(): PipelineStatus {
         await bootstrapSync(user.id);
         if (cancelled) return;
         setStatus(s => ({ ...s, hydrated: true, lastHydratedAt: Date.now() }));
-        qc.invalidateQueries();
+        // Hydration replaced every local table; refresh the user-scoped
+        // domains rather than wiping unrelated caches (e.g. exchange rates).
+        invalidateDomains(qc, ...ALL_DOMAINS);
         const unsubRealtime = subscribeRealtime(user.id, qc);
         const unsubOnline = bindOnlineEvents(user.id);
         const unsubQueue = subscribeQueue(q => setStatus(s => ({ ...s, queue: q })));
