@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { qk, invalidateDomains } from '@/lib/queryKeys';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Category = Tables<'categories'>;
@@ -12,7 +13,7 @@ export function useCategories() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['categories', user?.id],
+    queryKey: qk.categories(user?.id),
     queryFn: async () => {
       // First fetch existing categories
       const { data, error } = await supabase
@@ -59,9 +60,7 @@ export function useCreateCategory() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateDomains(queryClient, 'categories');
       toast({ title: 'Category created successfully' });
     },
     onError: (error: Error) => {
@@ -79,9 +78,7 @@ export function useDeleteCategory() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateDomains(queryClient, 'categories');
       toast({ title: 'Category deleted' });
     },
     onError: (error: Error) => {

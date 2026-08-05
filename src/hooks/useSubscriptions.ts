@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { qk, invalidateDomains } from '@/lib/queryKeys';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Subscription = Tables<'subscriptions'>;
@@ -12,7 +13,7 @@ export function useSubscriptions() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['subscriptions', user?.id],
+    queryKey: qk.subscriptions(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subscriptions')
@@ -48,8 +49,7 @@ export function useCreateSubscription() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      invalidateDomains(queryClient, 'subscriptions');
       toast({ title: 'Subscription added successfully' });
     },
     onError: (error: Error) => {
@@ -74,7 +74,7 @@ export function useUpdateSubscription() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      invalidateDomains(queryClient, 'subscriptions');
       toast({ title: 'Subscription updated successfully' });
     },
     onError: (error: Error) => {
@@ -92,8 +92,7 @@ export function useDeleteSubscription() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      invalidateDomains(queryClient, 'subscriptions');
       toast({ title: 'Subscription deleted successfully' });
     },
     onError: (error: Error) => {
