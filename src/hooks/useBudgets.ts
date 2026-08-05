@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { qk, invalidateDomains } from '@/lib/queryKeys';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Budget = Tables<'budgets'>;
@@ -13,7 +14,7 @@ export function useBudgets(month?: string) {
   const currentMonth = month || new Date().toISOString().slice(0, 7);
 
   return useQuery({
-    queryKey: ['budgets', user?.id, currentMonth],
+    queryKey: qk.budgets(user?.id, currentMonth),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('budgets')
@@ -48,8 +49,7 @@ export function useCreateBudget() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
+      invalidateDomains(queryClient, 'budgets');
       toast({ title: 'Budget created successfully' });
     },
     onError: (error: Error) => {
@@ -74,8 +74,7 @@ export function useUpdateBudget() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
+      invalidateDomains(queryClient, 'budgets');
       toast({ title: 'Budget updated successfully' });
     },
     onError: (error: Error) => {

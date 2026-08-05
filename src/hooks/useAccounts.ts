@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { qk, invalidateDomains } from '@/lib/queryKeys';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Account = Tables<'accounts'>;
@@ -12,7 +13,7 @@ export function useAccounts() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['accounts', user?.id],
+    queryKey: qk.accounts(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('accounts')
@@ -44,8 +45,7 @@ export function useCreateAccount() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateDomains(queryClient, 'accounts');
       toast({ title: 'Account created successfully' });
     },
     onError: (error: Error) => {
@@ -70,8 +70,7 @@ export function useUpdateAccount() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateDomains(queryClient, 'accounts');
       toast({ title: 'Account updated successfully' });
     },
     onError: (error: Error) => {
@@ -89,9 +88,7 @@ export function useDeleteAccount() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['monthly-stats'] });
+      invalidateDomains(queryClient, 'accounts');
       toast({ title: 'Account deleted successfully' });
     },
     onError: (error: Error) => {

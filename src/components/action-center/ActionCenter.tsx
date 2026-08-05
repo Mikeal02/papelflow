@@ -18,6 +18,7 @@ import {
   History, ArrowUpDown, Layers, MoreHorizontal, Undo2, CheckCheck, ListChecks,
   PiggyBank, Wallet, Filter, ChevronDown, Activity, Gauge,
 } from 'lucide-react';
+import { invalidateDomains, ALL_DOMAINS } from '@/lib/queryKeys';
 import { useActionCenterUI } from '@/contexts/ActionCenterContext';
 import { useActionCenter } from '@/hooks/useActionCenter';
 import {
@@ -127,7 +128,8 @@ export function ActionCenter() {
 
   const groups = useMemo(() => groupActions(visible, group), [visible, group]);
 
-  const refresh = () => qc.invalidateQueries();
+  // Refresh every user-scoped domain, but leave shared caches alone.
+  const refresh = () => invalidateDomains(qc, ...ALL_DOMAINS);
 
   const handleResolve = async (a: PriorityAction) => {
     if (a.cta.intent === 'create_subscription' && a.cta.payload) {
@@ -138,7 +140,7 @@ export function ActionCenter() {
         frequency: a.cta.payload.frequency,
       });
       resolveAction(a);
-      qc.invalidateQueries({ queryKey: ['subscriptions'] });
+      invalidateDomains(qc, 'subscriptions');
       toast({ title: 'Subscription created', description: `Now tracking ${a.cta.payload.name}` });
     } else if (a.cta.route) {
       resolveAction(a);

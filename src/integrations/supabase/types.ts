@@ -461,6 +461,16 @@ export type Database = {
         Args: { p_user_id?: string }
         Returns: undefined
       }
+      tx_apply_balance: {
+        Args: {
+          p_account: string
+          p_amount: number
+          p_sign: number
+          p_to_account: string
+          p_type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       account_type:

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { qk, invalidateDomains } from '@/lib/queryKeys';
 import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Profile = Tables<'profiles'>;
@@ -11,7 +12,7 @@ export function useProfile() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['profile', user?.id],
+    queryKey: qk.profile(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
@@ -45,7 +46,7 @@ export function useUpdateProfile() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      invalidateDomains(queryClient, 'profile');
       toast({ title: 'Profile updated successfully' });
     },
     onError: (error: Error) => {

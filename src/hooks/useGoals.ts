@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { qk, invalidateDomains } from '@/lib/queryKeys';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Goal = Tables<'goals'>;
@@ -12,7 +13,7 @@ export function useGoals() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['goals', user?.id],
+    queryKey: qk.goals(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('goals')
@@ -44,7 +45,7 @@ export function useCreateGoal() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      invalidateDomains(queryClient, 'goals');
       toast({ title: 'Goal created successfully' });
     },
     onError: (error: Error) => {
@@ -70,7 +71,7 @@ export function useUpdateGoal() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      invalidateDomains(queryClient, 'goals');
       toast({ title: 'Goal updated successfully' });
     },
     onError: (error: Error) => {
@@ -88,7 +89,7 @@ export function useDeleteGoal() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      invalidateDomains(queryClient, 'goals');
       toast({ title: 'Goal deleted successfully' });
     },
     onError: (error: Error) => {
