@@ -89,7 +89,7 @@ interface FinflowSchema extends DBSchema {
   };
 }
 
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 let dbPromise: Promise<IDBPDatabase<FinflowSchema>> | null = null;
 let currentUserId: string | null = null;
 
