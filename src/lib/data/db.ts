@@ -56,8 +56,9 @@ interface FinflowSchema extends DBSchema {
   mutation_queue: {
     key: string;
     value: QueuedMutation;
-    indexes: { 'by-next-attempt': number; 'by-table': string };
+    indexes: { 'by-next-attempt': number; 'by-table': string; 'by-entity': string; 'by-seq': number };
   };
+
   sync_cursors: { key: string; value: SyncCursor };
   aggregations: {
     key: string; // scope like `monthly:2026-07` or `dna:v1`
