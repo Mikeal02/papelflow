@@ -233,18 +233,19 @@ export async function drain(userId: string) {
       for (const { m, res } of results) {
         const fresh = await db.get('mutation_queue', m.id);
         if (!fresh) continue; // coalesced or purged mid-flight
-        if (res.ok) {
+        if (res.ok === true) {
           await db.delete('mutation_queue', m.id);
           continue;
         }
-        const attempts = res.terminal ? MAX_ATTEMPTS : fresh.attempts + 1;
+        const failure = res as { ok: false; error: string; terminal: boolean };
+        const attempts = failure.terminal ? MAX_ATTEMPTS : fresh.attempts + 1;
         await db.put('mutation_queue', {
           ...fresh,
           attempts,
-          lastError: res.error,
+          lastError: failure.error,
           nextAttemptAt: attempts >= MAX_ATTEMPTS ? Number.MAX_SAFE_INTEGER : now + backoff(attempts),
         });
-        state.lastError = res.error;
+        state.lastError = failure.error;
       }
       await refreshStats(userId);
     }
