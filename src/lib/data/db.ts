@@ -105,7 +105,7 @@ export function getDB(userId: string): Promise<IDBPDatabase<FinflowSchema>> {
   }
   currentUserId = userId;
   dbPromise = openDB<FinflowSchema>(dbName(userId), DB_VERSION, {
-    upgrade(db, oldVersion) {
+    upgrade(db, oldVersion, _newVersion, tx) {
       if (oldVersion < 1) {
         const tx = db.createObjectStore('transactions', { keyPath: 'id' });
         tx.createIndex('by-date', 'date');
@@ -143,7 +143,7 @@ export function getDB(userId: string): Promise<IDBPDatabase<FinflowSchema>> {
       }
       if (oldVersion < 3) {
         // Per-entity FIFO lanes + causal ordering for the mutation queue.
-        const q = transaction.objectStore('mutation_queue');
+        const q = tx.objectStore('mutation_queue');
         if (!q.indexNames.contains('by-entity')) q.createIndex('by-entity', 'entityKey');
         if (!q.indexNames.contains('by-seq')) q.createIndex('by-seq', 'seq');
       }
