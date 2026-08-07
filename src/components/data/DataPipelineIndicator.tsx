@@ -2,9 +2,10 @@ import { useDataPipeline } from '@/hooks/useDataPipeline';
 import { CloudCog, CloudOff, Loader2, RefreshCcw, AlertTriangle, ShieldCheck, KeyRound } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { drain, purgeQueue, listQueue } from '@/lib/data/offlineQueue';
+import { drain, purgeQueue, listQueue, retryDead } from '@/lib/data/offlineQueue';
 import { rotateUserKey } from '@/lib/data/crypto';
 import { readAudit } from '@/lib/data/audit';
+import { forceReconcile } from '@/lib/data/syncEngine';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { toast } from '@/hooks/use-toast';
@@ -39,6 +40,7 @@ export function DataPipelineIndicator() {
 
   const state =
     hydratingError ? 'error' :
+    queue.dead > 0 ? 'blocked' :
     !queue.online ? 'offline' :
     !hydrated ? 'hydrating' :
     queue.size > 0 ? 'syncing' :
@@ -48,18 +50,20 @@ export function DataPipelineIndicator() {
     ready:     'text-emerald-500 border-emerald-500/30 bg-emerald-500/10',
     syncing:   'text-amber-500 border-amber-500/30 bg-amber-500/10',
     hydrating: 'text-sky-500 border-sky-500/30 bg-sky-500/10',
+    blocked:   'text-destructive border-destructive/40 bg-destructive/10',
     offline:   'text-muted-foreground border-border bg-muted/40',
     error:     'text-destructive border-destructive/40 bg-destructive/10',
   };
 
   const icon = state === 'offline' ? <CloudOff className="w-3.5 h-3.5" />
     : state === 'ready' ? <CloudCog className="w-3.5 h-3.5" />
-    : state === 'error' ? <AlertTriangle className="w-3.5 h-3.5" />
+    : state === 'error' || state === 'blocked' ? <AlertTriangle className="w-3.5 h-3.5" />
     : <Loader2 className="w-3.5 h-3.5 animate-spin" />;
 
   const label = state === 'offline' ? 'Offline'
     : state === 'ready' ? 'Synced'
     : state === 'error' ? 'Sync error'
+    : state === 'blocked' ? `Blocked · ${queue.dead}` 
     : state === 'hydrating' ? 'Hydrating'
     : `Syncing · ${queue.size}`;
 
@@ -86,6 +90,8 @@ export function DataPipelineIndicator() {
             <Stat label="State" value={state} />
             <Stat label="Queue" value={String(queue.size)} />
             <Stat label="Failing" value={String(queue.failing)} />
+            <Stat label="Dead" value={String(queue.dead)} />
+            <Stat label="Blocked lanes" value={String(queue.blockedLanes)} />
             <Stat label="Online" value={queue.online ? 'yes' : 'no'} />
             <Stat label="Last hydrate" value={lastHydratedAt ? new Date(lastHydratedAt).toLocaleTimeString() : '—'} />
             <Stat label="Last drain" value={queue.lastDrainAt ? new Date(queue.lastDrainAt).toLocaleTimeString() : '—'} />
@@ -100,7 +106,9 @@ export function DataPipelineIndicator() {
               {preview.slice(0, 6).map(m => (
                 <div key={m.id} className="px-2 py-1.5 text-[11px] flex justify-between gap-2">
                   <span className="truncate">{m.op} · {m.table}</span>
-                  <span className="text-muted-foreground tabular-nums">×{m.attempts}</span>
+                  <span className="text-muted-foreground tabular-nums">
+                    #{m.seq} ×{m.attempts}
+                  </span>
                 </div>
               ))}
             </div>
@@ -142,11 +150,28 @@ export function DataPipelineIndicator() {
               onClick={() => user && drain(user.id)}>
               <RefreshCcw className="w-3.5 h-3.5 mr-1" /> Retry
             </Button>
+            {queue.dead > 0 && (
+              <Button size="sm" variant="secondary" className="flex-1"
+                onClick={() => user && retryDead(user.id)}>
+                Rearm dead
+              </Button>
+            )}
             <Button size="sm" variant="ghost" className="flex-1"
               onClick={() => user && purgeQueue(user.id)}>
               Purge queue
             </Button>
           </div>
+          <Button size="sm" variant="outline" className="w-full text-[11px]"
+            onClick={() => {
+              if (!user) return;
+              void forceReconcile(user.id).then(res => {
+                const tomb = res.reduce((s, r) => s + r.tombstoned, 0);
+                const rows = res.reduce((s, r) => s + r.changed, 0);
+                toast({ title: 'Full reconcile complete', description: `${rows} rows verified · ${tomb} stale removed.` });
+              });
+            }}>
+            Force full reconcile
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
