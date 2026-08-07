@@ -28,7 +28,7 @@ export function useDataPipeline(): PipelineStatus {
   const qc = useQueryClient();
   const [status, setStatus] = useState<PipelineStatus>({
     hydrated: false, hydratingError: null,
-    queue: { size: 0, pending: 0, failing: 0, draining: false, online: true, lastDrainAt: null, lastError: null },
+    queue: { size: 0, pending: 0, failing: 0, dead: 0, blockedLanes: 0, draining: false, online: true, lastDrainAt: null, lastError: null },
     lastHydratedAt: null,
     encryption: { enabled: false, keyCreatedAt: null },
   });

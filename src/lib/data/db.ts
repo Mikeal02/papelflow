@@ -23,6 +23,10 @@ export interface QueuedMutation {
   table: 'transactions' | 'accounts' | 'budgets' | 'goals' | 'subscriptions' | 'categories';
   op: 'insert' | 'update' | 'delete';
   entityId: string;                 // local or server id
+  /** `${table}:${entityId}` — the per-entity FIFO lane key. */
+  entityKey: string;
+  /** Monotonic issue order. Guarantees causal replay within a lane. */
+  seq: number;
   payload: any;
   createdAt: number;
   attempts: number;
@@ -30,6 +34,7 @@ export interface QueuedMutation {
   nextAttemptAt: number;            // for exponential backoff
   userId: string;
 }
+
 
 export interface SyncCursor {
   table: string;
@@ -51,8 +56,9 @@ interface FinflowSchema extends DBSchema {
   mutation_queue: {
     key: string;
     value: QueuedMutation;
-    indexes: { 'by-next-attempt': number; 'by-table': string };
+    indexes: { 'by-next-attempt': number; 'by-table': string; 'by-entity': string; 'by-seq': number };
   };
+
   sync_cursors: { key: string; value: SyncCursor };
   aggregations: {
     key: string; // scope like `monthly:2026-07` or `dna:v1`
@@ -83,7 +89,7 @@ interface FinflowSchema extends DBSchema {
   };
 }
 
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 let dbPromise: Promise<IDBPDatabase<FinflowSchema>> | null = null;
 let currentUserId: string | null = null;
 
@@ -99,7 +105,7 @@ export function getDB(userId: string): Promise<IDBPDatabase<FinflowSchema>> {
   }
   currentUserId = userId;
   dbPromise = openDB<FinflowSchema>(dbName(userId), DB_VERSION, {
-    upgrade(db, oldVersion) {
+    upgrade(db, oldVersion, _newVersion, tx) {
       if (oldVersion < 1) {
         const tx = db.createObjectStore('transactions', { keyPath: 'id' });
         tx.createIndex('by-date', 'date');
@@ -135,6 +141,13 @@ export function getDB(userId: string): Promise<IDBPDatabase<FinflowSchema>> {
         audit.createIndex('by-at', 'at');
         audit.createIndex('by-table', 'table');
       }
+      if (oldVersion < 3) {
+        // Per-entity FIFO lanes + causal ordering for the mutation queue.
+        const q = tx.objectStore('mutation_queue');
+        if (!q.indexNames.contains('by-entity')) q.createIndex('by-entity', 'entityKey');
+        if (!q.indexNames.contains('by-seq')) q.createIndex('by-seq', 'seq');
+      }
+
     },
   });
   return dbPromise;
