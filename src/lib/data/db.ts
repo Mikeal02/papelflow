@@ -23,6 +23,10 @@ export interface QueuedMutation {
   table: 'transactions' | 'accounts' | 'budgets' | 'goals' | 'subscriptions' | 'categories';
   op: 'insert' | 'update' | 'delete';
   entityId: string;                 // local or server id
+  /** `${table}:${entityId}` — the per-entity FIFO lane key. */
+  entityKey: string;
+  /** Monotonic issue order. Guarantees causal replay within a lane. */
+  seq: number;
   payload: any;
   createdAt: number;
   attempts: number;
@@ -30,6 +34,7 @@ export interface QueuedMutation {
   nextAttemptAt: number;            // for exponential backoff
   userId: string;
 }
+
 
 export interface SyncCursor {
   table: string;
