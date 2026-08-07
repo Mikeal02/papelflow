@@ -181,10 +181,13 @@ export function subscribeRealtime(userId: string, qc: QueryClient) {
     );
   }
 
+  // The first SUBSCRIBED follows the caller's own bootstrap; only *re*-subscribes
+  // (sleep/wake, network change) indicate a gap that needs catching up.
+  let subscribedOnce = false;
   channel.subscribe(status => {
-    // Realtime can drop silently (sleep, network change). On re-subscribe,
-    // walk the cursors so nothing missed while disconnected is lost.
-    if (status === 'SUBSCRIBED') {
+    if (status !== 'SUBSCRIBED') return;
+    if (!subscribedOnce) { subscribedOnce = true; return; }
+    {
       void bootstrapSync(userId).then(() => {
         for (const t of TABLES) markDirty(t);
       });
