@@ -141,6 +141,13 @@ export function getDB(userId: string): Promise<IDBPDatabase<FinflowSchema>> {
         audit.createIndex('by-at', 'at');
         audit.createIndex('by-table', 'table');
       }
+      if (oldVersion < 3) {
+        // Per-entity FIFO lanes + causal ordering for the mutation queue.
+        const q = transaction.objectStore('mutation_queue');
+        if (!q.indexNames.contains('by-entity')) q.createIndex('by-entity', 'entityKey');
+        if (!q.indexNames.contains('by-seq')) q.createIndex('by-seq', 'seq');
+      }
+
     },
   });
   return dbPromise;
