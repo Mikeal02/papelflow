@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
-import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 // Cap uploads to protect the AI gateway budget and prevent memory abuse.
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB of base64 payload
@@ -13,7 +13,7 @@ serve(async (req) => {
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
 
-  const rl = rateLimit(authed.id, "receipt", { limit: 10, windowSec: 60 }, { limit: 100, windowSec: 86400 });
+  const rl = await enforceRateLimit(authed.id, "receipt", { limit: 10, windowSec: 60 }, { limit: 100, windowSec: 86400 });
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");

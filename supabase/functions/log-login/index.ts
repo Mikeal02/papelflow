@@ -2,7 +2,7 @@
 // Captures IP + UA server-side so the client cannot forge geolocation.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
-import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 interface Body {
   event_type: "sign_in" | "sign_out" | "token_refresh" | "password_change" | "failed_attempt";
@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
 
-  const rl = rateLimit(auth.id, "login_log", { limit: 30, windowSec: 60 }, { limit: 500, windowSec: 86400 });
+  const rl = await enforceRateLimit(auth.id, "login_log", { limit: 30, windowSec: 60 }, { limit: 500, windowSec: 86400 });
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   let body: Body;

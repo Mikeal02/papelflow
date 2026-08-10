@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
-import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const MAX_MESSAGES = 40;
 const MAX_MESSAGE_LEN = 4000;
@@ -13,7 +13,7 @@ serve(async (req) => {
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
 
-  const rl = rateLimit(authed.id, "advisor", { limit: 20, windowSec: 60 }, { limit: 200, windowSec: 86400 });
+  const rl = await enforceRateLimit(authed.id, "advisor", { limit: 20, windowSec: 60 }, { limit: 200, windowSec: 86400 });
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   try {

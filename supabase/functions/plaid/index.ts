@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
 import { openToken, sealToken } from "../_shared/seal.ts";
-import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const PLAID_ENV = Deno.env.get("PLAID_ENV") || "sandbox";
 const PLAID_BASE_URL =
@@ -30,7 +30,7 @@ serve(async (req) => {
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
 
-  const rl = rateLimit(authed.id, "plaid", { limit: 30, windowSec: 60 }, { limit: 300, windowSec: 86400 });
+  const rl = await enforceRateLimit(authed.id, "plaid", { limit: 30, windowSec: 60 }, { limit: 300, windowSec: 86400 });
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   const PLAID_CLIENT_ID = Deno.env.get("PLAID_CLIENT_ID");

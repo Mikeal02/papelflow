@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json, escapeHtml, requireAuth } from "../_shared/security.ts";
-import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -245,7 +245,7 @@ serve(async (req) => {
     const authed = await requireAuth(req);
     if (authed instanceof Response) return authed;
 
-    const rl = rateLimit(authed.id, "weekly", { limit: 2, windowSec: 3600 }, { limit: 5, windowSec: 86400 });
+    const rl = await enforceRateLimit(authed.id, "weekly", { limit: 2, windowSec: 3600 }, { limit: 5, windowSec: 86400 });
     if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
     onlyUserId = authed.id;
   }
