@@ -6,7 +6,7 @@
 
     <!-- Client-side hardening. Enforced by the browser even before any hosting
          headers apply: no framing, no referrer leakage, no legacy plugin surface. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://ai.gateway.lovable.dev https://ipapi.co; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://*.lovable.app https://*.lovable.dev https://*.lovableproject.com; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://ai.gateway.lovable.dev https://ipapi.co ws://localhost:* http://localhost:* ws://127.0.0.1:* wss://*.lovable.app wss://*.lovableproject.com; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <title>Finflow - Personal Finance Manager</title>
