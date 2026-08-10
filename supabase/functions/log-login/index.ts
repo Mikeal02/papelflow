@@ -1,8 +1,9 @@
 // Records a login/logout/security event for the authenticated user.
 // Captures IP + UA server-side so the client cannot forge geolocation.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
-import { rateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { corsHeaders, json, requireAuth , readJson } from "../_shared/security.ts";
+import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { recordSecurityEvent } from "../_shared/admin.ts";
 
 interface Body {
   event_type: "sign_in" | "sign_out" | "token_refresh" | "password_change" | "failed_attempt";
@@ -52,11 +53,13 @@ Deno.serve(async (req) => {
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
 
-  const rl = rateLimit(auth.id, "login_log", { limit: 30, windowSec: 60 }, { limit: 500, windowSec: 86400 });
+  const rl = await enforceRateLimit(auth.id, "login_log", { limit: 30, windowSec: 60 }, { limit: 500, windowSec: 86400 });
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   let body: Body;
-  try { body = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
+  const parsed = await readJson<Body>(req, 4 * 1024);
+  if (parsed instanceof Response) return parsed;
+  body = parsed;
   const allowed = ["sign_in", "sign_out", "token_refresh", "password_change", "failed_attempt"];
   if (!allowed.includes(body.event_type)) return json({ error: "invalid_event_type" }, 400);
 
@@ -90,6 +93,17 @@ Deno.serve(async (req) => {
     is_suspicious,
   });
   if (error) return json({ error: "insert_failed", detail: error.message }, 500);
+
+  if (is_suspicious) {
+    void recordSecurityEvent({
+      userId: auth.id,
+      kind: "new_geo_signin",
+      severity: "high",
+      source: "log-login",
+      detail: { country: geo.country ?? null, previous_country: prev?.country ?? null, device, browser, os },
+      req,
+    });
+  }
 
   return json({ ok: true, is_suspicious });
 });
