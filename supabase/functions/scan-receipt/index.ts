@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
+import { corsHeaders, json, requireAuth , readJson } from "../_shared/security.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 // Cap uploads to protect the AI gateway budget and prevent memory abuse.
@@ -20,7 +20,9 @@ serve(async (req) => {
   if (!LOVABLE_API_KEY) return json({ error: "ai_service_unavailable" }, 503);
 
   let body: any;
-  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  const parsedBody = await readJson<typeof body>(req, 12 * 1024 * 1024);
+  if (parsedBody instanceof Response) return parsedBody;
+  body = parsedBody;
 
   const imageBase64 = body?.imageBase64;
   if (typeof imageBase64 !== "string") return json({ error: "no_image_provided" }, 400);

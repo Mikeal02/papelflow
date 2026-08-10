@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
+import { corsHeaders, json, requireAuth , readJson } from "../_shared/security.ts";
 import { openToken, sealToken } from "../_shared/seal.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
@@ -40,7 +40,9 @@ serve(async (req) => {
   }
 
   let payload: any;
-  try { payload = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  const parsedBody = await readJson<typeof payload>(req, 16 * 1024);
+  if (parsedBody instanceof Response) return parsedBody;
+  payload = parsedBody;
   const { action, ...params } = payload ?? {};
   if (!ALLOWED_ACTIONS.has(action)) return json({ error: "unknown_action" }, 400);
 

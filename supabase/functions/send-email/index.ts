@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { corsHeaders, json, requireAuth, escapeHtml, num } from "../_shared/security.ts";
+import { corsHeaders, json, requireAuth, escapeHtml, num , readJson } from "../_shared/security.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -126,7 +126,9 @@ serve(async (req) => {
   if (!RESEND_API_KEY) return json({ error: "email_service_unavailable" }, 503);
 
   let body: EmailRequest;
-  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  const parsedBody = await readJson<typeof body>(req, 64 * 1024);
+  if (parsedBody instanceof Response) return parsedBody;
+  body = parsedBody;
 
   if (!body || typeof body !== "object" || !ALLOWED_TYPES.has(body.type as string)) {
     return json({ error: "invalid_type" }, 400);

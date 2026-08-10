@@ -1,7 +1,7 @@
 // Records a login/logout/security event for the authenticated user.
 // Captures IP + UA server-side so the client cannot forge geolocation.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, json, requireAuth } from "../_shared/security.ts";
+import { corsHeaders, json, requireAuth , readJson } from "../_shared/security.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 interface Body {
@@ -56,7 +56,9 @@ Deno.serve(async (req) => {
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   let body: Body;
-  try { body = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
+  const parsed = await readJson<Body>(req, 4 * 1024);
+  if (parsed instanceof Response) return parsed;
+  body = parsed;
   const allowed = ["sign_in", "sign_out", "token_refresh", "password_change", "failed_attempt"];
   if (!allowed.includes(body.event_type)) return json({ error: "invalid_event_type" }, 400);
 
