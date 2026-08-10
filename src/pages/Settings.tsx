@@ -27,6 +27,7 @@ import { toast } from '@/hooks/use-toast';
 import { ChangePasswordModal } from '@/components/settings/ChangePasswordModal';
 import { ExportDataModal } from '@/components/settings/ExportDataModal';
 import { LoginActivityModal } from '@/components/settings/LoginActivityModal';
+import { SecurityCenterModal } from '@/components/settings/SecurityCenterModal';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -58,6 +59,7 @@ const Settings = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showLoginActivity, setShowLoginActivity] = useState(false);
+  const [showSecurityCenter, setShowSecurityCenter] = useState(false);
   const [recentLogins, setRecentLogins] = useState<number>(0);
   const [lastLoginAt, setLastLoginAt] = useState<string | null>(null);
 
@@ -337,6 +339,20 @@ const Settings = () => {
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
             </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-between h-12 hover:bg-muted/50 group"
+              onClick={() => setShowSecurityCenter(true)}
+            >
+              <span className="flex items-center gap-2.5">
+                <Fingerprint className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                Security Center
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Badge variant="outline" className="text-[10px]">Append-only log</Badge>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </span>
+            </Button>
 
           </div>
         </motion.div>
@@ -398,6 +414,7 @@ const Settings = () => {
         data={{ profile, accounts, transactions, budgets, categories, goals, subscriptions }}
       />
       <LoginActivityModal open={showLoginActivity} onOpenChange={setShowLoginActivity} />
+      <SecurityCenterModal open={showSecurityCenter} onOpenChange={setShowSecurityCenter} />
 
     </>
   );
