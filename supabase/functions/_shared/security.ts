@@ -91,10 +91,29 @@ export async function requireAuth(req: Request): Promise<AuthedUser | Response> 
 
   const { data, error } = await client.auth.getClaims(token);
   const claims: any = (data as any)?.claims;
-  if (error || !claims?.sub) return json({ error: "unauthorized" }, 401);
-  if (claims.is_anonymous === true) return json({ error: "forbidden" }, 403);
+  if (error || !claims?.sub) {
+    void recordSecurityEvent({
+      kind: "auth_rejected",
+      severity: "medium",
+      source: new URL(req.url).pathname,
+      detail: { reason: error ? "invalid_token" : "missing_subject" },
+      req,
+    });
+    return json({ error: "unauthorized" }, 401);
+  }
+  if (claims.is_anonymous === true) {
+    void recordSecurityEvent({
+      userId: String(claims.sub),
+      kind: "anonymous_session_blocked",
+      severity: "high",
+      source: new URL(req.url).pathname,
+      req,
+    });
+    return json({ error: "forbidden" }, 403);
+  }
 
   return { id: String(claims.sub), email: (claims.email ?? null) as string | null, client };
+
 }
 
 /** Escape a string for safe interpolation into HTML text/attribute context. */
