@@ -322,6 +322,72 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_counters: {
+        Row: {
+          bucket: string
+          created_at: string
+          hits: number
+          id: string
+          subject: string
+          updated_at: string
+          window_sec: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          hits?: number
+          id?: string
+          subject: string
+          updated_at?: string
+          window_sec: number
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          hits?: number
+          id?: string
+          subject?: string
+          updated_at?: string
+          window_sec?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          detail: Json
+          id: string
+          ip_hash: string | null
+          kind: string
+          severity: string
+          source: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          ip_hash?: string | null
+          kind: string
+          severity?: string
+          source?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          ip_hash?: string | null
+          kind?: string
+          severity?: string
+          source?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           account_id: string | null
@@ -460,6 +526,31 @@ export type Database = {
       add_income_categories_for_user: {
         Args: { p_user_id?: string }
         Returns: undefined
+      }
+      consume_rate_limit: {
+        Args: {
+          p_bucket: string
+          p_limit: number
+          p_subject: string
+          p_window_sec: number
+        }
+        Returns: {
+          allowed: boolean
+          hits: number
+          retry_after: number
+        }[]
+      }
+      purge_rate_limit_counters: { Args: never; Returns: number }
+      record_security_event: {
+        Args: {
+          p_detail?: Json
+          p_ip_hash?: string
+          p_kind: string
+          p_severity: string
+          p_source: string
+          p_user_id: string
+        }
+        Returns: string
       }
       tx_apply_balance: {
         Args: {
