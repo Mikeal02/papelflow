@@ -3,6 +3,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json, requireAuth , readJson } from "../_shared/security.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
+import { recordSecurityEvent } from "../_shared/admin.ts";
 
 interface Body {
   event_type: "sign_in" | "sign_out" | "token_refresh" | "password_change" | "failed_attempt";
@@ -92,6 +93,17 @@ Deno.serve(async (req) => {
     is_suspicious,
   });
   if (error) return json({ error: "insert_failed", detail: error.message }, 500);
+
+  if (is_suspicious) {
+    void recordSecurityEvent({
+      userId: auth.id,
+      kind: "new_geo_signin",
+      severity: "high",
+      source: "log-login",
+      detail: { country: geo.country ?? null, previous_country: prev?.country ?? null, device, browser, os },
+      req,
+    });
+  }
 
   return json({ ok: true, is_suspicious });
 });
