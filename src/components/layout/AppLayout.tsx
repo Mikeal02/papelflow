@@ -35,12 +35,15 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
       </div>
       
       {/* Main Content */}
-      <main className={`
+      <main
+        className={`
         ${isMobile ? 'pt-14 pb-24' : 'pl-64'}
-        transition-all duration-300 ease-out relative
-      `}>
-        <div className="min-h-screen p-3 sm:p-4 md:p-6 lg:p-8">{children}</div>
+        relative transition-all duration-300 ease-out
+      `}
+      >
+        <div className="page-shell min-h-dvh px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8">{children}</div>
       </main>
+
       
       {/* Floating Action Menu - desktop only */}
       {!isMobile && (
