@@ -17,7 +17,7 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       {/* Global data pipeline status */}
       <div className="fixed top-3 right-3 z-50 hidden md:block">
         <DataPipelineIndicator />
