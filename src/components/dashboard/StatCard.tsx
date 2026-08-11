@@ -1,5 +1,5 @@
 import { useMemo, memo, useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -141,12 +141,13 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
 
         <div
           className={cn(
-            'relative flex h-9 w-9 sm:h-11 sm:w-11 lg:h-12 lg:w-12 items-center justify-center rounded-xl flex-shrink-0 conic-ring',
+            'relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-border/50 sm:h-10 sm:w-10',
             iconColor || 'bg-primary/10 text-primary'
           )}
         >
-          <Icon className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+          <Icon className="relative z-10 h-4 w-4 sm:h-[18px] sm:w-[18px]" />
         </div>
+
       </div>
     </motion.div>
   );
