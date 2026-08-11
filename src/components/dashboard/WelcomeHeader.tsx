@@ -62,73 +62,51 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-   className="relative overflow-x-hidden overflow-y-hidden rounded-2xl border border-border/50 mesh-bg"
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+      className="relative overflow-hidden rounded-2xl border border-border/60 mesh-bg shadow-[var(--shadow-sm)]"
     >
-      {/* Animated decorative orbs */}
-      <motion.div
-        aria-hidden
-        className="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-primary/15"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        aria-hidden
-        className="absolute -bottom-24 -left-16 w-64 h-64 rounded-full blur-3xl bg-accent/12"
-        animate={{ scale: [1.1, 1, 1.1], opacity: [0.6, 0.4, 0.6] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-      />
-
       <div className="relative p-5 sm:p-7">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 min-w-0">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-2">
-            <p className="eyebrow-bar text-[11px] font-medium text-muted-foreground/80 uppercase tracking-[0.14em]">
-              <span>{emoji}</span>
+            <p className="eyebrow-bar text-eyebrow">
+              <span aria-hidden>{emoji}</span>
               <span>{currentDate}</span>
             </p>
-            <h1 className="text-2xl md:text-4xl font-semibold tracking-tight overflow-hidden text-ellipsis">
-              {greeting},{' '}
-              <span className="holo-ticker font-semibold">{firstName}</span>
+            <h1 className="text-display overflow-hidden text-ellipsis">
+              {greeting}, <span className="text-primary">{firstName}</span>
             </h1>
-            <p className="text-sm text-muted-foreground/80 max-w-xl">
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
               Your financial cockpit is calibrated. Markets, budgets, and goals — synchronised in real time.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             {stats && stats.income > 20 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
+              <div
                 className={cn(
-                  'relative conic-ring flex items-center gap-2 text-xs font-medium px-3.5 py-2 rounded-full',
+                  'flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium',
                   savingsRate >= 20
-                    ? 'bg-income/8 text-income'
+                    ? 'border-income/20 bg-income/10 text-income'
                     : savingsRate >= 0
-                      ? 'bg-warning/8 text-warning'
-                      : 'bg-expense/8 text-expense'
+                      ? 'border-warning/25 bg-warning/10 text-warning'
+                      : 'border-expense/20 bg-expense/10 text-expense'
                 )}
               >
                 <Activity className="h-3.5 w-3.5 shrink-0" />
-                <span className="relative min-w-fit conic-ring flex items-center gap-2 flex-wrap text-xs font-medium px-3.5 py-2 rounded-full">{savingsRate >= 0 ? '+' : ''}{savingsRate}% saved</span>
-              </motion.div>
+                <span className="text-numeric">{savingsRate >= 0 ? '+' : ''}{savingsRate}% saved</span>
+              </div>
             )}
             {streakLabel && savingsRate >= 20 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-full bg-primary/8 border border-primary/20 text-primary"
-              >
+              <div className="hidden items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground sm:flex">
                 <Sparkles className="h-3 w-3" />
                 {streakLabel}
-              </motion.div>
+              </div>
             )}
           </div>
         </div>
+
 
         {/* Live ticker */}
         <div className="mt-5 overflow-hidden border-y border-border/40 bg-card/40 backdrop-blur-sm">
