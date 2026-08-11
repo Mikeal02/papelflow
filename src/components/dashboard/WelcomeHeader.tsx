@@ -108,22 +108,22 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
         </div>
 
 
-        {/* Live ticker */}
-        <div className="mt-5 overflow-hidden border-y border-border/40 bg-card/40 backdrop-blur-sm">
-          <div className="marquee py-2.5">
-            {[...tickerItems, ...tickerItems].map((it, i) => {
-              const toneCls = it.tone === 'income' ? 'text-income' : it.tone === 'expense' ? 'text-expense' : it.tone === 'accent' ? 'text-accent' : it.tone === 'warning' ? 'text-warning' : 'text-primary';
-              return (
-                <div key={i} className="flex items-center gap-2 px-5 whitespace-nowrap text-[12px]">
-                  <it.icon className={cn('h-3.5 w-3.5', toneCls)} />
-                  <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px]">{it.label}</span>
-                  <span className={cn('font-semibold tnum', toneCls)}>{it.value}</span>
-                  <span className="text-border">•</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        {/* Key metrics strip */}
+        <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/60 bg-border/60 sm:grid-cols-3 lg:grid-cols-5">
+          {tickerItems.map((it, i) => {
+            const toneCls = it.tone === 'income' ? 'text-income' : it.tone === 'expense' ? 'text-expense' : it.tone === 'accent' ? 'text-accent' : it.tone === 'warning' ? 'text-warning' : 'text-primary';
+            return (
+              <div key={i} className="flex min-w-0 flex-col gap-1 bg-card px-4 py-3">
+                <dt className="flex items-center gap-1.5 text-eyebrow truncate">
+                  <it.icon className={cn('h-3.5 w-3.5 shrink-0', toneCls)} />
+                  <span className="truncate">{it.label}</span>
+                </dt>
+                <dd className="truncate text-sm font-semibold text-numeric text-foreground">{it.value}</dd>
+              </div>
+            );
+          })}
+        </dl>
+
       </div>
     </motion.div>
   );
