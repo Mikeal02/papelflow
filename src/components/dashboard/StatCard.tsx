@@ -1,5 +1,5 @@
 import { useMemo, memo, useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -91,48 +91,28 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
   const isNegative = computedChange !== undefined && computedChange < 0;
   const accentVar = autoCompare === 'income' ? '--income' : autoCompare === 'expense' ? '--expense' : autoCompare === 'net' ? '--primary' : '--accent';
 
-  // 3D tilt
   const ref = useRef<HTMLDivElement>(null);
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const spring = { stiffness: 220, damping: 22, mass: 0.4 };
-  const rX = useSpring(useTransform(my, [-0.5, 0.5], [4, -4]), spring);
-  const rY = useSpring(useTransform(mx, [-0.5, 0.5], [-4, 4]), spring);
-
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width;
-    const py = (e.clientY - r.top) / r.height;
-    mx.set(px - 0.5);
-    my.set(py - 0.5);
-    ref.current.style.setProperty('--mx', `${px * 100}%`);
-    ref.current.style.setProperty('--my', `${py * 100}%`);
-  };
-  const handleLeave = () => { mx.set(0); my.set(0); };
 
   return (
     <motion.div
       ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      style={{ rotateX: rX, rotateY: rY, transformStyle: 'preserve-3d', perspective: 1000 }}
-      className="elite-card shine-sweep group h-full p-4 sm:p-5"
+      transition={{ delay, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="elite-card group relative h-full overflow-hidden p-4 sm:p-5"
     >
       {/* Accent bar */}
       <div
-        className="absolute left-0 top-0 h-full w-[3px] opacity-70"
-        style={{ background: `linear-gradient(180deg, hsl(var(${accentVar})), transparent)` }}
+        className="absolute left-0 top-0 h-full w-[2px]"
+        style={{ background: `hsl(var(${accentVar}) / 0.65)` }}
       />
 
-      <div className="relative flex items-start justify-between gap-3" style={{ transform: 'translateZ(20px)' }}>
-        <div className="space-y-2 min-w-0 flex-1 overflow-hidden">
-          <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground/80 uppercase tracking-[0.1em] truncate">{title}</p>
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-2 overflow-hidden">
+          <p className="text-eyebrow truncate">{title}</p>
 
-          <CountUpValue value={value} className="text-base sm:text-xl lg:text-2xl font-semibold tracking-tight block truncate tnum" />
+          <CountUpValue value={value} className="block truncate text-lg font-semibold tracking-[-0.025em] text-numeric sm:text-xl lg:text-2xl" />
+
 
           <div className="flex items-center gap-2 mt-1">
             {sparklineData.some(v => v > 0) && (
@@ -161,12 +141,13 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
 
         <div
           className={cn(
-            'relative flex h-9 w-9 sm:h-11 sm:w-11 lg:h-12 lg:w-12 items-center justify-center rounded-xl flex-shrink-0 conic-ring',
+            'relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-border/50 sm:h-10 sm:w-10',
             iconColor || 'bg-primary/10 text-primary'
           )}
         >
-          <Icon className="h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+          <Icon className="relative z-10 h-4 w-4 sm:h-[18px] sm:w-[18px]" />
         </div>
+
       </div>
     </motion.div>
   );
