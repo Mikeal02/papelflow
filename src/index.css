@@ -1231,3 +1231,170 @@ html,body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   ELITE REFINEMENT LAYER (production pass)
+   Overrides the experimental effects above with a calmer,
+   Linear/Stripe-grade system: tokens, elevation, states.
+   ============================================================ */
+
+:root {
+  /* Elevation scale — neutral, layered, never colored */
+  --shadow-xs: 0 1px 2px hsl(var(--foreground) / 0.04);
+  --shadow-sm: 0 1px 2px hsl(var(--foreground) / 0.05), 0 1px 3px -1px hsl(var(--foreground) / 0.04);
+  --shadow-md: 0 2px 4px -1px hsl(var(--foreground) / 0.05), 0 8px 20px -12px hsl(var(--foreground) / 0.12);
+  --shadow-lg: 0 4px 8px -2px hsl(var(--foreground) / 0.06), 0 20px 44px -24px hsl(var(--foreground) / 0.20);
+  --shadow-overlay: 0 8px 16px -6px hsl(var(--foreground) / 0.10), 0 32px 64px -32px hsl(var(--foreground) / 0.32);
+
+  /* Motion tokens */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 130ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* Layout rhythm */
+  --page-max: 1560px;
+  --hairline: hsl(var(--border) / 0.7);
+
+  /* Contrast tuning (WCAG AA on body text) */
+  --muted-foreground: 240 4% 42%;
+}
+
+.dark {
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.30);
+  --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.36), 0 1px 3px -1px hsl(0 0% 0% / 0.30);
+  --shadow-md: 0 2px 6px -2px hsl(0 0% 0% / 0.44), 0 10px 24px -14px hsl(0 0% 0% / 0.60);
+  --shadow-lg: 0 6px 12px -4px hsl(0 0% 0% / 0.46), 0 24px 52px -26px hsl(0 0% 0% / 0.70);
+  --shadow-overlay: 0 12px 24px -8px hsl(0 0% 0% / 0.55), 0 40px 80px -40px hsl(0 0% 0% / 0.80);
+  --muted-foreground: 240 6% 64%;
+  --border: 240 5% 18%;
+  --input: 240 5% 20%;
+  --card: 240 9% 7.5%;
+}
+
+/* --- Typography hierarchy -------------------------------------------- */
+h1 { letter-spacing: -0.03em; }
+h2, h3 { letter-spacing: -0.022em; }
+.text-display { font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.6rem); line-height: 1.08; letter-spacing: -0.032em; font-weight: 600; }
+.text-title { font-size: 1.0625rem; line-height: 1.35; letter-spacing: -0.018em; font-weight: 600; }
+.text-eyebrow { font-size: 0.6875rem; line-height: 1; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+.text-numeric { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+
+/* --- Surfaces --------------------------------------------------------- */
+.surface {
+  background: hsl(var(--card));
+  border: 1px solid var(--hairline);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-sm);
+}
+.surface-muted { background: hsl(var(--muted) / 0.4); border: 1px solid var(--hairline); border-radius: 0.875rem; }
+.hairline { border-color: var(--hairline); }
+
+/* Card: quiet by default, lifts a single pixel-perfect step on hover */
+.elite-card {
+  border-radius: 0.875rem;
+  background: hsl(var(--card));
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--dur-base) ease, border-color var(--dur-base) ease, transform var(--dur-base) var(--ease-out-quint);
+}
+.elite-card::after { display: none; }
+.elite-card:hover {
+  transform: none;
+  border-color: hsl(var(--border));
+  box-shadow: var(--shadow-md);
+}
+.elite-card:hover::after { opacity: 0; }
+
+/* Interactive card (only where the whole card is a target) */
+.card-interactive { cursor: pointer; }
+.card-interactive:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.card-interactive:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+
+/* Retire the loud experiments -------------------------------------------- */
+.shine-sweep::before,
+.noise-overlay::before,
+.scan-line::after,
+.particles { display: none; content: none; animation: none; background-image: none; }
+.conic-ring::before { animation: none; background: linear-gradient(180deg, hsl(var(--border)), hsl(var(--border) / 0.4)); }
+.neon-text, .text-glow-primary, .text-glow-accent,
+.amount-positive, .amount-negative { text-shadow: none; }
+.amount-positive { @apply text-income font-semibold; }
+.amount-negative { @apply text-expense font-semibold; }
+.holographic, .rainbow-hover:hover, .text-shimmer, .gradient-text, .holo-ticker {
+  animation: none;
+  background: linear-gradient(96deg, hsl(var(--primary)), hsl(var(--accent)));
+  background-size: auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.breathe-glow, .pulse-glow, .float, .blob, .morphing-blob, .cyber-grid, .glitch-text:hover,
+.gradient-bg, .aurora-bg, .liquid-border::before, .border-gradient::before, .animate-spin-slow {
+  animation: none !important;
+}
+.elite-3d-card:hover { transform: translateY(-2px); }
+.elite-3d-card::before { display: none; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: hsl(var(--border)); }
+.marquee { animation-duration: 60s; }
+.mesh-bg {
+  background-image:
+    radial-gradient(at 6% 0%, hsl(var(--primary) / 0.07) 0px, transparent 45%),
+    radial-gradient(at 96% 6%, hsl(var(--accent) / 0.05) 0px, transparent 45%);
+}
+
+/* Premium primary button: single flat accent + crisp press, no gloss */
+.btn-premium {
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--primary) / 0.92));
+  box-shadow: var(--shadow-xs), inset 0 1px 0 hsl(0 0% 100% / 0.14);
+  transition: filter var(--dur-fast) ease, box-shadow var(--dur-fast) ease, transform var(--dur-fast) ease;
+  animation: none;
+}
+.btn-premium::before, .btn-premium::after { display: none; }
+.btn-premium:hover { transform: none; filter: brightness(1.06); box-shadow: var(--shadow-sm), inset 0 1px 0 hsl(0 0% 100% / 0.18); }
+.btn-premium:active { transform: translateY(0.5px) scale(0.995); filter: brightness(0.97); box-shadow: var(--shadow-xs); }
+
+/* --- Focus states: one consistent ring everywhere --------------------- */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+.input-elite:focus-within { box-shadow: 0 0 0 3px hsl(var(--ring) / 0.18); }
+
+/* --- Global transition discipline ------------------------------------ */
+* {
+  transition-property: opacity, box-shadow, transform, border-color, background-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: var(--dur-fast);
+}
+
+/* --- Layout primitives ------------------------------------------------ */
+.page-shell { width: 100%; max-width: var(--page-max); margin-inline: auto; }
+.page-stack > * + * { margin-top: clamp(1rem, 0.6rem + 1vw, 1.75rem); }
+.section-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+/* --- Scrollbars: thin and neutral ------------------------------------ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.28);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.45); background-clip: padding-box; }
+
+/* --- Skeletons: neutral shimmer -------------------------------------- */
+.skeleton::after, .skeleton-shimmer::after {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--foreground) / 0.06) 50%, transparent 100%);
+  animation-duration: 1.6s;
+}
+
+/* --- Tap targets ------------------------------------------------------ */
+@media (pointer: coarse) {
+  button, a[role="button"], [role="tab"] { min-height: 44px; }
+}
