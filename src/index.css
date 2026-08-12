@@ -1398,3 +1398,119 @@ h2, h3 { letter-spacing: -0.022em; }
 @media (pointer: coarse) {
   button, a[role="button"], [role="tab"] { min-height: 44px; }
 }
+
+/* ============================================================
+   ELITE REFINEMENT LAYER II (optical polish pass)
+   Micro-corrections on top of the production system: optical
+   typography, edge lighting, segmented controls, quieter
+   overlays, print + reduced-motion discipline.
+   ============================================================ */
+
+:root {
+  /* Optical spacing rhythm */
+  --gutter: clamp(1rem, 0.6rem + 1.2vw, 2.5rem);
+  --stack-sm: clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem);
+  --stack-md: clamp(0.875rem, 0.7rem + 0.6vw, 1.25rem);
+  --stack-lg: clamp(1.25rem, 0.9rem + 1.2vw, 2.25rem);
+
+  /* Edge lighting: the 1px highlight that makes a surface read as physical */
+  --edge-top: inset 0 1px 0 hsl(0 0% 100% / 0.55);
+  --ring-soft: 0 0 0 3px hsl(var(--ring) / 0.16);
+}
+
+.dark {
+  --edge-top: inset 0 1px 0 hsl(0 0% 100% / 0.045);
+  --ring-soft: 0 0 0 3px hsl(var(--ring) / 0.26);
+}
+
+/* --- Optical typography ----------------------------------------------- */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01", "calt" 1;
+}
+body { text-wrap: pretty; }
+h1, h2, h3, h4, .text-display, .text-title { text-wrap: balance; }
+/* Numerals never reflow width while animating */
+.text-numeric, .tabular-nums, table td, [data-slot="amount"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+/* Optical alignment for uppercase eyebrows */
+.text-eyebrow, .eyebrow-bar { font-feature-settings: "cpsp" 1; }
+
+/* --- Surfaces get edge lighting --------------------------------------- */
+.elite-card, .surface {
+  box-shadow: var(--shadow-sm), var(--edge-top);
+}
+.elite-card:hover { box-shadow: var(--shadow-md), var(--edge-top); }
+.card-interactive:hover { box-shadow: var(--shadow-lg), var(--edge-top); }
+
+/* Hairline dividers that fade at the ends (Apple-style) */
+.divider-soft {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--hairline) 12%, var(--hairline) 88%, transparent);
+}
+
+/* --- Segmented control (tabs) ----------------------------------------- */
+[role="tablist"] {
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: hsl(var(--muted) / 0.55);
+  backdrop-filter: saturate(140%);
+}
+[role="tab"][data-state="active"] {
+  box-shadow: var(--shadow-xs), var(--edge-top);
+}
+
+/* --- Selection + links ------------------------------------------------ */
+::selection { background: hsl(var(--primary) / 0.18); color: hsl(var(--foreground)); }
+.link-quiet {
+  text-decoration-color: hsl(var(--primary) / 0.35);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.link-quiet:hover { text-decoration-line: underline; text-decoration-color: hsl(var(--primary) / 0.8); }
+
+/* --- Inputs: unified soft ring ---------------------------------------- */
+input:focus-visible, textarea:focus-visible, select:focus-visible,
+[role="combobox"]:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-soft);
+  border-color: hsl(var(--ring) / 0.55);
+}
+
+/* --- Overlays: quieter scrim, crisper panels -------------------------- */
+[data-radix-popper-content-wrapper] > * {
+  box-shadow: var(--shadow-overlay), var(--edge-top) !important;
+}
+
+/* --- Data density helpers -------------------------------------------- */
+.num-right { text-align: right; font-variant-numeric: tabular-nums; }
+.truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.stat-grid { display: grid; gap: var(--stack-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+
+/* --- Scroll behaviour ------------------------------------------------- */
+html { scroll-behavior: smooth; }
+.scroll-fade-y {
+  mask-image: linear-gradient(180deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+}
+[data-radix-scroll-area-viewport], .overflow-y-auto, .overflow-auto { overscroll-behavior: contain; }
+
+/* --- Reduced motion: hard stop --------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Print: clean statements ----------------------------------------- */
+@media print {
+  nav, aside, [role="tablist"], .no-print, button { display: none !important; }
+  .elite-card, .surface { box-shadow: none !important; border-color: #ddd !important; break-inside: avoid; }
+  body { background: #fff !important; color: #000 !important; }
+}
