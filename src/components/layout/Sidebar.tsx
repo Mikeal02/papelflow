@@ -62,38 +62,58 @@ const NavItem = memo(function NavItem({ item, isActive, onPrefetch }: { item: { 
   return (
     <Link
       to={item.path}
+      aria-current={isActive ? 'page' : undefined}
       onMouseEnter={() => onPrefetch(item.path)}
       onFocus={() => onPrefetch(item.path)}
+      className="block rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-sidebar"
     >
       <div
         className={cn(
-          'relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150',
+          'group relative flex items-center gap-2.5 rounded-[10px] py-[7px] pl-2.5 pr-2 text-[13px] font-medium transition-colors duration-150',
           isActive
-            ? 'text-primary bg-primary/6'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            ? 'text-foreground bg-primary/[0.07]'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/45',
         )}
       >
         {isActive && (
           <motion.div
             layoutId="sidebar-indicator"
-            className="absolute left-0 top-1/2 h-5 w-[2.5px] -translate-y-1/2 rounded-r-full bg-primary"
+            className="absolute -left-1 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
           />
         )}
-        <item.icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')} />
-        <span className="flex-1 truncate">{item.label}</span>
-        {item.badge && (
+        <span
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] transition-colors duration-150',
+            isActive
+              ? 'bg-primary/12 text-primary'
+              : 'text-muted-foreground/80 group-hover:bg-foreground/[0.05] group-hover:text-foreground',
+          )}
+        >
+          <item.icon className="h-[15px] w-[15px]" />
+        </span>
+        <span className="flex-1 truncate tracking-[-0.01em]">{item.label}</span>
+        {item.badge ? (
           <Badge
             variant="secondary"
-            className="h-[18px] px-1.5 text-[9px] font-semibold tracking-wider bg-primary/8 text-primary border-0"
+            className="h-[17px] border-0 bg-primary/10 px-1.5 text-[9px] font-semibold tracking-[0.08em] text-primary"
           >
             {item.badge}
           </Badge>
+        ) : (
+          <ChevronRight
+            className={cn(
+              'h-3.5 w-3.5 shrink-0 -translate-x-1 text-muted-foreground/40 opacity-0 transition-all duration-150',
+              'group-hover:translate-x-0 group-hover:opacity-100',
+              isActive && 'translate-x-0 text-primary/50 opacity-100',
+            )}
+          />
         )}
       </div>
     </Link>
   );
 });
+
 
 export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps) {
   const location = useLocation();
@@ -112,48 +132,60 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
   }, [user?.email]);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/40 bg-sidebar overflow-hidden">
-      <div className="flex h-full flex-col relative">
-        {/* Logo */}
-        <div className="flex h-[60px] items-center gap-3 px-5">
-          <div className="h-9 w-9 rounded-xl overflow-hidden">
+    <aside className="fixed left-0 top-0 z-40 h-dvh w-64 overflow-hidden border-r border-border/50 bg-sidebar">
+      {/* Ambient wash — keeps the rail from reading as a flat slab */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            'radial-gradient(120% 45% at 0% 0%, hsl(var(--primary) / 0.06), transparent 60%)',
+        }}
+      />
+      <div className="relative flex h-full flex-col">
+        {/* Brand */}
+        <div className="flex h-[60px] shrink-0 items-center gap-3 px-5">
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-[11px] shadow-[var(--shadow-xs)] ring-1 ring-border/60">
             <img src="/logo.png" alt="Finflow" className="h-full w-full object-contain" loading="eager" />
           </div>
-          <div className="min-w-0">
-            <span className="text-base font-semibold tracking-tight">Finflow</span>
-            <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase -mt-0.5">Pro</p>
+          <div className="min-w-0 leading-none">
+            <span className="text-[15px] font-semibold tracking-[-0.02em]">Finflow</span>
+            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">Pro</p>
           </div>
         </div>
 
-        <div className="mx-4 h-px bg-border/40" />
+        <hr className="divider-soft mx-4" />
 
         {/* Quick Actions */}
-        <div className="px-3 pt-3 pb-1 space-y-1.5">
-          <Button onClick={onAddTransaction} className="w-full gap-2 h-9 text-[13px] font-medium rounded-lg">
+        <div className="shrink-0 space-y-1.5 px-3 pb-1 pt-3">
+          <Button onClick={onAddTransaction} className="h-9 w-full gap-2 rounded-[10px] text-[13px] font-medium">
             <Plus className="h-3.5 w-3.5" />
             New Transaction
           </Button>
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-              className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors border border-border/40"
+              className="flex flex-1 items-center gap-2 rounded-[10px] border border-border/50 bg-background/40 px-2.5 py-[7px] text-[11px] text-muted-foreground transition-colors hover:border-border hover:bg-muted/50 hover:text-foreground"
             >
               <Command className="h-3 w-3" />
               <span>Search</span>
-              <kbd className="ml-auto pointer-events-none inline-flex h-[16px] select-none items-center gap-0.5 rounded border border-border/50 bg-muted/50 px-1 font-mono text-[9px] font-medium text-muted-foreground/60">⌘K</kbd>
+              <kbd className="pointer-events-none ml-auto inline-flex h-[16px] select-none items-center gap-0.5 rounded border border-border/60 bg-muted/60 px-1 font-mono text-[9px] font-medium text-muted-foreground/70">⌘K</kbd>
             </button>
             <ActionCenterTrigger />
           </div>
         </div>
 
         {/* Grouped Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 sidebar-scrollbar space-y-5">
+        <nav className="sidebar-scrollbar scroll-fade-y flex-1 space-y-4 overflow-y-auto px-3 py-3">
           {navGroups.map((group) => (
             <div key={group.label}>
-              <p className="px-3 mb-1.5 text-[10px] font-medium text-muted-foreground/50 uppercase tracking-[0.1em]">
-                {group.label}
-              </p>
-              <div className="space-y-0.5">
+              <div className="mb-1.5 flex items-center gap-2 px-2.5">
+                <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/55">
+                  {group.label}
+                </p>
+                <span aria-hidden className="h-px flex-1 bg-border/40" />
+              </div>
+              <div className="space-y-[3px]">
                 {group.items.map((item) => (
                   <NavItem key={item.path} item={item} isActive={location.pathname === item.path} onPrefetch={prefetchRoute} />
                 ))}
@@ -161,6 +193,7 @@ export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps)
             </div>
           ))}
         </nav>
+
 
         {/* Footer */}
         <div className="border-t border-border/40 p-3 space-y-1">
