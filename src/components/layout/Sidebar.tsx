@@ -62,38 +62,58 @@ const NavItem = memo(function NavItem({ item, isActive, onPrefetch }: { item: { 
   return (
     <Link
       to={item.path}
+      aria-current={isActive ? 'page' : undefined}
       onMouseEnter={() => onPrefetch(item.path)}
       onFocus={() => onPrefetch(item.path)}
+      className="block rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-sidebar"
     >
       <div
         className={cn(
-          'relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150',
+          'group relative flex items-center gap-2.5 rounded-[10px] py-[7px] pl-2.5 pr-2 text-[13px] font-medium transition-colors duration-150',
           isActive
-            ? 'text-primary bg-primary/6'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            ? 'text-foreground bg-primary/[0.07]'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/45',
         )}
       >
         {isActive && (
           <motion.div
             layoutId="sidebar-indicator"
-            className="absolute left-0 top-1/2 h-5 w-[2.5px] -translate-y-1/2 rounded-r-full bg-primary"
+            className="absolute -left-1 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
           />
         )}
-        <item.icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')} />
-        <span className="flex-1 truncate">{item.label}</span>
-        {item.badge && (
+        <span
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] transition-colors duration-150',
+            isActive
+              ? 'bg-primary/12 text-primary'
+              : 'text-muted-foreground/80 group-hover:bg-foreground/[0.05] group-hover:text-foreground',
+          )}
+        >
+          <item.icon className="h-[15px] w-[15px]" />
+        </span>
+        <span className="flex-1 truncate tracking-[-0.01em]">{item.label}</span>
+        {item.badge ? (
           <Badge
             variant="secondary"
-            className="h-[18px] px-1.5 text-[9px] font-semibold tracking-wider bg-primary/8 text-primary border-0"
+            className="h-[17px] border-0 bg-primary/10 px-1.5 text-[9px] font-semibold tracking-[0.08em] text-primary"
           >
             {item.badge}
           </Badge>
+        ) : (
+          <ChevronRight
+            className={cn(
+              'h-3.5 w-3.5 shrink-0 -translate-x-1 text-muted-foreground/40 opacity-0 transition-all duration-150',
+              'group-hover:translate-x-0 group-hover:opacity-100',
+              isActive && 'translate-x-0 text-primary/50 opacity-100',
+            )}
+          />
         )}
       </div>
     </Link>
   );
 });
+
 
 export const Sidebar = memo(function Sidebar({ onAddTransaction }: SidebarProps) {
   const location = useLocation();
