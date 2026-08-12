@@ -99,56 +99,84 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="elite-card group relative h-full overflow-hidden p-4 sm:p-5"
+      className="elite-card group relative flex h-full flex-col overflow-hidden"
     >
-      {/* Accent bar */}
+      {/* Accent hairline along the top edge — reads as a label, not a stripe */}
       <div
-        className="absolute left-0 top-0 h-full w-[2px]"
-        style={{ background: `hsl(var(${accentVar}) / 0.65)` }}
+        aria-hidden
+        className="h-[2px] w-full opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+        style={{
+          background: `linear-gradient(90deg, hsl(var(${accentVar}) / 0.9), hsl(var(${accentVar}) / 0.12))`,
+        }}
       />
 
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-2 overflow-hidden">
-          <p className="text-eyebrow truncate">{title}</p>
+      <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 space-y-1.5 overflow-hidden">
+            <p className="text-eyebrow truncate">{title}</p>
+            <CountUpValue
+              value={value}
+              className="block truncate text-[1.375rem] font-semibold leading-tight tracking-[-0.03em] text-numeric sm:text-[1.5rem] lg:text-[1.75rem]"
+            />
+          </div>
 
-          <CountUpValue value={value} className="block truncate text-lg font-semibold tracking-[-0.025em] text-numeric sm:text-xl lg:text-2xl" />
+          <div
+            className={cn(
+              'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[11px] ring-1 ring-inset ring-border/50 transition-transform duration-200 group-hover:scale-[1.04] sm:h-10 sm:w-10',
+              iconColor || 'bg-primary/10 text-primary',
+            )}
+          >
+            <Icon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
+          </div>
+        </div>
 
+        {/* Footer: trend badge + sparkline, separated by a soft rule */}
+        {(computedChange !== undefined || sparklineData.some((v) => v > 0)) && (
+          <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/40 pt-2.5">
+            {computedChange !== undefined ? (
+              <div
+                className={cn(
+                  'flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold',
+                  isPositive && 'border-income/20 bg-income/10 text-income',
+                  isNegative && 'border-expense/20 bg-expense/10 text-expense',
+                  !isPositive && !isNegative && 'border-border/40 bg-muted text-muted-foreground',
+                )}
+              >
+                {isPositive ? (
+                  <TrendingUp className="h-3 w-3 shrink-0" />
+                ) : isNegative ? (
+                  <TrendingDown className="h-3 w-3 shrink-0" />
+                ) : (
+                  <Minus className="h-3 w-3 shrink-0" />
+                )}
+                <span className="text-numeric">
+                  {isPositive ? '+' : ''}
+                  {computedChange.toFixed(1)}%
+                </span>
+                <span className="hidden font-medium text-muted-foreground/70 sm:inline">vs last mo</span>
+              </div>
+            ) : (
+              <span className="text-[10px] font-medium text-muted-foreground/60">Last 14 days</span>
+            )}
 
-          <div className="flex items-center gap-2 mt-1">
-            {sparklineData.some(v => v > 0) && (
+            {sparklineData.some((v) => v > 0) && (
               <Sparkline
                 data={sparklineData}
                 width={64}
                 height={20}
-                color={autoCompare === 'income' ? 'hsl(var(--income))' : autoCompare === 'expense' ? 'hsl(var(--expense))' : 'hsl(var(--primary))'}
+                color={
+                  autoCompare === 'income'
+                    ? 'hsl(var(--income))'
+                    : autoCompare === 'expense'
+                      ? 'hsl(var(--expense))'
+                      : 'hsl(var(--primary))'
+                }
               />
             )}
-            {computedChange !== undefined && (
-              <div
-                className={cn(
-                  'flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 border',
-                  isPositive && 'bg-income/10 text-income border-income/20',
-                  isNegative && 'bg-expense/10 text-expense border-expense/20',
-                  !isPositive && !isNegative && 'bg-muted text-muted-foreground border-border/40'
-                )}
-              >
-                {isPositive ? <TrendingUp className="h-3 w-3 shrink-0" /> : isNegative ? <TrendingDown className="h-3 w-3 shrink-0" /> : <Minus className="h-3 w-3 shrink-0" />}
-                <span className="tnum">{isPositive ? '+' : ''}{computedChange.toFixed(1)}%</span>
-              </div>
-            )}
           </div>
-        </div>
-
-        <div
-          className={cn(
-            'relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-border/50 sm:h-10 sm:w-10',
-            iconColor || 'bg-primary/10 text-primary'
-          )}
-        >
-          <Icon className="relative z-10 h-4 w-4 sm:h-[18px] sm:w-[18px]" />
-        </div>
-
+        )}
       </div>
     </motion.div>
+
   );
 });
