@@ -88,19 +88,9 @@ export default defineConfig(({ mode }) => {
       assetsInlineLimit: 4096,
       rollupOptions: {
         output: {
-          // Long-term cacheable filenames.
-          entryFileNames: "assets/[name]-[hash].js",
-          chunkFileNames: "assets/[name]-[hash].js",
-          assetFileNames: "assets/[name]-[hash][extname]",
-          manualChunks(id) {
-            if (!id.includes("node_modules")) return undefined;
-            for (const bucket of VENDOR_BUCKETS) {
-              if (bucket.test(id)) return bucket.name;
-            }
-            // Everything else in node_modules gets pooled — keeps the graph tidy
-            // without producing hundreds of tiny chunks.
-            return "vendor-misc";
-          },
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
         },
       },
     },
