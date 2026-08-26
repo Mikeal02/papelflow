@@ -21,11 +21,17 @@ function keyMaterial(): string {
 function getKey(): Promise<CryptoKey> {
   if (!cachedKey) {
     cachedKey = (async () => {
-      const digest = await crypto.subtle.digest("SHA-256", enc.encode(keyMaterial()));
-      return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, [
-        "encrypt",
-        "decrypt",
-      ]);
+      const digest = await crypto.subtle.digest(
+        "SHA-256",
+        enc.encode(keyMaterial()),
+      );
+      return crypto.subtle.importKey(
+        "raw",
+        digest,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt", "decrypt"],
+      );
     })();
   }
   return cachedKey;
@@ -35,7 +41,10 @@ const b64 = (b: Uint8Array) => btoa(String.fromCharCode(...b));
 const unb64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 
 /** Seal a provider secret so only this user can later redeem it. */
-export async function sealToken(userId: string, plaintext: string): Promise<string> {
+export async function sealToken(
+  userId: string,
+  plaintext: string,
+): Promise<string> {
   const key = await getKey();
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ct = new Uint8Array(
@@ -49,14 +58,22 @@ export async function sealToken(userId: string, plaintext: string): Promise<stri
 }
 
 /** Redeem a sealed token. Returns null when tampered, foreign, or malformed. */
-export async function openToken(userId: string, sealed: unknown): Promise<string | null> {
-  if (typeof sealed !== "string" || !sealed.startsWith("sealed:v1:")) return null;
+export async function openToken(
+  userId: string,
+  sealed: unknown,
+): Promise<string | null> {
+  if (typeof sealed !== "string" || !sealed.startsWith("sealed:v1:"))
+    return null;
   const parts = sealed.split(":");
   if (parts.length !== 4) return null;
   try {
     const key = await getKey();
     const pt = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv: unb64(parts[2]), additionalData: enc.encode(`plaid:${userId}`) },
+      {
+        name: "AES-GCM",
+        iv: unb64(parts[2]),
+        additionalData: enc.encode(`plaid:${userId}`),
+      },
       key,
       unb64(parts[3]),
     );

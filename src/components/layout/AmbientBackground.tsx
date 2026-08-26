@@ -1,30 +1,32 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 interface AmbientBackgroundProps {
-  variant?: 'default' | 'warm' | 'cool' | 'purple';
+  variant?: "default" | "warm" | "cool" | "purple";
 }
 
-export function AmbientBackground({ variant = 'default' }: AmbientBackgroundProps) {
+export function AmbientBackground({
+  variant = "default",
+}: AmbientBackgroundProps) {
   const colorMap = {
     default: {
-      orb1: 'bg-primary/[0.04]',
-      orb2: 'bg-accent/[0.03]',
-      orb3: 'bg-chart-6/[0.02]',
+      orb1: "bg-primary/[0.04]",
+      orb2: "bg-accent/[0.03]",
+      orb3: "bg-chart-6/[0.02]",
     },
     warm: {
-      orb1: 'bg-warning/[0.04]',
-      orb2: 'bg-expense/[0.03]',
-      orb3: 'bg-accent/[0.02]',
+      orb1: "bg-warning/[0.04]",
+      orb2: "bg-expense/[0.03]",
+      orb3: "bg-accent/[0.02]",
     },
     cool: {
-      orb1: 'bg-primary/[0.05]',
-      orb2: 'bg-income/[0.03]',
-      orb3: 'bg-accent/[0.02]',
+      orb1: "bg-primary/[0.05]",
+      orb2: "bg-income/[0.03]",
+      orb3: "bg-accent/[0.02]",
     },
     purple: {
-      orb1: 'bg-chart-4/[0.04]',
-      orb2: 'bg-primary/[0.03]',
-      orb3: 'bg-accent/[0.025]',
+      orb1: "bg-chart-4/[0.04]",
+      orb2: "bg-primary/[0.03]",
+      orb3: "bg-accent/[0.025]",
     },
   };
 
@@ -43,11 +45,11 @@ export function AmbientBackground({ variant = 'default' }: AmbientBackgroundProp
         transition={{
           duration: 20,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
-        style={{ top: '10%', left: '5%' }}
+        style={{ top: "10%", left: "5%" }}
       />
-      
+
       {/* Secondary floating orb */}
       <motion.div
         className={`absolute w-[500px] h-[500px] ${colors.orb2} rounded-full blur-[100px]`}
@@ -59,11 +61,11 @@ export function AmbientBackground({ variant = 'default' }: AmbientBackgroundProp
         transition={{
           duration: 25,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
-        style={{ bottom: '10%', right: '5%' }}
+        style={{ bottom: "10%", right: "5%" }}
       />
-      
+
       {/* Tertiary accent orb */}
       <motion.div
         className={`absolute w-[400px] h-[400px] ${colors.orb3} rounded-full blur-[80px]`}
@@ -74,13 +76,13 @@ export function AmbientBackground({ variant = 'default' }: AmbientBackgroundProp
         transition={{
           duration: 18,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
-        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
       />
-      
+
       {/* Mesh gradient overlay */}
-      <div 
+      <div
         className="absolute inset-0 opacity-30"
         style={{
           background: `

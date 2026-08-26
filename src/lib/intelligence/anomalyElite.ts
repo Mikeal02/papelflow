@@ -19,16 +19,17 @@ import {
   percentile,
   ema,
   holtLinear,
-} from './statistics';
+} from "./statistics";
 
-export type Severity = 'critical' | 'high' | 'medium' | 'low';
-export type DetectorKey = 'robust' | 'mahalanobis' | 'isolation' | 'temporal' | 'velocity';
+export type Severity = "critical" | "high" | "medium" | "low";
+export type DetectorKey =
+  "robust" | "mahalanobis" | "isolation" | "temporal" | "velocity";
 
 export interface DetectorVote {
   key: DetectorKey;
   label: string;
-  score: number;      // 0..1 normalized anomaly score
-  fired: boolean;     // exceeds detector threshold
+  score: number; // 0..1 normalized anomaly score
+  fired: boolean; // exceeds detector threshold
   detail: string;
 }
 
@@ -39,13 +40,13 @@ export interface EliteAnomaly {
   payee: string;
   category?: string;
   amount: number;
-  ensembleScore: number;     // 0..1
+  ensembleScore: number; // 0..1
   severity: Severity;
-  confidence: number;        // 0..1
+  confidence: number; // 0..1
   votes: DetectorVote[];
   baseline: { median: number; expected: number; spread: number };
   drivers: { label: string; value: string; weight: number }[];
-  riskGrade: 'A' | 'B' | 'C' | 'D' | 'F';
+  riskGrade: "A" | "B" | "C" | "D" | "F";
 }
 
 export interface DetectorStats {
@@ -58,13 +59,19 @@ export interface DetectorStats {
 export interface EliteAnomalyReport {
   anomalies: EliteAnomaly[];
   detectorStats: DetectorStats[];
-  timeline: { date: string; expected: number; actual: number; residual: number; anomalyCount: number }[];
+  timeline: {
+    date: string;
+    expected: number;
+    actual: number;
+    residual: number;
+    anomalyCount: number;
+  }[];
   globals: {
     scanned: number;
     flagged: number;
     falsePositiveBudget: number; // expected FP under H0
-    coverage: number;            // fraction of categories with stable baseline
-    health: number;              // 0..100, inverse of weighted severity load
+    coverage: number; // fraction of categories with stable baseline
+    health: number; // 0..100, inverse of weighted severity load
   };
 }
 
@@ -83,8 +90,12 @@ const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 /* ---------- Detector 1: Robust univariate ---------- */
 function robustDetector(group: Tx[]) {
-  const amts = group.map(t => Number(t.amount));
-  const { cleaned } = hampelFilter(amts, Math.min(7, Math.max(2, Math.floor(amts.length / 2))), 3);
+  const amts = group.map((t) => Number(t.amount));
+  const { cleaned } = hampelFilter(
+    amts,
+    Math.min(7, Math.max(2, Math.floor(amts.length / 2))),
+    3,
+  );
   const { median: med, mad: m } = mad(cleaned);
   const denom = m === 0 ? 1e-9 : 1.4826 * m;
   return group.map((t, i) => {
@@ -101,19 +112,24 @@ function robustDetector(group: Tx[]) {
 
 /* ---------- Detector 2: Mahalanobis (2D: log-amount, hour-proxy) ---------- */
 function mahalanobisDetector(group: Tx[], payeeFreq: Map<string, number>) {
-  const feats = group.map(t => {
+  const feats = group.map((t) => {
     const logA = Math.log(Math.max(1, Number(t.amount)));
     const d = new Date(t.date);
-    const novelty = 1 / Math.max(1, payeeFreq.get((t.payee || '').toLowerCase().trim()) || 1);
-    return [logA, d.getDay() + d.getHours() / 24, novelty] as [number, number, number];
+    const novelty =
+      1 / Math.max(1, payeeFreq.get((t.payee || "").toLowerCase().trim()) || 1);
+    return [logA, d.getDay() + d.getHours() / 24, novelty] as [
+      number,
+      number,
+      number,
+    ];
   });
-  const cols = [0, 1, 2].map(j => feats.map(f => f[j]));
-  const stats = cols.map(c => welford(c));
-  return feats.map(f => {
+  const cols = [0, 1, 2].map((j) => feats.map((f) => f[j]));
+  const stats = cols.map((c) => welford(c));
+  return feats.map((f) => {
     let d2 = 0;
     for (let j = 0; j < 3; j++) {
       const s = stats[j].variance || 1e-9;
-      d2 += ((f[j] - stats[j].mean) ** 2) / s;
+      d2 += (f[j] - stats[j].mean) ** 2 / s;
     }
     // chi-square df=3, 99% ≈ 11.34
     const score = clamp01((Math.sqrt(d2) - 1.7) / 3);
@@ -125,13 +141,18 @@ function mahalanobisDetector(group: Tx[], payeeFreq: Map<string, number>) {
 function isolationDetector(group: Tx[], seed = 42) {
   const n = group.length;
   if (n < 4) return group.map(() => ({ score: 0, fired: false, depth: 0 }));
-  const amts = group.map(t => Number(t.amount));
-  const min = Math.min(...amts), max = Math.max(...amts);
-  if (max === min) return group.map(() => ({ score: 0, fired: false, depth: 0 }));
+  const amts = group.map((t) => Number(t.amount));
+  const min = Math.min(...amts),
+    max = Math.max(...amts);
+  if (max === min)
+    return group.map(() => ({ score: 0, fired: false, depth: 0 }));
 
   // Pseudo-random LCG for determinism
   let s = seed;
-  const rand = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; };
+  const rand = () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
 
   const trees = 24;
   const cap = Math.ceil(Math.log2(n));
@@ -140,23 +161,26 @@ function isolationDetector(group: Tx[], seed = 42) {
   for (let t = 0; t < trees; t++) {
     // Partition each point: count splits until isolated within random thresholds
     for (let i = 0; i < n; i++) {
-      let lo = min, hi = max, depth = 0;
+      let lo = min,
+        hi = max,
+        depth = 0;
       const v = amts[i];
       while (depth < cap && hi - lo > 1e-6) {
         const split = lo + rand() * (hi - lo);
-        if (v < split) hi = split; else lo = split;
+        if (v < split) hi = split;
+        else lo = split;
         depth++;
         // simulate isolation when neighborhood shrinks below MAD/4
-        if ((hi - lo) < (max - min) / (n * 2)) break;
+        if (hi - lo < (max - min) / (n * 2)) break;
       }
       depths[i] += depth;
     }
   }
 
-  const avgDepth = depths.map(d => d / trees);
-  const cAvg = 2 * (Math.log(n - 1) + 0.5772156649) - 2 * (n - 1) / n; // BST avg path
-  const scores = avgDepth.map(d => Math.pow(2, -d / Math.max(cAvg, 1e-6))); // 0..1, higher = anomaly
-  return scores.map(score => ({
+  const avgDepth = depths.map((d) => d / trees);
+  const cAvg = 2 * (Math.log(n - 1) + 0.5772156649) - (2 * (n - 1)) / n; // BST avg path
+  const scores = avgDepth.map((d) => Math.pow(2, -d / Math.max(cAvg, 1e-6))); // 0..1, higher = anomaly
+  return scores.map((score) => ({
     score: clamp01((score - 0.5) * 2),
     fired: score > 0.62,
     depth: score,
@@ -171,11 +195,14 @@ function temporalDetector(expenses: Tx[]) {
     byDay.set(d, (byDay.get(d) || 0) + Number(t.amount));
   }
   const days = [...byDay.keys()].sort();
-  const series = days.map(d => byDay.get(d) || 0);
+  const series = days.map((d) => byDay.get(d) || 0);
   const { fitted } = holtLinear(series, 0.35, 0.15);
   const residuals = series.map((v, i) => v - (fitted[i] || v));
   const resStats = welford(residuals);
-  const dayScore = new Map<string, { expected: number; actual: number; residual: number; score: number }>();
+  const dayScore = new Map<
+    string,
+    { expected: number; actual: number; residual: number; score: number }
+  >();
   days.forEach((d, i) => {
     const r = residuals[i];
     const sigma = Math.max(1, resStats.stdev);
@@ -199,7 +226,7 @@ function velocityDetector(expenses: Tx[]) {
     dayTotal.set(d, (dayTotal.get(d) || 0) + Number(t.amount));
   }
   const days = [...dayTotal.keys()].sort();
-  const totals = days.map(d => dayTotal.get(d) || 0);
+  const totals = days.map((d) => dayTotal.get(d) || 0);
   const ema30 = ema(totals, 2 / 31);
   const ema3 = ema(totals, 2 / 4);
   const burst = new Map<string, number>();
@@ -212,57 +239,72 @@ function velocityDetector(expenses: Tx[]) {
 }
 
 /* ---------- Ensemble + grading ---------- */
-function gradeFromScore(s: number): EliteAnomaly['riskGrade'] {
-  if (s >= 0.85) return 'F';
-  if (s >= 0.7) return 'D';
-  if (s >= 0.55) return 'C';
-  if (s >= 0.35) return 'B';
-  return 'A';
+function gradeFromScore(s: number): EliteAnomaly["riskGrade"] {
+  if (s >= 0.85) return "F";
+  if (s >= 0.7) return "D";
+  if (s >= 0.55) return "C";
+  if (s >= 0.35) return "B";
+  return "A";
 }
 function severityFromScore(s: number): Severity {
-  if (s >= 0.8) return 'critical';
-  if (s >= 0.6) return 'high';
-  if (s >= 0.4) return 'medium';
-  return 'low';
+  if (s >= 0.8) return "critical";
+  if (s >= 0.6) return "high";
+  if (s >= 0.4) return "medium";
+  return "low";
 }
 
 const DETECTOR_LABELS: Record<DetectorKey, string> = {
-  robust: 'Robust Z (MAD)',
-  mahalanobis: 'Mahalanobis 3-D',
-  isolation: 'Isolation Depth',
-  temporal: 'Temporal Drift',
-  velocity: 'Velocity Burst',
+  robust: "Robust Z (MAD)",
+  mahalanobis: "Mahalanobis 3-D",
+  isolation: "Isolation Depth",
+  temporal: "Temporal Drift",
+  velocity: "Velocity Burst",
 };
 
 export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
-  const expenses = txs.filter(t => t.type === 'expense' && t.date);
+  const expenses = txs.filter((t) => t.type === "expense" && t.date);
   if (expenses.length < 6) {
     return {
       anomalies: [],
       detectorStats: [],
       timeline: [],
-      globals: { scanned: expenses.length, flagged: 0, falsePositiveBudget: 0, coverage: 0, health: 100 },
+      globals: {
+        scanned: expenses.length,
+        flagged: 0,
+        falsePositiveBudget: 0,
+        coverage: 0,
+        health: 100,
+      },
     };
   }
 
   // Payee frequencies
   const payeeFreq = new Map<string, number>();
   for (const t of expenses) {
-    const p = (t.payee || '').toLowerCase().trim();
+    const p = (t.payee || "").toLowerCase().trim();
     payeeFreq.set(p, (payeeFreq.get(p) || 0) + 1);
   }
 
   // Per-category buckets for robust / mahalanobis / isolation
   const byCat = new Map<string, Tx[]>();
   for (const t of expenses) {
-    const key = t.category_id || '__uncat__';
+    const key = t.category_id || "__uncat__";
     if (!byCat.has(key)) byCat.set(key, []);
     byCat.get(key)!.push(t);
   }
 
-  const robustMap = new Map<string, ReturnType<typeof robustDetector>[number]>();
-  const mahaMap = new Map<string, ReturnType<typeof mahalanobisDetector>[number]>();
-  const isoMap = new Map<string, ReturnType<typeof isolationDetector>[number]>();
+  const robustMap = new Map<
+    string,
+    ReturnType<typeof robustDetector>[number]
+  >();
+  const mahaMap = new Map<
+    string,
+    ReturnType<typeof mahalanobisDetector>[number]
+  >();
+  const isoMap = new Map<
+    string,
+    ReturnType<typeof isolationDetector>[number]
+  >();
   let stableCats = 0;
   for (const [, group] of byCat) {
     if (group.length >= 4) stableCats++;
@@ -281,12 +323,34 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
   const velocity = velocityDetector(expenses);
 
   // Build per-tx ensemble
-  const detectorFires: Record<DetectorKey, number> = { robust: 0, mahalanobis: 0, isolation: 0, temporal: 0, velocity: 0 };
-  const detectorSum: Record<DetectorKey, number> = { robust: 0, mahalanobis: 0, isolation: 0, temporal: 0, velocity: 0 };
-  const detectorN: Record<DetectorKey, number> = { robust: 0, mahalanobis: 0, isolation: 0, temporal: 0, velocity: 0 };
+  const detectorFires: Record<DetectorKey, number> = {
+    robust: 0,
+    mahalanobis: 0,
+    isolation: 0,
+    temporal: 0,
+    velocity: 0,
+  };
+  const detectorSum: Record<DetectorKey, number> = {
+    robust: 0,
+    mahalanobis: 0,
+    isolation: 0,
+    temporal: 0,
+    velocity: 0,
+  };
+  const detectorN: Record<DetectorKey, number> = {
+    robust: 0,
+    mahalanobis: 0,
+    isolation: 0,
+    temporal: 0,
+    velocity: 0,
+  };
 
   const weights: Record<DetectorKey, number> = {
-    robust: 0.28, mahalanobis: 0.22, isolation: 0.2, temporal: 0.18, velocity: 0.12,
+    robust: 0.28,
+    mahalanobis: 0.22,
+    isolation: 0.2,
+    temporal: 0.18,
+    velocity: 0.12,
   };
 
   const anomalies: EliteAnomaly[] = [];
@@ -300,29 +364,41 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
 
     const votes: DetectorVote[] = [
       {
-        key: 'robust', label: DETECTOR_LABELS.robust,
-        score: r?.score ?? 0, fired: !!r?.fired,
-        detail: r ? `z=${r.z.toFixed(2)}` : 'insufficient sample',
+        key: "robust",
+        label: DETECTOR_LABELS.robust,
+        score: r?.score ?? 0,
+        fired: !!r?.fired,
+        detail: r ? `z=${r.z.toFixed(2)}` : "insufficient sample",
       },
       {
-        key: 'mahalanobis', label: DETECTOR_LABELS.mahalanobis,
-        score: m?.score ?? 0, fired: !!m?.fired,
-        detail: m ? `d²=${m.d2.toFixed(2)}` : 'insufficient sample',
+        key: "mahalanobis",
+        label: DETECTOR_LABELS.mahalanobis,
+        score: m?.score ?? 0,
+        fired: !!m?.fired,
+        detail: m ? `d²=${m.d2.toFixed(2)}` : "insufficient sample",
       },
       {
-        key: 'isolation', label: DETECTOR_LABELS.isolation,
-        score: iso?.score ?? 0, fired: !!iso?.fired,
-        detail: iso ? `path=${iso.depth.toFixed(2)}` : 'small bucket',
+        key: "isolation",
+        label: DETECTOR_LABELS.isolation,
+        score: iso?.score ?? 0,
+        fired: !!iso?.fired,
+        detail: iso ? `path=${iso.depth.toFixed(2)}` : "small bucket",
       },
       {
-        key: 'temporal', label: DETECTOR_LABELS.temporal,
-        score: tDay?.score ?? 0, fired: (tDay?.score ?? 0) > 0.55,
-        detail: tDay ? `residual ${tDay.residual >= 0 ? '+' : ''}${tDay.residual.toFixed(0)}` : 'n/a',
+        key: "temporal",
+        label: DETECTOR_LABELS.temporal,
+        score: tDay?.score ?? 0,
+        fired: (tDay?.score ?? 0) > 0.55,
+        detail: tDay
+          ? `residual ${tDay.residual >= 0 ? "+" : ""}${tDay.residual.toFixed(0)}`
+          : "n/a",
       },
       {
-        key: 'velocity', label: DETECTOR_LABELS.velocity,
-        score: vDay, fired: vDay > 0.55,
-        detail: vDay > 0 ? `burst ${(vDay * 100).toFixed(0)}%` : 'calm',
+        key: "velocity",
+        label: DETECTOR_LABELS.velocity,
+        score: vDay,
+        fired: vDay > 0.55,
+        detail: vDay > 0 ? `burst ${(vDay * 100).toFixed(0)}%` : "calm",
       },
     ];
 
@@ -333,7 +409,8 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
     }
 
     // Weighted ensemble
-    let score = 0, wsum = 0;
+    let score = 0,
+      wsum = 0;
     for (const v of votes) {
       score += weights[v.key] * v.score;
       wsum += weights[v.key];
@@ -341,7 +418,7 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
     score = score / Math.max(wsum, 1e-9);
 
     // Vote agreement boost (≥2 detectors fired → +confidence and slight score lift)
-    const fires = votes.filter(v => v.fired).length;
+    const fires = votes.filter((v) => v.fired).length;
     if (fires >= 2) score = clamp01(score + 0.08 * (fires - 1));
 
     if (score < 0.32) continue;
@@ -351,18 +428,20 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
     const expected = tDay?.expected ?? median;
 
     const drivers = votes
-      .filter(v => v.score > 0.1)
+      .filter((v) => v.score > 0.1)
       .sort((a, b) => b.score - a.score)
       .slice(0, 4)
-      .map(v => ({ label: v.label, value: v.detail, weight: v.score }));
+      .map((v) => ({ label: v.label, value: v.detail, weight: v.score }));
 
-    const confidence = clamp01(0.4 + 0.15 * fires + Math.min(0.3, expenses.length / 500));
+    const confidence = clamp01(
+      0.4 + 0.15 * fires + Math.min(0.3, expenses.length / 500),
+    );
 
     anomalies.push({
       id: `elite-${t.id}`,
       txId: t.id,
       date: t.date,
-      payee: t.payee || 'Unknown',
+      payee: t.payee || "Unknown",
       category: t.category?.name,
       amount: Number(t.amount),
       ensembleScore: Number(score.toFixed(3)),
@@ -377,7 +456,9 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
 
   anomalies.sort((a, b) => b.ensembleScore - a.ensembleScore);
 
-  const detectorStats: DetectorStats[] = (Object.keys(DETECTOR_LABELS) as DetectorKey[]).map(k => ({
+  const detectorStats: DetectorStats[] = (
+    Object.keys(DETECTOR_LABELS) as DetectorKey[]
+  ).map((k) => ({
     key: k,
     label: DETECTOR_LABELS[k],
     fires: detectorFires[k],
@@ -391,13 +472,20 @@ export function runEliteAnomalies(txs: Tx[]): EliteAnomalyReport {
       expected: Math.max(0, temporal.fitted[idx] || 0),
       actual: temporal.series[idx],
       residual: temporal.series[idx] - (temporal.fitted[idx] || 0),
-      anomalyCount: anomalies.filter(a => a.date.slice(0, 10) === d).length,
+      anomalyCount: anomalies.filter((a) => a.date.slice(0, 10) === d).length,
     };
   });
 
   // Inverse weighted load → health
   const load = anomalies.reduce((s, a) => {
-    const w = a.severity === 'critical' ? 4 : a.severity === 'high' ? 2 : a.severity === 'medium' ? 1 : 0.4;
+    const w =
+      a.severity === "critical"
+        ? 4
+        : a.severity === "high"
+          ? 2
+          : a.severity === "medium"
+            ? 1
+            : 0.4;
     return s + w * a.ensembleScore;
   }, 0);
   const health = Math.max(0, Math.min(100, 100 - load * 6));

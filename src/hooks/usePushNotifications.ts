@@ -1,136 +1,153 @@
-import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 interface PushNotificationState {
   isSupported: boolean;
-  permission: NotificationPermission | 'default';
+  permission: NotificationPermission | "default";
   isSubscribed: boolean;
 }
 
 export function usePushNotifications() {
   const [state, setState] = useState<PushNotificationState>({
     isSupported: false,
-    permission: 'default',
+    permission: "default",
     isSubscribed: false,
   });
 
   useEffect(() => {
-    const isSupported = 'Notification' in window;
-    
-    setState(prev => ({
+    const isSupported = "Notification" in window;
+
+    setState((prev) => ({
       ...prev,
       isSupported,
-      permission: isSupported ? Notification.permission : 'default',
-      isSubscribed: isSupported && Notification.permission === 'granted',
+      permission: isSupported ? Notification.permission : "default",
+      isSubscribed: isSupported && Notification.permission === "granted",
     }));
   }, []);
 
-  const showNotification = useCallback((title: string, options?: NotificationOptions) => {
-    if (!('Notification' in window) || Notification.permission !== 'granted') {
-      toast(title, { description: options?.body });
-      return;
-    }
+  const showNotification = useCallback(
+    (title: string, options?: NotificationOptions) => {
+      if (
+        !("Notification" in window) ||
+        Notification.permission !== "granted"
+      ) {
+        toast(title, { description: options?.body });
+        return;
+      }
 
-    try {
-      const notification = new Notification(title, {
-        icon: '/favicon.svg',
-        badge: '/favicon.svg',
-        ...options,
-      });
-      
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-      };
-    } catch (error) {
-      toast(title, { description: options?.body });
-    }
-  }, []);
+      try {
+        const notification = new Notification(title, {
+          icon: "/favicon.svg",
+          badge: "/favicon.svg",
+          ...options,
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      } catch (error) {
+        toast(title, { description: options?.body });
+      }
+    },
+    [],
+  );
 
   const requestPermission = useCallback(async () => {
-    if (!('Notification' in window)) {
-      toast.error('Push notifications are not supported in this browser');
+    if (!("Notification" in window)) {
+      toast.error("Push notifications are not supported in this browser");
       return false;
     }
 
     try {
       const permission = await Notification.requestPermission();
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         permission,
-        isSubscribed: permission === 'granted',
+        isSubscribed: permission === "granted",
       }));
 
-      if (permission === 'granted') {
-        toast.success('Push notifications enabled!');
-        showNotification('Notifications Enabled', {
-          body: 'You will now receive important financial alerts',
-          icon: '/favicon.svg',
+      if (permission === "granted") {
+        toast.success("Push notifications enabled!");
+        showNotification("Notifications Enabled", {
+          body: "You will now receive important financial alerts",
+          icon: "/favicon.svg",
         });
         return true;
-      } else if (permission === 'denied') {
-        toast.error('Notification permission denied. Please enable in browser settings.');
+      } else if (permission === "denied") {
+        toast.error(
+          "Notification permission denied. Please enable in browser settings.",
+        );
         return false;
       }
-      
+
       return false;
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
-      toast.error('Failed to request notification permission');
+      console.error("Error requesting notification permission:", error);
+      toast.error("Failed to request notification permission");
       return false;
     }
   }, [showNotification]);
 
-  const sendBudgetAlert = useCallback((categoryName: string, percentage: number) => {
-    const isOverBudget = percentage >= 100;
-    const title = isOverBudget 
-      ? `⚠️ Budget Exceeded: ${categoryName}`
-      : `📊 Budget Alert: ${categoryName}`;
-    const body = isOverBudget
-      ? `You've exceeded your ${categoryName} budget by ${(percentage - 100).toFixed(0)}%`
-      : `You've used ${percentage.toFixed(0)}% of your ${categoryName} budget`;
+  const sendBudgetAlert = useCallback(
+    (categoryName: string, percentage: number) => {
+      const isOverBudget = percentage >= 100;
+      const title = isOverBudget
+        ? `⚠️ Budget Exceeded: ${categoryName}`
+        : `📊 Budget Alert: ${categoryName}`;
+      const body = isOverBudget
+        ? `You've exceeded your ${categoryName} budget by ${(percentage - 100).toFixed(0)}%`
+        : `You've used ${percentage.toFixed(0)}% of your ${categoryName} budget`;
 
-    showNotification(title, { body, tag: `budget-${categoryName}` });
-  }, [showNotification]);
+      showNotification(title, { body, tag: `budget-${categoryName}` });
+    },
+    [showNotification],
+  );
 
-  const sendBillReminder = useCallback((billName: string, daysUntil: number, amount: string) => {
-    let title: string;
-    let body: string;
+  const sendBillReminder = useCallback(
+    (billName: string, daysUntil: number, amount: string) => {
+      let title: string;
+      let body: string;
 
-    if (daysUntil === 0) {
-      title = `🔔 Bill Due Today: ${billName}`;
-      body = `Your ${billName} payment of ${amount} is due today`;
-    } else if (daysUntil === 1) {
-      title = `⏰ Bill Due Tomorrow: ${billName}`;
-      body = `Your ${billName} payment of ${amount} is due tomorrow`;
-    } else {
-      title = `📅 Upcoming Bill: ${billName}`;
-      body = `Your ${billName} payment of ${amount} is due in ${daysUntil} days`;
-    }
+      if (daysUntil === 0) {
+        title = `🔔 Bill Due Today: ${billName}`;
+        body = `Your ${billName} payment of ${amount} is due today`;
+      } else if (daysUntil === 1) {
+        title = `⏰ Bill Due Tomorrow: ${billName}`;
+        body = `Your ${billName} payment of ${amount} is due tomorrow`;
+      } else {
+        title = `📅 Upcoming Bill: ${billName}`;
+        body = `Your ${billName} payment of ${amount} is due in ${daysUntil} days`;
+      }
 
-    showNotification(title, { body, tag: `bill-${billName}` });
-  }, [showNotification]);
+      showNotification(title, { body, tag: `bill-${billName}` });
+    },
+    [showNotification],
+  );
 
-  const sendGoalProgress = useCallback((goalName: string, percentage: number) => {
-    let title: string;
-    let body: string;
+  const sendGoalProgress = useCallback(
+    (goalName: string, percentage: number) => {
+      let title: string;
+      let body: string;
 
-    if (percentage >= 100) {
-      title = `🎉 Goal Achieved: ${goalName}`;
-      body = `Congratulations! You've reached your ${goalName} savings goal!`;
-    } else if (percentage >= 75) {
-      title = `🚀 Almost There: ${goalName}`;
-      body = `You're ${percentage.toFixed(0)}% of the way to your ${goalName} goal!`;
-    } else if (percentage >= 50) {
-      title = `📈 Halfway There: ${goalName}`;
-      body = `You've reached ${percentage.toFixed(0)}% of your ${goalName} goal!`;
-    } else {
-      return;
-    }
+      if (percentage >= 100) {
+        title = `🎉 Goal Achieved: ${goalName}`;
+        body = `Congratulations! You've reached your ${goalName} savings goal!`;
+      } else if (percentage >= 75) {
+        title = `🚀 Almost There: ${goalName}`;
+        body = `You're ${percentage.toFixed(0)}% of the way to your ${goalName} goal!`;
+      } else if (percentage >= 50) {
+        title = `📈 Halfway There: ${goalName}`;
+        body = `You've reached ${percentage.toFixed(0)}% of your ${goalName} goal!`;
+      } else {
+        return;
+      }
 
-    showNotification(title, { body, tag: `goal-${goalName}` });
-  }, [showNotification]);
+      showNotification(title, { body, tag: `goal-${goalName}` });
+    },
+    [showNotification],
+  );
 
   return {
     ...state,

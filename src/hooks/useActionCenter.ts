@@ -1,11 +1,18 @@
-import { useMemo } from 'react';
-import { useFinancialIntelligence } from './useFinancialIntelligence';
-import { useTransactions } from './useTransactions';
-import { useBudgets } from './useBudgets';
-import { useSubscriptions } from './useSubscriptions';
-import { useGoals } from './useGoals';
-import { useAccounts } from './useAccounts';
-import { generateActions, summarizeBySeverity, summarizeByCategory, totalEffortMinutes, totalImpact, type PriorityAction } from '@/lib/intelligence/actions';
+import { useMemo } from "react";
+import { useFinancialIntelligence } from "./useFinancialIntelligence";
+import { useTransactions } from "./useTransactions";
+import { useBudgets } from "./useBudgets";
+import { useSubscriptions } from "./useSubscriptions";
+import { useGoals } from "./useGoals";
+import { useAccounts } from "./useAccounts";
+import {
+  generateActions,
+  summarizeBySeverity,
+  summarizeByCategory,
+  totalEffortMinutes,
+  totalImpact,
+  type PriorityAction,
+} from "@/lib/intelligence/actions";
 
 export function useActionCenter(): {
   actions: PriorityAction[];

@@ -52,11 +52,24 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkCompatProps>(
       <RouterNavLink
         ref={ref}
         to={to}
-        onPointerEnter={(e) => { warm(); onPointerEnter?.(e); }}
-        onFocus={(e) => { warm(); onFocus?.(e); }}
-        onPointerDown={(e) => { warm(); onPointerDown?.(e); }}
+        onPointerEnter={(e) => {
+          warm();
+          onPointerEnter?.(e);
+        }}
+        onFocus={(e) => {
+          warm();
+          onFocus?.(e);
+        }}
+        onPointerDown={(e) => {
+          warm();
+          onPointerDown?.(e);
+        }}
         className={({ isActive, isPending }) =>
-          cn(className, isActive && activeClassName, isPending && pendingClassName)
+          cn(
+            className,
+            isActive && activeClassName,
+            isPending && pendingClassName,
+          )
         }
         {...props}
       />

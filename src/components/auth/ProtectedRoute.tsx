@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useAccounts } from '@/hooks/useAccounts';
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
-import { useCriticalRoutePrewarm } from '@/hooks/useRoutePreloader';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAccounts } from "@/hooks/useAccounts";
+import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import { useCriticalRoutePrewarm } from "@/hooks/useRoutePreloader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,10 +19,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // but only once the user is actually authenticated.
   useCriticalRoutePrewarm(!!user && !loading);
 
-
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, loading, navigate]);
 
@@ -30,7 +29,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     // Check localStorage for onboarding completion
     if (user) {
       const key = `onboarding_complete_${user.id}`;
-      if (localStorage.getItem(key) === 'true') {
+      if (localStorage.getItem(key) === "true") {
         setOnboardingDismissed(true);
       }
     }
@@ -57,7 +56,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return (
       <OnboardingWizard
         onComplete={() => {
-          localStorage.setItem(`onboarding_complete_${user.id}`, 'true');
+          localStorage.setItem(`onboarding_complete_${user.id}`, "true");
           setOnboardingDismissed(true);
         }}
       />

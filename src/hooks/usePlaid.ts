@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 interface PlaidAccount {
   account_id: string;
@@ -39,8 +39,8 @@ export function usePlaid() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('plaid', {
-        body: { action: 'create_link_token' },
+      const { data, error } = await supabase.functions.invoke("plaid", {
+        body: { action: "create_link_token" },
       });
 
       if (error) throw error;
@@ -53,11 +53,11 @@ export function usePlaid() {
       setLinkToken(data.link_token);
       return data.link_token;
     } catch (error) {
-      console.error('Create link token error:', error);
+      console.error("Create link token error:", error);
       toast({
-        title: 'Failed to initialize bank connection',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
+        title: "Failed to initialize bank connection",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
       });
       return null;
     } finally {
@@ -69,8 +69,8 @@ export function usePlaid() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('plaid', {
-        body: { action: 'exchange_public_token', public_token: publicToken },
+      const { data, error } = await supabase.functions.invoke("plaid", {
+        body: { action: "exchange_public_token", public_token: publicToken },
       });
 
       if (error) throw error;
@@ -78,11 +78,11 @@ export function usePlaid() {
 
       return { accessToken: data.access_token, itemId: data.item_id };
     } catch (error) {
-      console.error('Exchange token error:', error);
+      console.error("Exchange token error:", error);
       toast({
-        title: 'Failed to connect bank',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
+        title: "Failed to connect bank",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
       });
       return null;
     } finally {
@@ -90,61 +90,71 @@ export function usePlaid() {
     }
   }, []);
 
-  const getAccounts = useCallback(async (accessToken: string): Promise<PlaidAccount[] | null> => {
-    setIsLoading(true);
+  const getAccounts = useCallback(
+    async (accessToken: string): Promise<PlaidAccount[] | null> => {
+      setIsLoading(true);
 
-    try {
-      const { data, error } = await supabase.functions.invoke('plaid', {
-        body: { action: 'get_accounts', access_token: accessToken },
-      });
+      try {
+        const { data, error } = await supabase.functions.invoke("plaid", {
+          body: { action: "get_accounts", access_token: accessToken },
+        });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+        if (error) throw error;
+        if (data.error) throw new Error(data.error);
 
-      return data.accounts;
-    } catch (error) {
-      console.error('Get accounts error:', error);
-      toast({
-        title: 'Failed to fetch accounts',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
-      });
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        return data.accounts;
+      } catch (error) {
+        console.error("Get accounts error:", error);
+        toast({
+          title: "Failed to fetch accounts",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
-  const getTransactions = useCallback(async (accessToken: string, cursor?: string) => {
-    setIsLoading(true);
+  const getTransactions = useCallback(
+    async (accessToken: string, cursor?: string) => {
+      setIsLoading(true);
 
-    try {
-      const { data, error } = await supabase.functions.invoke('plaid', {
-        body: { action: 'get_transactions', access_token: accessToken, cursor },
-      });
+      try {
+        const { data, error } = await supabase.functions.invoke("plaid", {
+          body: {
+            action: "get_transactions",
+            access_token: accessToken,
+            cursor,
+          },
+        });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+        if (error) throw error;
+        if (data.error) throw new Error(data.error);
 
-      return {
-        added: data.added as PlaidTransaction[],
-        modified: data.modified as PlaidTransaction[],
-        removed: data.removed as { transaction_id: string }[],
-        nextCursor: data.next_cursor,
-        hasMore: data.has_more,
-      };
-    } catch (error) {
-      console.error('Get transactions error:', error);
-      toast({
-        title: 'Failed to sync transactions',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
-      });
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        return {
+          added: data.added as PlaidTransaction[],
+          modified: data.modified as PlaidTransaction[],
+          removed: data.removed as { transaction_id: string }[],
+          nextCursor: data.next_cursor,
+          hasMore: data.has_more,
+        };
+      } catch (error) {
+        console.error("Get transactions error:", error);
+        toast({
+          title: "Failed to sync transactions",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   return {
     isLoading,

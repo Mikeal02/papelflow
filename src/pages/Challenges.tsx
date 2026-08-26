@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import { Trophy } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Trophy } from "lucide-react";
 
-import { FinancialChallenges } from '@/components/gamification/FinancialChallenges';
+import { FinancialChallenges } from "@/components/gamification/FinancialChallenges";
 
 const Challenges = () => {
   return (
@@ -16,7 +16,9 @@ const Challenges = () => {
             <Trophy className="h-5 w-5 text-warning" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Challenges & Achievements</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Challenges & Achievements
+            </h1>
             <p className="text-sm text-muted-foreground">
               Level up your financial skills and earn badges
             </p>

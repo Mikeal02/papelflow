@@ -1,13 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { qk, invalidateDomains } from '@/lib/queryKeys';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { qk, invalidateDomains } from "@/lib/queryKeys";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/integrations/supabase/types";
 
-export type Budget = Tables<'budgets'>;
-export type BudgetInsert = TablesInsert<'budgets'>;
-export type BudgetUpdate = TablesUpdate<'budgets'>;
+export type Budget = Tables<"budgets">;
+export type BudgetInsert = TablesInsert<"budgets">;
+export type BudgetUpdate = TablesUpdate<"budgets">;
 
 export function useBudgets(month?: string) {
   const { user } = useAuth();
@@ -17,12 +21,14 @@ export function useBudgets(month?: string) {
     queryKey: qk.budgets(user?.id, currentMonth),
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('budgets')
-        .select(`
+        .from("budgets")
+        .select(
+          `
           *,
           category:categories(id, name, icon, color, type, category_group)
-        `)
-        .eq('month', currentMonth);
+        `,
+        )
+        .eq("month", currentMonth);
 
       if (error) throw error;
       return data;
@@ -36,11 +42,11 @@ export function useCreateBudget() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (budget: Omit<BudgetInsert, 'user_id'>) => {
-      if (!user) throw new Error('Not authenticated');
+    mutationFn: async (budget: Omit<BudgetInsert, "user_id">) => {
+      if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from('budgets')
+        .from("budgets")
         .insert({ ...budget, user_id: user.id })
         .select()
         .single();
@@ -49,11 +55,15 @@ export function useCreateBudget() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'budgets');
-      toast({ title: 'Budget created successfully' });
+      invalidateDomains(queryClient, "budgets");
+      toast({ title: "Budget created successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to create budget', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to create budget",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -64,9 +74,9 @@ export function useUpdateBudget() {
   return useMutation({
     mutationFn: async ({ id, ...budget }: BudgetUpdate & { id: string }) => {
       const { data, error } = await supabase
-        .from('budgets')
+        .from("budgets")
         .update(budget)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -74,11 +84,15 @@ export function useUpdateBudget() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'budgets');
-      toast({ title: 'Budget updated successfully' });
+      invalidateDomains(queryClient, "budgets");
+      toast({ title: "Budget updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to update budget', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to update budget",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }

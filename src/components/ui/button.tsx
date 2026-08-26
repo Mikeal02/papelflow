@@ -25,7 +25,8 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground shadow-[var(--shadow-xs)] hover:brightness-[1.06] active:brightness-[0.97]",
         outline:
           "border border-input bg-background text-foreground shadow-[var(--shadow-xs)] hover:bg-muted/60 hover:border-border",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         ghost: "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         success:
@@ -47,26 +48,50 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  soundVariant?: 'soft' | 'crisp' | 'success' | 'toggle' | 'none';
+  soundVariant?: "soft" | "crisp" | "success" | "toggle" | "none";
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, soundVariant, onClick, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      soundVariant,
+      onClick,
+      ...props
+    },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : "button";
 
-    const handleClick = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-      const sound = soundVariant ?? (variant === 'ghost' || variant === 'link' ? 'none' : 'soft');
-      if (sound !== 'none') {
-        playClickSound(sound);
-        haptic(sound === 'success' ? 'success' : 'light');
-      }
-      onClick?.(e);
-    }, [soundVariant, variant, onClick]);
+    const handleClick = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        const sound =
+          soundVariant ??
+          (variant === "ghost" || variant === "link" ? "none" : "soft");
+        if (sound !== "none") {
+          playClickSound(sound);
+          haptic(sound === "success" ? "success" : "light");
+        }
+        onClick?.(e);
+      },
+      [soundVariant, variant, onClick],
+    );
 
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} onClick={asChild ? onClick : handleClick} {...props} />;
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        onClick={asChild ? onClick : handleClick}
+        {...props}
+      />
+    );
   },
 );
 Button.displayName = "Button";

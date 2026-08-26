@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Receipt, ArrowDownUp, Target, CreditCard } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Receipt, ArrowDownUp, Target, CreditCard } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface FloatingAction {
   icon: typeof Plus;
@@ -16,50 +16,52 @@ interface FloatingActionMenuProps {
   onAddTransaction?: () => void;
 }
 
-export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps) => {
+export const FloatingActionMenu = ({
+  onAddTransaction,
+}: FloatingActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const actions: FloatingAction[] = [
     {
       icon: Receipt,
-      label: 'Add Transaction',
-      shortcut: 'T',
+      label: "Add Transaction",
+      shortcut: "T",
       onClick: () => {
         onAddTransaction?.();
         setIsOpen(false);
       },
-      color: 'bg-primary',
+      color: "bg-primary",
     },
     {
       icon: ArrowDownUp,
-      label: 'Transfer',
-      shortcut: 'R',
+      label: "Transfer",
+      shortcut: "R",
       onClick: () => {
-        navigate('/accounts');
+        navigate("/accounts");
         setIsOpen(false);
       },
-      color: 'bg-chart-3',
+      color: "bg-chart-3",
     },
     {
       icon: Target,
-      label: 'Add Goal',
-      shortcut: 'G',
+      label: "Add Goal",
+      shortcut: "G",
       onClick: () => {
-        navigate('/goals');
+        navigate("/goals");
         setIsOpen(false);
       },
-      color: 'bg-income',
+      color: "bg-income",
     },
     {
       icon: CreditCard,
-      label: 'Add Budget',
-      shortcut: 'B',
+      label: "Add Budget",
+      shortcut: "B",
       onClick: () => {
-        navigate('/budgets');
+        navigate("/budgets");
         setIsOpen(false);
       },
-      color: 'bg-chart-4',
+      color: "bg-chart-4",
     },
   ];
 
@@ -83,7 +85,12 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
                   initial={{ opacity: 0, y: 16, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 16, scale: 0.9 }}
-                  transition={{ delay: index * 0.04, type: 'spring', stiffness: 400, damping: 25 }}
+                  transition={{
+                    delay: index * 0.04,
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 25,
+                  }}
                   onClick={action.onClick}
                   className="flex items-center gap-3 group"
                 >
@@ -102,9 +109,9 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
                   </motion.span>
                   <div
                     className={cn(
-                      'h-11 w-11 rounded-full flex items-center justify-center text-primary-foreground shadow-lg',
-                      'transition-all duration-200 group-hover:scale-110 group-hover:shadow-xl',
-                      action.color
+                      "h-11 w-11 rounded-full flex items-center justify-center text-primary-foreground shadow-lg",
+                      "transition-all duration-200 group-hover:scale-110 group-hover:shadow-xl",
+                      action.color,
                     )}
                   >
                     <action.icon className="h-4.5 w-4.5" />
@@ -122,15 +129,15 @@ export const FloatingActionMenu = ({ onAddTransaction }: FloatingActionMenuProps
         whileTap={{ scale: 0.94 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative h-14 w-14 rounded-full flex items-center justify-center z-50',
-          'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground',
-          'shadow-lg shadow-primary/25 transition-colors duration-300',
-          isOpen && 'from-destructive to-destructive/80 shadow-destructive/25'
+          "relative h-14 w-14 rounded-full flex items-center justify-center z-50",
+          "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground",
+          "shadow-lg shadow-primary/25 transition-colors duration-300",
+          isOpen && "from-destructive to-destructive/80 shadow-destructive/25",
         )}
       >
         <motion.div
           animate={{ rotate: isOpen ? 135 : 0 }}
-          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
         >
           <Plus className="h-6 w-6" />
         </motion.div>

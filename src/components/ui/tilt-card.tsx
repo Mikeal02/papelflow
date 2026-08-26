@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface TiltCardProps {
   children: React.ReactNode;
@@ -28,13 +28,25 @@ export const TiltCard = ({
   const mouseXSpring = useSpring(x, { stiffness: 400, damping: 35, mass: 0.5 });
   const mouseYSpring = useSpring(y, { stiffness: 400, damping: 35, mass: 0.5 });
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [`${intensity}deg`, `-${intensity}deg`]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [`-${intensity}deg`, `${intensity}deg`]);
+  const rotateX = useTransform(
+    mouseYSpring,
+    [-0.5, 0.5],
+    [`${intensity}deg`, `-${intensity}deg`],
+  );
+  const rotateY = useTransform(
+    mouseXSpring,
+    [-0.5, 0.5],
+    [`-${intensity}deg`, `${intensity}deg`],
+  );
   const scale = useSpring(1, { stiffness: 400, damping: 30 });
 
-  const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ['0%', '100%']);
-  const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ['0%', '100%']);
-  const glareOpacity = useTransform(mouseXSpring, [-0.5, 0, 0.5], [0.15, 0.05, 0.15]);
+  const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ["0%", "100%"]);
+  const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ["0%", "100%"]);
+  const glareOpacity = useTransform(
+    mouseXSpring,
+    [-0.5, 0, 0.5],
+    [0.15, 0.05, 0.15],
+  );
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
@@ -74,13 +86,15 @@ export const TiltCard = ({
         rotateX,
         rotateY,
         scale,
-        transformStyle: 'preserve-3d',
+        transformStyle: "preserve-3d",
         perspective: `${perspective}px`,
       }}
       className={cn(
-        'relative rounded-2xl transition-shadow duration-400',
-        isHovered && borderGlow && 'shadow-[0_0_40px_-8px_hsl(var(--primary)/0.35)]',
-        className
+        "relative rounded-2xl transition-shadow duration-400",
+        isHovered &&
+          borderGlow &&
+          "shadow-[0_0_40px_-8px_hsl(var(--primary)/0.35)]",
+        className,
       )}
     >
       {/* Animated border gradient on hover */}
@@ -93,9 +107,9 @@ export const TiltCard = ({
                   hsl(var(--primary) / 0.4) 0%, 
                   hsl(var(--accent) / 0.3) 50%,
                   hsl(var(--chart-6) / 0.2) 100%)`
-              : 'transparent',
+              : "transparent",
             opacity: isHovered ? 1 : 0,
-            transition: 'all 0.4s ease',
+            transition: "all 0.4s ease",
           }}
         />
       )}
@@ -105,7 +119,7 @@ export const TiltCard = ({
         <motion.div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{
-            background: 'hsl(var(--card))',
+            background: "hsl(var(--card))",
             opacity: isHovered ? 1 : 0,
           }}
         />
@@ -117,17 +131,18 @@ export const TiltCard = ({
           className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden"
           style={{
             opacity: isHovered ? 1 : 0,
-            transition: 'opacity 0.3s ease',
+            transition: "opacity 0.3s ease",
           }}
         >
           {/* Primary glare */}
           <motion.div
             className="absolute w-[250%] h-[250%]"
             style={{
-              background: 'radial-gradient(circle, hsl(0 0% 100% / 0.2) 0%, transparent 45%)',
+              background:
+                "radial-gradient(circle, hsl(0 0% 100% / 0.2) 0%, transparent 45%)",
               left: glareX,
               top: glareY,
-              transform: 'translate(-50%, -50%)',
+              transform: "translate(-50%, -50%)",
               opacity: glareOpacity,
             }}
           />
@@ -147,10 +162,10 @@ export const TiltCard = ({
       )}
 
       {/* Elevated content */}
-      <motion.div 
-        style={{ 
-          transform: 'translateZ(30px)',
-          transformStyle: 'preserve-3d',
+      <motion.div
+        style={{
+          transform: "translateZ(30px)",
+          transformStyle: "preserve-3d",
         }}
         className="relative z-10"
       >

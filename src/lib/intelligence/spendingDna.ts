@@ -18,8 +18,8 @@
  *  - actionable behavioral nudges
  */
 
-import { parseISO, getHours, getDay, format, differenceInDays } from 'date-fns';
-import { entropy, welford, percentile, mean } from './statistics';
+import { parseISO, getHours, getDay, format, differenceInDays } from "date-fns";
+import { entropy, welford, percentile, mean } from "./statistics";
 
 interface Tx {
   amount: number | string;
@@ -31,10 +31,17 @@ interface Tx {
 }
 
 export interface DnaAxis {
-  key: 'circadian' | 'weekendBias' | 'impulse' | 'discretionary' | 'loyalty' | 'velocity' | 'emotional';
+  key:
+    | "circadian"
+    | "weekendBias"
+    | "impulse"
+    | "discretionary"
+    | "loyalty"
+    | "velocity"
+    | "emotional";
   label: string;
-  value: number;      // 0..100
-  benchmark: number;  // peer median 0..100
+  value: number; // 0..100
+  benchmark: number; // peer median 0..100
   description: string;
 }
 
@@ -43,58 +50,85 @@ export interface NextLikelyEvent {
   category: string;
   expectedAmountLow: number;
   expectedAmountHigh: number;
-  expectedWindow: string;     // human readable
-  probability: number;        // 0..1
+  expectedWindow: string; // human readable
+  probability: number; // 0..1
   reasoning: string;
 }
 
 export interface BehavioralTrigger {
   name: string;
   detail: string;
-  strength: number;    // 0..1
-  category: 'time' | 'place' | 'mood' | 'frequency';
+  strength: number; // 0..1
+  category: "time" | "place" | "mood" | "frequency";
 }
 
 export interface SpendingDnaReport {
   genome: DnaAxis[];
-  overallScore: number;        // weighted health 0..100
-  archetypeBlend: { name: string; weight: number }[];   // soft membership
+  overallScore: number; // weighted health 0..100
+  archetypeBlend: { name: string; weight: number }[]; // soft membership
   triggers: BehavioralTrigger[];
   nextLikely: NextLikelyEvent[];
-  hourHeatmap: number[];       // 24 entries, normalized 0..1
-  dayHeatmap: number[];        // 7 entries, normalized 0..1
-  fingerprint: string;         // hex-like deterministic signature
+  hourHeatmap: number[]; // 24 entries, normalized 0..1
+  dayHeatmap: number[]; // 7 entries, normalized 0..1
+  fingerprint: string; // hex-like deterministic signature
   recommendations: { title: string; detail: string; impactUSD: number }[];
   diagnostics: { label: string; value: string | number }[];
 }
 
-const ESSENTIAL_KEYS = ['rent', 'mortgage', 'utility', 'utilities', 'grocer', 'insurance', 'health', 'medical', 'transport', 'fuel', 'gas'];
-const DISCRETIONARY_KEYS = ['restaurant', 'dining', 'coffee', 'entertainment', 'streaming', 'travel', 'shopping', 'clothing', 'bar', 'alcohol'];
+const ESSENTIAL_KEYS = [
+  "rent",
+  "mortgage",
+  "utility",
+  "utilities",
+  "grocer",
+  "insurance",
+  "health",
+  "medical",
+  "transport",
+  "fuel",
+  "gas",
+];
+const DISCRETIONARY_KEYS = [
+  "restaurant",
+  "dining",
+  "coffee",
+  "entertainment",
+  "streaming",
+  "travel",
+  "shopping",
+  "clothing",
+  "bar",
+  "alcohol",
+];
 
 function isEssential(name: string): boolean {
   const l = name.toLowerCase();
-  return ESSENTIAL_KEYS.some(k => l.includes(k));
+  return ESSENTIAL_KEYS.some((k) => l.includes(k));
 }
 function isDiscretionary(name: string): boolean {
   const l = name.toLowerCase();
-  return DISCRETIONARY_KEYS.some(k => l.includes(k));
+  return DISCRETIONARY_KEYS.some((k) => l.includes(k));
 }
 
 function normalizeMerchant(name: string | null | undefined): string {
-  if (!name) return 'Unknown';
-  return name
-    .replace(/\s+#?\d+.*$/g, '')
-    .replace(/[^a-zA-Z0-9 ]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase()
-    .split(' ')
-    .slice(0, 3)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ') || 'Unknown';
+  if (!name) return "Unknown";
+  return (
+    name
+      .replace(/\s+#?\d+.*$/g, "")
+      .replace(/[^a-zA-Z0-9 ]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase()
+      .split(" ")
+      .slice(0, 3)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ") || "Unknown"
+  );
 }
 
-function clamp(v: number, lo = 0, hi = 100): number { return Math.max(lo, Math.min(hi, v)); }
+function clamp(v: number, lo = 0, hi = 100): number {
+  return Math.max(lo, Math.min(hi, v));
+}
 
 function deterministicHash(input: string): string {
   let h = 0x811c9dc5;
@@ -102,16 +136,21 @@ function deterministicHash(input: string): string {
     h ^= input.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
-  return ('00000000' + (h >>> 0).toString(16)).slice(-8).toUpperCase();
+  return ("00000000" + (h >>> 0).toString(16)).slice(-8).toUpperCase();
 }
 
 export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
-  const expenses = txs.filter(t => t.type === 'expense').map(t => ({
-    amt: Number(t.amount),
-    date: parseISO(t.date),
-    merchant: normalizeMerchant(t.payee || t.description || t.category?.name || 'Unknown'),
-    category: t.category?.name || 'Uncategorized',
-  })).filter(t => t.amt > 0 && !isNaN(t.date.getTime()));
+  const expenses = txs
+    .filter((t) => t.type === "expense")
+    .map((t) => ({
+      amt: Number(t.amount),
+      date: parseISO(t.date),
+      merchant: normalizeMerchant(
+        t.payee || t.description || t.category?.name || "Unknown",
+      ),
+      category: t.category?.name || "Uncategorized",
+    }))
+    .filter((t) => t.amt > 0 && !isNaN(t.date.getTime()));
 
   if (!expenses.length) {
     return emptyReport();
@@ -132,12 +171,14 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
   const peakHour = hourAmounts.indexOf(Math.max(...hourAmounts));
 
   // Weekday vs weekend
-  let weekendAmt = 0, weekdayAmt = 0;
+  let weekendAmt = 0,
+    weekdayAmt = 0;
   const dayAmounts = new Array(7).fill(0);
   for (const e of expenses) {
     const d = getDay(e.date);
     dayAmounts[d] += e.amt;
-    if (d === 0 || d === 6) weekendAmt += e.amt; else weekdayAmt += e.amt;
+    if (d === 0 || d === 6) weekendAmt += e.amt;
+    else weekdayAmt += e.amt;
   }
   const total = weekendAmt + weekdayAmt;
   const weekendShare = total ? weekendAmt / total : 0;
@@ -148,16 +189,17 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
   // Daily aggregation for impulse
   const dailyMap = new Map<string, number>();
   for (const e of expenses) {
-    const k = format(e.date, 'yyyy-MM-dd');
+    const k = format(e.date, "yyyy-MM-dd");
     dailyMap.set(k, (dailyMap.get(k) || 0) + e.amt);
   }
   const dailyArr = [...dailyMap.values()];
   const { mean: dMean, stdev: dStd } = welford(dailyArr);
-  const cv = dMean > 0 ? dStd / dMean : 0;       // coefficient of variation
-  const impulseScore = clamp(cv * 50);           // bounded
+  const cv = dMean > 0 ? dStd / dMean : 0; // coefficient of variation
+  const impulseScore = clamp(cv * 50); // bounded
 
   // Discretionary ratio
-  let discAmt = 0, essAmt = 0;
+  let discAmt = 0,
+    essAmt = 0;
   for (const e of expenses) {
     if (isEssential(e.category)) essAmt += e.amt;
     else if (isDiscretionary(e.category)) discAmt += e.amt;
@@ -168,14 +210,20 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
 
   // Merchant loyalty (HHI)
   const merchantAmt = new Map<string, number>();
-  for (const e of expenses) merchantAmt.set(e.merchant, (merchantAmt.get(e.merchant) || 0) + e.amt);
+  for (const e of expenses)
+    merchantAmt.set(e.merchant, (merchantAmt.get(e.merchant) || 0) + e.amt);
   const totalSpend = expenses.reduce((a, b) => a + b.amt, 0);
   let hhi = 0;
-  merchantAmt.forEach(v => { const s = v / totalSpend; hhi += s * s; });
-  const loyaltyScore = clamp(hhi * 200);  // HHI in [0,1]; 0.5 -> 100
+  merchantAmt.forEach((v) => {
+    const s = v / totalSpend;
+    hhi += s * s;
+  });
+  const loyaltyScore = clamp(hhi * 200); // HHI in [0,1]; 0.5 -> 100
 
   // Velocity — slope of 7d rolling sum
-  const sortedDays = [...dailyMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  const sortedDays = [...dailyMap.entries()].sort((a, b) =>
+    a[0].localeCompare(b[0]),
+  );
   const rolling: number[] = [];
   for (let i = 0; i < sortedDays.length; i++) {
     const lo = Math.max(0, i - 6);
@@ -186,26 +234,78 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
   const recent = rolling.slice(-14);
   const older = rolling.slice(-28, -14);
   const velocityDelta = mean(recent) - mean(older);
-  const velocityScore = clamp(50 + (velocityDelta / Math.max(1, mean(rolling))) * 100);
+  const velocityScore = clamp(
+    50 + (velocityDelta / Math.max(1, mean(rolling))) * 100,
+  );
 
   // Emotional volatility — share of days >2σ above mean
-  const fatTailCount = dailyArr.filter(v => v > dMean + 2 * dStd).length;
-  const emotionalScore = clamp((fatTailCount / Math.max(1, dailyArr.length)) * 500);
+  const fatTailCount = dailyArr.filter((v) => v > dMean + 2 * dStd).length;
+  const emotionalScore = clamp(
+    (fatTailCount / Math.max(1, dailyArr.length)) * 500,
+  );
 
   const genome: DnaAxis[] = [
-    { key: 'circadian',     label: 'Circadian Pattern',  value: circadianScore,    benchmark: 55, description: 'How habitual your spending times are. Higher = more predictable hours.' },
-    { key: 'weekendBias',   label: 'Weekend Bias',       value: weekendBias,       benchmark: 55, description: 'Tilt of spending toward weekends.' },
-    { key: 'impulse',       label: 'Impulse Index',      value: impulseScore,      benchmark: 45, description: 'Daily-spend variability vs mean (CV).' },
-    { key: 'discretionary', label: 'Discretionary Share', value: discretionaryScore, benchmark: 35, description: 'Share of non-essential spend.' },
-    { key: 'loyalty',       label: 'Merchant Loyalty',   value: loyaltyScore,      benchmark: 30, description: 'Concentration across merchants (HHI).' },
-    { key: 'velocity',      label: 'Spending Velocity',  value: velocityScore,     benchmark: 50, description: 'Recent 14d vs prior 14d trajectory.' },
-    { key: 'emotional',     label: 'Emotional Volatility', value: emotionalScore, benchmark: 25, description: 'Frequency of >2σ spend spikes (fat-tail days).' },
+    {
+      key: "circadian",
+      label: "Circadian Pattern",
+      value: circadianScore,
+      benchmark: 55,
+      description:
+        "How habitual your spending times are. Higher = more predictable hours.",
+    },
+    {
+      key: "weekendBias",
+      label: "Weekend Bias",
+      value: weekendBias,
+      benchmark: 55,
+      description: "Tilt of spending toward weekends.",
+    },
+    {
+      key: "impulse",
+      label: "Impulse Index",
+      value: impulseScore,
+      benchmark: 45,
+      description: "Daily-spend variability vs mean (CV).",
+    },
+    {
+      key: "discretionary",
+      label: "Discretionary Share",
+      value: discretionaryScore,
+      benchmark: 35,
+      description: "Share of non-essential spend.",
+    },
+    {
+      key: "loyalty",
+      label: "Merchant Loyalty",
+      value: loyaltyScore,
+      benchmark: 30,
+      description: "Concentration across merchants (HHI).",
+    },
+    {
+      key: "velocity",
+      label: "Spending Velocity",
+      value: velocityScore,
+      benchmark: 50,
+      description: "Recent 14d vs prior 14d trajectory.",
+    },
+    {
+      key: "emotional",
+      label: "Emotional Volatility",
+      value: emotionalScore,
+      benchmark: 25,
+      description: "Frequency of >2σ spend spikes (fat-tail days).",
+    },
   ];
 
   // Health composite (lower impulse/disc/emotional, higher loyalty, neutral circadian)
   const overallScore = clamp(
-    100 - 0.25 * impulseScore - 0.25 * discretionaryScore - 0.2 * emotionalScore
-        + 0.15 * loyaltyScore + 0.1 * (100 - Math.abs(velocityScore - 50) * 2) + 0.05 * circadianScore
+    100 -
+      0.25 * impulseScore -
+      0.25 * discretionaryScore -
+      0.2 * emotionalScore +
+      0.15 * loyaltyScore +
+      0.1 * (100 - Math.abs(velocityScore - 50) * 2) +
+      0.05 * circadianScore,
   );
 
   // Soft archetype blend
@@ -213,36 +313,61 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
 
   // Triggers
   const triggers: BehavioralTrigger[] = [
-    { name: `Peak hour ${peakHour}:00`, detail: `Most $ spent around ${peakHour}:00.`, strength: clamp(hourAmounts[peakHour] / totalSpend) / 100 + 0.1, category: 'time' },
-    { name: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][peakDay], detail: `Heaviest day: ${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][peakDay]}.`, strength: dayAmounts[peakDay] / total, category: 'time' },
+    {
+      name: `Peak hour ${peakHour}:00`,
+      detail: `Most $ spent around ${peakHour}:00.`,
+      strength: clamp(hourAmounts[peakHour] / totalSpend) / 100 + 0.1,
+      category: "time",
+    },
+    {
+      name: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][peakDay],
+      detail: `Heaviest day: ${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][peakDay]}.`,
+      strength: dayAmounts[peakDay] / total,
+      category: "time",
+    },
   ];
-  const topMerchants = [...merchantAmt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
-  topMerchants.forEach(([m, v]) => triggers.push({
-    name: m, detail: `${((v / totalSpend) * 100).toFixed(1)}% of total spend.`,
-    strength: v / totalSpend, category: 'place'
-  }));
-  if (impulseScore > 60) triggers.push({ name: 'Impulse-prone', detail: 'Daily spend volatility is well above peer median.', strength: impulseScore / 100, category: 'mood' });
+  const topMerchants = [...merchantAmt.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+  topMerchants.forEach(([m, v]) =>
+    triggers.push({
+      name: m,
+      detail: `${((v / totalSpend) * 100).toFixed(1)}% of total spend.`,
+      strength: v / totalSpend,
+      category: "place",
+    }),
+  );
+  if (impulseScore > 60)
+    triggers.push({
+      name: "Impulse-prone",
+      detail: "Daily spend volatility is well above peer median.",
+      strength: impulseScore / 100,
+      category: "mood",
+    });
 
   // Next-likely events — based on recurring merchant cadence
   const nextLikely = predictNextEvents(expenses);
 
   // Heatmaps
   const maxHour = Math.max(...hourAmounts, 1);
-  const hourHeatmap = hourAmounts.map(v => v / maxHour);
+  const hourHeatmap = hourAmounts.map((v) => v / maxHour);
   const maxDay = Math.max(...dayAmounts, 1);
-  const dayHeatmap = dayAmounts.map(v => v / maxDay);
+  const dayHeatmap = dayAmounts.map((v) => v / maxDay);
 
   // Fingerprint
-  const fpInput = genome.map(g => g.key + ':' + Math.round(g.value)).join('|');
+  const fpInput = genome
+    .map((g) => g.key + ":" + Math.round(g.value))
+    .join("|");
   const fingerprint = deterministicHash(fpInput);
 
   // Recommendations
-  const recommendations: SpendingDnaReport['recommendations'] = [];
+  const recommendations: SpendingDnaReport["recommendations"] = [];
   if (discretionaryScore > 50) {
-    const monthlyDisc = discAmt / Math.max(1, dailyArr.length) * 30;
+    const monthlyDisc = (discAmt / Math.max(1, dailyArr.length)) * 30;
     recommendations.push({
-      title: 'Cap discretionary at 35%',
-      detail: 'Shift the marginal 15% of discretionary spend into automated savings.',
+      title: "Cap discretionary at 35%",
+      detail:
+        "Shift the marginal 15% of discretionary spend into automated savings.",
       impactUSD: monthlyDisc * 0.15,
     });
   }
@@ -256,15 +381,17 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
   }
   if (emotionalScore > 40) {
     recommendations.push({
-      title: 'Add a 24h cooldown',
-      detail: 'Auto-flag any single charge >2σ above your daily mean for review.',
+      title: "Add a 24h cooldown",
+      detail:
+        "Auto-flag any single charge >2σ above your daily mean for review.",
       impactUSD: dStd * 4,
     });
   }
   if (velocityScore > 65) {
     recommendations.push({
-      title: 'Pump the brakes',
-      detail: 'Recent 14d spend is materially faster than prior 14d. Re-check budgets.',
+      title: "Pump the brakes",
+      detail:
+        "Recent 14d spend is materially faster than prior 14d. Re-check budgets.",
       impactUSD: velocityDelta * 14,
     });
   }
@@ -280,25 +407,29 @@ export function analyzeSpendingDna(txs: Tx[]): SpendingDnaReport {
     fingerprint,
     recommendations,
     diagnostics: [
-      { label: 'Expenses analyzed', value: expenses.length },
-      { label: 'Unique merchants', value: merchantAmt.size },
-      { label: 'Active days', value: dailyArr.length },
-      { label: 'Daily mean', value: `$${dMean.toFixed(2)}` },
-      { label: 'Daily σ', value: `$${dStd.toFixed(2)}` },
-      { label: 'HHI', value: hhi.toFixed(3) },
-      { label: 'Hour entropy', value: hourEntropy.toFixed(2) },
+      { label: "Expenses analyzed", value: expenses.length },
+      { label: "Unique merchants", value: merchantAmt.size },
+      { label: "Active days", value: dailyArr.length },
+      { label: "Daily mean", value: `$${dMean.toFixed(2)}` },
+      { label: "Daily σ", value: `$${dStd.toFixed(2)}` },
+      { label: "HHI", value: hhi.toFixed(3) },
+      { label: "Hour entropy", value: hourEntropy.toFixed(2) },
     ],
   };
 }
 
-function blendArchetypes(genome: DnaAxis[]): { name: string; weight: number }[] {
-  const m = Object.fromEntries(genome.map(g => [g.key, g.value]));
+function blendArchetypes(
+  genome: DnaAxis[],
+): { name: string; weight: number }[] {
+  const m = Object.fromEntries(genome.map((g) => [g.key, g.value]));
   const raw = {
-    'Disciplined Saver': (100 - m.discretionary) * 0.5 + (100 - m.impulse) * 0.5,
-    'Experience Seeker': m.discretionary * 0.5 + m.weekendBias * 0.3 + m.emotional * 0.2,
-    'Habitual Routine':  m.circadian * 0.5 + m.loyalty * 0.5,
-    'Impulse Driver':    m.impulse * 0.6 + m.emotional * 0.4,
-    'Accelerator':       m.velocity * 0.6 + m.discretionary * 0.4,
+    "Disciplined Saver":
+      (100 - m.discretionary) * 0.5 + (100 - m.impulse) * 0.5,
+    "Experience Seeker":
+      m.discretionary * 0.5 + m.weekendBias * 0.3 + m.emotional * 0.2,
+    "Habitual Routine": m.circadian * 0.5 + m.loyalty * 0.5,
+    "Impulse Driver": m.impulse * 0.6 + m.emotional * 0.4,
+    Accelerator: m.velocity * 0.6 + m.discretionary * 0.4,
   };
   const total = Object.values(raw).reduce((a, b) => a + b, 0) || 1;
   return Object.entries(raw)
@@ -307,12 +438,16 @@ function blendArchetypes(genome: DnaAxis[]): { name: string; weight: number }[] 
 }
 
 function predictNextEvents(
-  expenses: { amt: number; date: Date; merchant: string; category: string }[]
+  expenses: { amt: number; date: Date; merchant: string; category: string }[],
 ): NextLikelyEvent[] {
   // Group by merchant, compute mean interval and amount stats.
-  const byMerchant = new Map<string, { dates: Date[]; amts: number[]; category: string }>();
+  const byMerchant = new Map<
+    string,
+    { dates: Date[]; amts: number[]; category: string }
+  >();
   for (const e of expenses) {
-    if (!byMerchant.has(e.merchant)) byMerchant.set(e.merchant, { dates: [], amts: [], category: e.category });
+    if (!byMerchant.has(e.merchant))
+      byMerchant.set(e.merchant, { dates: [], amts: [], category: e.category });
     const b = byMerchant.get(e.merchant)!;
     b.dates.push(e.date);
     b.amts.push(e.amt);
@@ -324,7 +459,8 @@ function predictNextEvents(
     if (b.dates.length < 3) return;
     const sorted = [...b.dates].sort((a, c) => a.getTime() - c.getTime());
     const intervals: number[] = [];
-    for (let i = 1; i < sorted.length; i++) intervals.push(differenceInDays(sorted[i], sorted[i - 1]));
+    for (let i = 1; i < sorted.length; i++)
+      intervals.push(differenceInDays(sorted[i], sorted[i - 1]));
     const meanInt = mean(intervals);
     const { stdev } = welford(intervals);
     if (meanInt < 1 || meanInt > 120) return;
@@ -341,15 +477,18 @@ function predictNextEvents(
       category: b.category,
       expectedAmountLow: Math.max(0, amtMean - amtSd),
       expectedAmountHigh: amtMean + amtSd,
-      expectedWindow: expectedIn <= 1 ? 'within 24h' : expectedIn <= 7 ? `~${Math.round(expectedIn)} days` : `~${Math.round(expectedIn / 7)} weeks`,
+      expectedWindow:
+        expectedIn <= 1
+          ? "within 24h"
+          : expectedIn <= 7
+            ? `~${Math.round(expectedIn)} days`
+            : `~${Math.round(expectedIn / 7)} weeks`,
       probability,
       reasoning: `${b.dates.length} prior charges · cadence ${meanInt.toFixed(1)}d (σ=${stdev.toFixed(1)})`,
     });
   });
 
-  return candidates
-    .sort((a, b) => b.probability - a.probability)
-    .slice(0, 6);
+  return candidates.sort((a, b) => b.probability - a.probability).slice(0, 6);
 }
 
 function emptyReport(): SpendingDnaReport {
@@ -361,7 +500,7 @@ function emptyReport(): SpendingDnaReport {
     nextLikely: [],
     hourHeatmap: new Array(24).fill(0),
     dayHeatmap: new Array(7).fill(0),
-    fingerprint: '00000000',
+    fingerprint: "00000000",
     recommendations: [],
     diagnostics: [],
   };
@@ -390,45 +529,71 @@ export interface MarkovReport {
 /** Build a 1st-order Markov chain over the chronological sequence of merchants. */
 export function buildMerchantMarkov(txs: Tx[], topN = 10): MarkovReport {
   const exp = txs
-    .filter(t => t.type === 'expense')
-    .map(t => ({ date: parseISO(t.date), merchant: normalizeMerchant(t.payee || t.description || t.category?.name || 'Unknown') }))
-    .filter(t => !isNaN(t.date.getTime()))
+    .filter((t) => t.type === "expense")
+    .map((t) => ({
+      date: parseISO(t.date),
+      merchant: normalizeMerchant(
+        t.payee || t.description || t.category?.name || "Unknown",
+      ),
+    }))
+    .filter((t) => !isNaN(t.date.getTime()))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  if (exp.length < 5) return { states: [], topTransitions: [], stationary: [], predictedNext: [], entropyBits: 0 };
+  if (exp.length < 5)
+    return {
+      states: [],
+      topTransitions: [],
+      stationary: [],
+      predictedNext: [],
+      entropyBits: 0,
+    };
 
   // Keep the top-N merchants; collapse others into "Other"
   const counts = new Map<string, number>();
-  exp.forEach(e => counts.set(e.merchant, (counts.get(e.merchant) || 0) + 1));
-  const top = new Set([...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, topN).map(([m]) => m));
-  const seq = exp.map(e => (top.has(e.merchant) ? e.merchant : 'Other'));
+  exp.forEach((e) => counts.set(e.merchant, (counts.get(e.merchant) || 0) + 1));
+  const top = new Set(
+    [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, topN)
+      .map(([m]) => m),
+  );
+  const seq = exp.map((e) => (top.has(e.merchant) ? e.merchant : "Other"));
 
   const states = Array.from(new Set(seq));
   const idx = new Map(states.map((s, i) => [s, i]));
   const N = states.length;
   const m: number[][] = Array.from({ length: N }, () => Array(N).fill(0));
-  for (let i = 1; i < seq.length; i++) m[idx.get(seq[i - 1])!][idx.get(seq[i])!]++;
+  for (let i = 1; i < seq.length; i++)
+    m[idx.get(seq[i - 1])!][idx.get(seq[i])!]++;
 
   // Row-normalize → transition probabilities
-  const T: number[][] = m.map(row => {
+  const T: number[][] = m.map((row) => {
     const s = row.reduce((a, b) => a + b, 0);
-    return s === 0 ? row.map(() => 0) : row.map(v => v / s);
+    return s === 0 ? row.map(() => 0) : row.map((v) => v / s);
   });
 
   // Top transitions by absolute count
   const transitions: MarkovTransition[] = [];
-  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-    if (m[i][j] > 0) transitions.push({ from: states[i], to: states[j], probability: T[i][j], count: m[i][j] });
-  }
+  for (let i = 0; i < N; i++)
+    for (let j = 0; j < N; j++) {
+      if (m[i][j] > 0)
+        transitions.push({
+          from: states[i],
+          to: states[j],
+          probability: T[i][j],
+          count: m[i][j],
+        });
+    }
   transitions.sort((a, b) => b.count - a.count);
 
   // Stationary distribution via power iteration
   let pi = new Array(N).fill(1 / N);
   for (let iter = 0; iter < 60; iter++) {
     const next = new Array(N).fill(0);
-    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) next[j] += pi[i] * T[i][j];
+    for (let j = 0; j < N; j++)
+      for (let i = 0; i < N; i++) next[j] += pi[i] * T[i][j];
     const s = next.reduce((a, b) => a + b, 0) || 1;
-    pi = next.map(v => v / s);
+    pi = next.map((v) => v / s);
   }
 
   // Predict next merchant: one step from the last observed state
@@ -436,7 +601,7 @@ export function buildMerchantMarkov(txs: Tx[], topN = 10): MarkovReport {
   const lastIdx = idx.get(lastState)!;
   const predictedNext = T[lastIdx]
     .map((p, i) => ({ merchant: states[i], probability: p }))
-    .filter(p => p.probability > 0)
+    .filter((p) => p.probability > 0)
     .sort((a, b) => b.probability - a.probability)
     .slice(0, 5);
 
@@ -447,7 +612,10 @@ export function buildMerchantMarkov(txs: Tx[], topN = 10): MarkovReport {
   return {
     states,
     topTransitions: transitions.slice(0, 12),
-    stationary: states.map((s, i) => ({ merchant: s, probability: pi[i] })).sort((a, b) => b.probability - a.probability).slice(0, 8),
+    stationary: states
+      .map((s, i) => ({ merchant: s, probability: pi[i] }))
+      .sort((a, b) => b.probability - a.probability)
+      .slice(0, 8),
     predictedNext,
     entropyBits: h,
   };
@@ -455,15 +623,30 @@ export function buildMerchantMarkov(txs: Tx[], topN = 10): MarkovReport {
 
 /** Split history into two halves and compute per-axis drift. */
 export interface DriftReport {
-  axisDrift: { key: DnaAxis['key']; label: string; before: number; after: number; delta: number; direction: 'up' | 'down' | 'flat' }[];
-  overallDrift: number;     // L2 norm of axis deltas, 0..100
-  trajectory: 'improving' | 'stable' | 'degrading';
+  axisDrift: {
+    key: DnaAxis["key"];
+    label: string;
+    before: number;
+    after: number;
+    delta: number;
+    direction: "up" | "down" | "flat";
+  }[];
+  overallDrift: number; // L2 norm of axis deltas, 0..100
+  trajectory: "improving" | "stable" | "degrading";
   windowDays: { before: number; after: number };
 }
 
 export function analyzeDrift(txs: Tx[]): DriftReport {
-  const exp = txs.filter(t => t.type === 'expense' && Number(t.amount) > 0).sort((a, b) => a.date.localeCompare(b.date));
-  if (exp.length < 20) return { axisDrift: [], overallDrift: 0, trajectory: 'stable', windowDays: { before: 0, after: 0 } };
+  const exp = txs
+    .filter((t) => t.type === "expense" && Number(t.amount) > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (exp.length < 20)
+    return {
+      axisDrift: [],
+      overallDrift: 0,
+      trajectory: "stable",
+      windowDays: { before: 0, after: 0 },
+    };
   const mid = Math.floor(exp.length / 2);
   const before = analyzeSpendingDna(exp.slice(0, mid));
   const after = analyzeSpendingDna(exp.slice(mid));
@@ -476,43 +659,80 @@ export function analyzeDrift(txs: Tx[]): DriftReport {
       before: g.value,
       after: a,
       delta,
-      direction: (Math.abs(delta) < 2 ? 'flat' : delta > 0 ? 'up' : 'down') as 'up' | 'down' | 'flat',
+      direction: (Math.abs(delta) < 2 ? "flat" : delta > 0 ? "up" : "down") as
+        "up" | "down" | "flat",
     };
   });
-  const l2 = Math.sqrt(axisDrift.reduce((a, b) => a + b.delta * b.delta, 0)) / Math.sqrt(axisDrift.length || 1);
+  const l2 =
+    Math.sqrt(axisDrift.reduce((a, b) => a + b.delta * b.delta, 0)) /
+    Math.sqrt(axisDrift.length || 1);
   const healthDelta = (after.overallScore || 0) - (before.overallScore || 0);
   return {
     axisDrift,
     overallDrift: Math.min(100, l2),
-    trajectory: healthDelta > 3 ? 'improving' : healthDelta < -3 ? 'degrading' : 'stable',
+    trajectory:
+      healthDelta > 3 ? "improving" : healthDelta < -3 ? "degrading" : "stable",
     windowDays: { before: mid, after: exp.length - mid },
   };
 }
 
 /** Simulate genome IF user adopted all recommendations. */
 export interface ShadowGenomeReport {
-  current: { key: DnaAxis['key']; label: string; value: number }[];
-  shadow:  { key: DnaAxis['key']; label: string; value: number }[];
+  current: { key: DnaAxis["key"]; label: string; value: number }[];
+  shadow: { key: DnaAxis["key"]; label: string; value: number }[];
   healthGain: number;
   monthlySavings: number;
 }
 
-export function simulateShadowGenome(report: SpendingDnaReport): ShadowGenomeReport {
-  const factors: Record<DnaAxis['key'], number> = {
-    circadian: 1, weekendBias: 1, impulse: 0.6, discretionary: 0.7,
-    loyalty: 1.0, velocity: 0.85, emotional: 0.55,
+export function simulateShadowGenome(
+  report: SpendingDnaReport,
+): ShadowGenomeReport {
+  const factors: Record<DnaAxis["key"], number> = {
+    circadian: 1,
+    weekendBias: 1,
+    impulse: 0.6,
+    discretionary: 0.7,
+    loyalty: 1.0,
+    velocity: 0.85,
+    emotional: 0.55,
   };
-  const shadow = report.genome.map(g => ({ key: g.key, label: g.label, value: Math.max(0, Math.min(100, g.value * factors[g.key])) }));
-  const fakeReport = { ...report, genome: shadow.map((s, i) => ({ ...report.genome[i], value: s.value })) };
+  const shadow = report.genome.map((g) => ({
+    key: g.key,
+    label: g.label,
+    value: Math.max(0, Math.min(100, g.value * factors[g.key])),
+  }));
+  const fakeReport = {
+    ...report,
+    genome: shadow.map((s, i) => ({ ...report.genome[i], value: s.value })),
+  };
   // recompute simple health
-  const m = Object.fromEntries(shadow.map(s => [s.key, s.value])) as Record<string, number>;
-  const newHealth = Math.max(0, Math.min(100,
-    100 - 0.25 * (m.impulse || 0) - 0.25 * (m.discretionary || 0) - 0.2 * (m.emotional || 0)
-    + 0.15 * (m.loyalty || 0) + 0.1 * (100 - Math.abs((m.velocity || 50) - 50) * 2) + 0.05 * (m.circadian || 0)
-  ));
-  const monthlySavings = report.recommendations.reduce((a, r) => a + r.impactUSD, 0);
+  const m = Object.fromEntries(shadow.map((s) => [s.key, s.value])) as Record<
+    string,
+    number
+  >;
+  const newHealth = Math.max(
+    0,
+    Math.min(
+      100,
+      100 -
+        0.25 * (m.impulse || 0) -
+        0.25 * (m.discretionary || 0) -
+        0.2 * (m.emotional || 0) +
+        0.15 * (m.loyalty || 0) +
+        0.1 * (100 - Math.abs((m.velocity || 50) - 50) * 2) +
+        0.05 * (m.circadian || 0),
+    ),
+  );
+  const monthlySavings = report.recommendations.reduce(
+    (a, r) => a + r.impactUSD,
+    0,
+  );
   return {
-    current: report.genome.map(g => ({ key: g.key, label: g.label, value: g.value })),
+    current: report.genome.map((g) => ({
+      key: g.key,
+      label: g.label,
+      value: g.value,
+    })),
     shadow,
     healthGain: newHealth - report.overallScore,
     monthlySavings,
@@ -521,19 +741,25 @@ export function simulateShadowGenome(report: SpendingDnaReport): ShadowGenomeRep
 
 /** 30-day spend forecast via block-bootstrap of historical daily spend. */
 export interface SpendForecastReport {
-  p10: number; p50: number; p90: number;
+  p10: number;
+  p50: number;
+  p90: number;
   expected: number;
   byCategory: { category: string; p50: number; share: number }[];
   samples: number[];
 }
 
-export function forecast30DaySpend(txs: Tx[], samples = 800): SpendForecastReport {
-  const exp = txs.filter(t => t.type === 'expense' && Number(t.amount) > 0);
-  if (!exp.length) return { p10: 0, p50: 0, p90: 0, expected: 0, byCategory: [], samples: [] };
+export function forecast30DaySpend(
+  txs: Tx[],
+  samples = 800,
+): SpendForecastReport {
+  const exp = txs.filter((t) => t.type === "expense" && Number(t.amount) > 0);
+  if (!exp.length)
+    return { p10: 0, p50: 0, p90: 0, expected: 0, byCategory: [], samples: [] };
 
   const dailyByCat = new Map<string, Map<string, number>>();
   for (const t of exp) {
-    const cat = t.category?.name || 'Uncategorized';
+    const cat = t.category?.name || "Uncategorized";
     const d = t.date.slice(0, 10);
     if (!dailyByCat.has(cat)) dailyByCat.set(cat, new Map());
     const m = dailyByCat.get(cat)!;
@@ -545,7 +771,8 @@ export function forecast30DaySpend(txs: Tx[], samples = 800): SpendForecastRepor
     dailyTotals.set(d, (dailyTotals.get(d) || 0) + Number(t.amount));
   }
   const arr = [...dailyTotals.values()];
-  if (!arr.length) return { p10: 0, p50: 0, p90: 0, expected: 0, byCategory: [], samples: [] };
+  if (!arr.length)
+    return { p10: 0, p50: 0, p90: 0, expected: 0, byCategory: [], samples: [] };
 
   const block = 7;
   const sims: number[] = [];
@@ -553,7 +780,8 @@ export function forecast30DaySpend(txs: Tx[], samples = 800): SpendForecastRepor
     let total = 0;
     for (let d = 0; d < 30; d += block) {
       const start = Math.floor(Math.random() * Math.max(1, arr.length - block));
-      for (let k = 0; k < block && d + k < 30; k++) total += arr[(start + k) % arr.length] || 0;
+      for (let k = 0; k < block && d + k < 30; k++)
+        total += arr[(start + k) % arr.length] || 0;
     }
     sims.push(total);
   }
@@ -561,16 +789,19 @@ export function forecast30DaySpend(txs: Tx[], samples = 800): SpendForecastRepor
   const median = sorted[Math.floor(sorted.length * 0.5)];
   // Per-category contribution proportionally
   const totalSpend = exp.reduce((a, b) => a + Number(b.amount), 0);
-  const byCategory: SpendForecastReport['byCategory'] = [];
+  const byCategory: SpendForecastReport["byCategory"] = [];
   const catTotals = new Map<string, number>();
-  exp.forEach(t => {
-    const c = t.category?.name || 'Uncategorized';
+  exp.forEach((t) => {
+    const c = t.category?.name || "Uncategorized";
     catTotals.set(c, (catTotals.get(c) || 0) + Number(t.amount));
   });
-  [...catTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).forEach(([c, v]) => {
-    const share = v / totalSpend;
-    byCategory.push({ category: c, p50: median * share, share });
-  });
+  [...catTotals.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .forEach(([c, v]) => {
+      const share = v / totalSpend;
+      byCategory.push({ category: c, p50: median * share, share });
+    });
   return {
     p10: sorted[Math.floor(sorted.length * 0.1)],
     p50: median,

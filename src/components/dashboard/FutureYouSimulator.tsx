@@ -1,15 +1,21 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Rocket, Calendar, TrendingUp, DollarSign } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useMonthlyStats } from '@/hooks/useTransactions';
-import { useCurrency } from '@/contexts/CurrencyContext';
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { Rocket, Calendar, TrendingUp, DollarSign } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useMonthlyStats } from "@/hooks/useTransactions";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import {
-  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine,
-} from 'recharts';
-import { cn } from '@/lib/utils';
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
+import { cn } from "@/lib/utils";
 
 export const FutureYouSimulator = () => {
   const { data: accounts = [] } = useAccounts();
@@ -21,7 +27,10 @@ export const FutureYouSimulator = () => {
   const [years, setYears] = useState(10);
 
   const totalBalance = accounts.reduce((s, a) => s + Number(a.balance || 0), 0);
-  const monthlySavings = Math.max(0, (stats?.income || 0) - (stats?.expenses || 0));
+  const monthlySavings = Math.max(
+    0,
+    (stats?.income || 0) - (stats?.expenses || 0),
+  );
 
   const projection = useMemo(() => {
     const data = [];
@@ -38,7 +47,8 @@ export const FutureYouSimulator = () => {
       });
       for (let m = 0; m < 12; m++) {
         balanceCurrent = balanceCurrent * (1 + monthlyRate) + monthlySavings;
-        balanceOptimized = balanceOptimized * (1 + monthlyRate) + totalMonthlySave;
+        balanceOptimized =
+          balanceOptimized * (1 + monthlyRate) + totalMonthlySave;
       }
     }
     return data;
@@ -52,10 +62,17 @@ export const FutureYouSimulator = () => {
     if (!active || !payload?.length) return null;
     return (
       <div className="glass-panel rounded-xl p-3 shadow-lg border-border/50">
-        <p className="text-xs text-muted-foreground font-semibold mb-1">{label}</p>
+        <p className="text-xs text-muted-foreground font-semibold mb-1">
+          {label}
+        </p>
         {payload.map((entry: any, i: number) => (
-          <p key={i} className="text-xs font-bold" style={{ color: entry.color }}>
-            {entry.name === 'current' ? 'Current path' : 'Optimized'}: {formatCurrency(entry.value)}
+          <p
+            key={i}
+            className="text-xs font-bold"
+            style={{ color: entry.color }}
+          >
+            {entry.name === "current" ? "Current path" : "Optimized"}:{" "}
+            {formatCurrency(entry.value)}
           </p>
         ))}
       </div>
@@ -76,9 +93,16 @@ export const FutureYouSimulator = () => {
           <div>
             <div className="flex justify-between mb-1.5">
               <span className="text-xs font-medium">Extra monthly savings</span>
-              <span className="text-xs font-bold text-income">{formatCurrency(extraSavings)}</span>
+              <span className="text-xs font-bold text-income">
+                {formatCurrency(extraSavings)}
+              </span>
             </div>
-            <Slider value={[extraSavings]} onValueChange={([v]) => setExtraSavings(v)} max={1000} step={50} />
+            <Slider
+              value={[extraSavings]}
+              onValueChange={([v]) => setExtraSavings(v)}
+              max={1000}
+              step={50}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -86,14 +110,26 @@ export const FutureYouSimulator = () => {
                 <span className="text-[10px] font-medium">Return %</span>
                 <span className="text-[10px] font-bold">{annualReturn}%</span>
               </div>
-              <Slider value={[annualReturn]} onValueChange={([v]) => setAnnualReturn(v)} min={0} max={15} step={1} />
+              <Slider
+                value={[annualReturn]}
+                onValueChange={([v]) => setAnnualReturn(v)}
+                min={0}
+                max={15}
+                step={1}
+              />
             </div>
             <div>
               <div className="flex justify-between mb-1.5">
                 <span className="text-[10px] font-medium">Years</span>
                 <span className="text-[10px] font-bold">{years}</span>
               </div>
-              <Slider value={[years]} onValueChange={([v]) => setYears(v)} min={1} max={30} step={1} />
+              <Slider
+                value={[years]}
+                onValueChange={([v]) => setYears(v)}
+                min={1}
+                max={30}
+                step={1}
+              />
             </div>
           </div>
         </div>
@@ -103,93 +139,141 @@ export const FutureYouSimulator = () => {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={projection}>
               <defs>
-                <linearGradient id="futureCurrentGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.1} />
-                  <stop offset="95%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0} />
+                <linearGradient
+                  id="futureCurrentGrad"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor="hsl(var(--muted-foreground))"
+                    stopOpacity={0.1}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="hsl(var(--muted-foreground))"
+                    stopOpacity={0}
+                  />
                 </linearGradient>
                 <linearGradient id="futureOptGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--income))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--income))" stopOpacity={0} />
+                  <stop
+                    offset="5%"
+                    stopColor="hsl(var(--income))"
+                    stopOpacity={0.3}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="hsl(var(--income))"
+                    stopOpacity={0}
+                  />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="year" fontSize={9} tickLine={false} stroke="hsl(var(--muted-foreground))" />
-              <YAxis fontSize={9} tickLine={false} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} width={40} />
+              <XAxis
+                dataKey="year"
+                fontSize={9}
+                tickLine={false}
+                stroke="hsl(var(--muted-foreground))"
+              />
+              <YAxis
+                fontSize={9}
+                tickLine={false}
+                stroke="hsl(var(--muted-foreground))"
+                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                width={40}
+              />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="current" name="current" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="4 4" fill="url(#futureCurrentGrad)" />
-              <Area type="monotone" dataKey="optimized" name="optimized" stroke="hsl(var(--income))" strokeWidth={2} fill="url(#futureOptGrad)" />
+              <Area
+                type="monotone"
+                dataKey="current"
+                name="current"
+                stroke="hsl(var(--muted-foreground))"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                fill="url(#futureCurrentGrad)"
+              />
+              <Area
+                type="monotone"
+                dataKey="optimized"
+                name="optimized"
+                stroke="hsl(var(--income))"
+                strokeWidth={2}
+                fill="url(#futureOptGrad)"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Summary */}
-      {/* Summary */}
-<div className="grid grid-cols-3 gap-2">
-  {/* Current Path */}
-  <motion.div
-    whileHover={{ scale: 1.06, y: -3 }}
-    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    className="relative min-w-0 rounded-xl bg-muted/50 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
-  >
-    <p className="text-[10px] text-muted-foreground truncate">
-      Current Path
-    </p>
+        {/* Summary */}
+        <div className="grid grid-cols-3 gap-2">
+          {/* Current Path */}
+          <motion.div
+            whileHover={{ scale: 1.06, y: -3 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="relative min-w-0 rounded-xl bg-muted/50 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
+          >
+            <p className="text-[10px] text-muted-foreground truncate">
+              Current Path
+            </p>
 
-    <p className="text-sm font-bold truncate whitespace-nowrap">
-      {formatCurrency(finalCurrent)}
-    </p>
+            <p className="text-sm font-bold truncate whitespace-nowrap">
+              {formatCurrency(finalCurrent)}
+            </p>
 
-    {/* Full number on hover */}
-    <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
-      <div className="whitespace-nowrap rounded-lg border border-border/50 bg-background px-3 py-2 text-xs font-bold shadow-xl">
-        {formatCurrency(finalCurrent)}
-      </div>
-    </div>
-  </motion.div>
+            {/* Full number on hover */}
+            <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
+              <div className="whitespace-nowrap rounded-lg border border-border/50 bg-background px-3 py-2 text-xs font-bold shadow-xl">
+                {formatCurrency(finalCurrent)}
+              </div>
+            </div>
+          </motion.div>
 
-  {/* Optimized */}
-  <motion.div
-    whileHover={{ scale: 1.06, y: -3 }}
-    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    className="relative min-w-0 rounded-xl bg-income/5 border border-income/20 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
-  >
-    <p className="text-[10px] text-muted-foreground truncate">
-      Optimized
-    </p>
+          {/* Optimized */}
+          <motion.div
+            whileHover={{ scale: 1.06, y: -3 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="relative min-w-0 rounded-xl bg-income/5 border border-income/20 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
+          >
+            <p className="text-[10px] text-muted-foreground truncate">
+              Optimized
+            </p>
 
-    <p className="text-sm font-bold text-income truncate whitespace-nowrap">
-      {formatCurrency(finalOptimized)}
-    </p>
+            <p className="text-sm font-bold text-income truncate whitespace-nowrap">
+              {formatCurrency(finalOptimized)}
+            </p>
 
-    {/* Full number on hover */}
-    <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
-      <div className="whitespace-nowrap rounded-lg border border-income/20 bg-background px-3 py-2 text-xs font-bold text-income shadow-xl">
-        {formatCurrency(finalOptimized)}
-      </div>
-    </div>
-  </motion.div>
+            {/* Full number on hover */}
+            <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
+              <div className="whitespace-nowrap rounded-lg border border-income/20 bg-background px-3 py-2 text-xs font-bold text-income shadow-xl">
+                {formatCurrency(finalOptimized)}
+              </div>
+            </div>
+          </motion.div>
 
-  {/* Difference */}
-  <motion.div
-    whileHover={{ scale: 1.06, y: -3 }}
-    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    className="relative min-w-0 rounded-xl bg-primary/5 border border-primary/20 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
-  >
-    <p className="text-[10px] text-muted-foreground truncate">
-      Difference
-    </p>
+          {/* Difference */}
+          <motion.div
+            whileHover={{ scale: 1.06, y: -3 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="relative min-w-0 rounded-xl bg-primary/5 border border-primary/20 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
+          >
+            <p className="text-[10px] text-muted-foreground truncate">
+              Difference
+            </p>
 
-    <p className="text-sm font-bold text-primary truncate whitespace-nowrap">
-      +{formatCurrency(difference)}
-    </p>
+            <p className="text-sm font-bold text-primary truncate whitespace-nowrap">
+              +{formatCurrency(difference)}
+            </p>
 
-    {/* Full number on hover */}
-    <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
-      <div className="whitespace-nowrap rounded-lg border border-primary/20 bg-background px-3 py-2 text-xs font-bold text-primary shadow-xl">
-        +{formatCurrency(difference)}
-      </div>
-    </div>
-  </motion.div>
-</div>
+            {/* Full number on hover */}
+            <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
+              <div className="whitespace-nowrap rounded-lg border border-primary/20 bg-background px-3 py-2 text-xs font-bold text-primary shadow-xl">
+                +{formatCurrency(difference)}
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </CardContent>
     </Card>
   );

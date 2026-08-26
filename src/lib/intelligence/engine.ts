@@ -1,10 +1,10 @@
-import { detectAnomalies, type AnomalyResult } from './anomaly';
-import { detectRecurring, type RecurringPattern } from './recurring';
-import { forecastCashflow, type CashflowForecast } from './forecast';
-import { classifyPersonality, type SpendingPersonality } from './clustering';
-import { computeHealthScore, type HealthScore } from './health';
-import { TransactionClassifier } from './categorize';
-import type { AlgorithmExplanation } from './explanations';
+import { detectAnomalies, type AnomalyResult } from "./anomaly";
+import { detectRecurring, type RecurringPattern } from "./recurring";
+import { forecastCashflow, type CashflowForecast } from "./forecast";
+import { classifyPersonality, type SpendingPersonality } from "./clustering";
+import { computeHealthScore, type HealthScore } from "./health";
+import { TransactionClassifier } from "./categorize";
+import type { AlgorithmExplanation } from "./explanations";
 
 export interface IntelligenceReport {
   anomalies: AnomalyResult[];
@@ -13,7 +13,10 @@ export interface IntelligenceReport {
   personality: SpendingPersonality;
   health: HealthScore;
   classifier: TransactionClassifier;
-  explanations: Record<'anomaly' | 'recurring' | 'forecast' | 'personality' | 'health', AlgorithmExplanation>;
+  explanations: Record<
+    "anomaly" | "recurring" | "forecast" | "personality" | "health",
+    AlgorithmExplanation
+  >;
   computedAt: number;
   durationMs: number;
 }
@@ -25,7 +28,7 @@ export interface IntelligenceReport {
 export function runIntelligence(
   transactions: any[],
   accounts: any[],
-  goals: any[]
+  goals: any[],
 ): IntelligenceReport {
   const t0 = performance.now();
 

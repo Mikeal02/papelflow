@@ -1,16 +1,16 @@
-import { motion } from 'framer-motion';
-import { Clock } from 'lucide-react';
-import { useTransactions } from '@/hooks/useTransactions';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { useMemo } from 'react';
-import { startOfMonth, endOfMonth } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
+import { Clock } from "lucide-react";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useMemo } from "react";
+import { startOfMonth, endOfMonth } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const timeSlots = [
-  { label: 'Morning', range: '6am–12pm', start: 6, end: 12, emoji: '🌅' },
-  { label: 'Afternoon', range: '12pm–6pm', start: 12, end: 18, emoji: '☀️' },
-  { label: 'Evening', range: '6pm–12am', start: 18, end: 24, emoji: '🌆' },
-  { label: 'Night', range: '12am–6am', start: 0, end: 6, emoji: '🌙' },
+  { label: "Morning", range: "6am–12pm", start: 6, end: 12, emoji: "🌅" },
+  { label: "Afternoon", range: "12pm–6pm", start: 12, end: 18, emoji: "☀️" },
+  { label: "Evening", range: "6pm–12am", start: 18, end: 24, emoji: "🌆" },
+  { label: "Night", range: "12am–6am", start: 0, end: 6, emoji: "🌙" },
 ];
 
 export function SpendingByTimeOfDay() {
@@ -22,22 +22,28 @@ export function SpendingByTimeOfDay() {
     const start = startOfMonth(now);
     const end = endOfMonth(now);
 
-    const monthExpenses = transactions.filter(t => {
+    const monthExpenses = transactions.filter((t) => {
       const d = new Date(t.date);
-      return t.type === 'expense' && d >= start && d <= end;
+      return t.type === "expense" && d >= start && d <= end;
     });
 
-    const slotTotals = timeSlots.map(slot => {
+    const slotTotals = timeSlots.map((slot) => {
       // Since we don't have time data, simulate distribution based on transaction patterns
-      const count = Math.floor(monthExpenses.length / 4) + Math.floor(Math.random() * 3);
-      const amount = monthExpenses.length > 0
-        ? monthExpenses.reduce((s, t) => s + Number(t.amount), 0) / timeSlots.length
-        : 0;
+      const count =
+        Math.floor(monthExpenses.length / 4) + Math.floor(Math.random() * 3);
+      const amount =
+        monthExpenses.length > 0
+          ? monthExpenses.reduce((s, t) => s + Number(t.amount), 0) /
+            timeSlots.length
+          : 0;
       return { ...slot, amount, count };
     });
 
-    const maxAmount = Math.max(...slotTotals.map(s => s.amount), 1);
-    return slotTotals.map(s => ({ ...s, percentage: (s.amount / maxAmount) * 100 }));
+    const maxAmount = Math.max(...slotTotals.map((s) => s.amount), 1);
+    return slotTotals.map((s) => ({
+      ...s,
+      percentage: (s.amount / maxAmount) * 100,
+    }));
   }, [transactions]);
 
   const total = data.reduce((s, d) => s + d.amount, 0);
@@ -55,7 +61,9 @@ export function SpendingByTimeOfDay() {
         </div>
         <div>
           <h3 className="font-semibold text-sm">Spending Patterns</h3>
-          <p className="text-[10px] text-muted-foreground">Distribution by time of day</p>
+          <p className="text-[10px] text-muted-foreground">
+            Distribution by time of day
+          </p>
         </div>
       </div>
 
@@ -73,9 +81,14 @@ export function SpendingByTimeOfDay() {
               <div className="flex items-center justify-between gap-2 mb-1">
                 <div className="min-w-0">
                   <span className="text-xs font-medium">{slot.label}</span>
-                  <span className="text-[10px] text-muted-foreground ml-1.5">{slot.range}</span>
+                  <span className="text-[10px] text-muted-foreground ml-1.5">
+                    {slot.range}
+                  </span>
                 </div>
-                <span className="text-xs font-bold shrink-0 truncate max-w-[80px]" title={formatCurrency(slot.amount)}>
+                <span
+                  className="text-xs font-bold shrink-0 truncate max-w-[80px]"
+                  title={formatCurrency(slot.amount)}
+                >
                   {formatCurrency(slot.amount)}
                 </span>
               </div>
@@ -94,7 +107,9 @@ export function SpendingByTimeOfDay() {
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30 text-[10px] text-muted-foreground">
         <span>Total this month</span>
-        <span className="font-bold text-foreground text-xs">{formatCurrency(total)}</span>
+        <span className="font-bold text-foreground text-xs">
+          {formatCurrency(total)}
+        </span>
       </div>
     </motion.div>
   );

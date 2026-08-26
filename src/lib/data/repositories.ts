@@ -7,21 +7,36 @@
  * Server round-trips remain plaintext — encryption is a device-local
  * defence-in-depth layer, RLS remains the source of truth.
  */
-import { getDB, type StoredEntity } from './db';
-import { enqueue } from './offlineQueue';
-import { sealRow, sealRows, openRow, openRows } from './crypto';
-import { auditLog } from './audit';
+import { getDB, type StoredEntity } from "./db";
+import { enqueue } from "./offlineQueue";
+import { sealRow, sealRows, openRow, openRows } from "./crypto";
+import { auditLog } from "./audit";
 
-type Table = 'transactions' | 'accounts' | 'budgets' | 'goals' | 'subscriptions' | 'categories';
+type Table =
+  | "transactions"
+  | "accounts"
+  | "budgets"
+  | "goals"
+  | "subscriptions"
+  | "categories";
 
 export class Repository<T extends { id: string }> {
-  constructor(private readonly table: Table, private readonly userId: string) {}
+  constructor(
+    private readonly table: Table,
+    private readonly userId: string,
+  ) {}
 
-  async list(filter?: (row: StoredEntity<T>) => boolean): Promise<StoredEntity<T>[]> {
+  async list(
+    filter?: (row: StoredEntity<T>) => boolean,
+  ): Promise<StoredEntity<T>[]> {
     const db = await getDB(this.userId);
     const all = (await db.getAll(this.table)) as StoredEntity<T>[];
-    const live = all.filter(r => !r._deletedAt);
-    const opened = (await openRows(this.userId, this.table, live)) as StoredEntity<T>[];
+    const live = all.filter((r) => !r._deletedAt);
+    const opened = (await openRows(
+      this.userId,
+      this.table,
+      live,
+    )) as StoredEntity<T>[];
     return filter ? opened.filter(filter) : opened;
   }
 
@@ -38,10 +53,15 @@ export class Repository<T extends { id: string }> {
   ): Promise<StoredEntity<T>[]> {
     const db = await getDB(this.userId);
     const rows = (await db.getAllFromIndex(
-      this.table as any, index as any, query as any, limit,
+      this.table as any,
+      index as any,
+      query as any,
+      limit,
     )) as StoredEntity<T>[];
-    const live = rows.filter(r => !r._deletedAt);
-    return openRows(this.userId, this.table, live) as Promise<StoredEntity<T>[]>;
+    const live = rows.filter((r) => !r._deletedAt);
+    return openRows(this.userId, this.table, live) as Promise<
+      StoredEntity<T>[]
+    >;
   }
 
   /** Inclusive date-range read for stores carrying a `by-date` index. */
@@ -69,75 +89,112 @@ export class Repository<T extends { id: string }> {
    * still exist, so tombstones were invisible. Locally-dirty rows are spared
    * because their write is still queued.
    */
-  async reconcileSnapshot(rows: T[]): Promise<{ upserted: number; tombstoned: number }> {
+  async reconcileSnapshot(
+    rows: T[],
+  ): Promise<{ upserted: number; tombstoned: number }> {
     await this.upsertFromServer(rows);
-    const serverIds = new Set(rows.map(r => (r as any).id));
+    const serverIds = new Set(rows.map((r) => (r as any).id));
     const db = await getDB(this.userId);
     const local = (await db.getAll(this.table)) as StoredEntity<T>[];
-    const stale = local.filter(r => !serverIds.has(r.id) && r._syncStatus === 'clean');
+    const stale = local.filter(
+      (r) => !serverIds.has(r.id) && r._syncStatus === "clean",
+    );
     if (stale.length) {
-      const tx = db.transaction(this.table, 'readwrite');
+      const tx = db.transaction(this.table, "readwrite");
       for (const r of stale) await tx.store.delete(r.id);
       await tx.done;
       for (const r of stale) {
-        void auditLog({ userId: this.userId, table: this.table, op: 'server-delete', entityId: r.id });
+        void auditLog({
+          userId: this.userId,
+          table: this.table,
+          op: "server-delete",
+          entityId: r.id,
+        });
       }
     }
     return { upserted: rows.length, tombstoned: stale.length };
   }
 
-
   async upsertFromServer(rows: T[] | T) {
     const db = await getDB(this.userId);
     const list = Array.isArray(rows) ? rows : [rows];
     const sealed = await sealRows(this.userId, this.table, list as any[]);
-    const tx = db.transaction(this.table, 'readwrite');
+    const tx = db.transaction(this.table, "readwrite");
     for (let i = 0; i < sealed.length; i++) {
       const r = sealed[i];
       const prev = (await tx.store.get(r.id)) as StoredEntity<T> | undefined;
       const merged: StoredEntity<T> = {
         ...(r as any),
-        _syncStatus: 'clean',
+        _syncStatus: "clean",
         _localUpdatedAt: prev?._localUpdatedAt ?? Date.now(),
-        _serverUpdatedAt: (list[i] as any).updated_at ?? new Date().toISOString(),
+        _serverUpdatedAt:
+          (list[i] as any).updated_at ?? new Date().toISOString(),
         _deletedAt: null,
       };
       await tx.store.put(merged as any);
     }
     await tx.done;
     for (const r of list) {
-      void auditLog({ userId: this.userId, table: this.table, op: 'server-upsert', entityId: (r as any).id, payload: r });
+      void auditLog({
+        userId: this.userId,
+        table: this.table,
+        op: "server-upsert",
+        entityId: (r as any).id,
+        payload: r,
+      });
     }
   }
 
   async removeFromServer(id: string) {
     const db = await getDB(this.userId);
     await db.delete(this.table, id);
-    void auditLog({ userId: this.userId, table: this.table, op: 'server-delete', entityId: id });
+    void auditLog({
+      userId: this.userId,
+      table: this.table,
+      op: "server-delete",
+      entityId: id,
+    });
   }
 
-  async insertLocal(row: Omit<T, 'id'> & { id?: string }): Promise<StoredEntity<T>> {
+  async insertLocal(
+    row: Omit<T, "id"> & { id?: string },
+  ): Promise<StoredEntity<T>> {
     const db = await getDB(this.userId);
     const id = (row as any).id ?? crypto.randomUUID();
     const now = Date.now();
     // Server payload stays plaintext (RLS-protected).
     const serverPayload = { ...(row as any), id, user_id: this.userId };
-    const sealed = await sealRow(this.userId, this.table, { ...(row as any), id });
+    const sealed = await sealRow(this.userId, this.table, {
+      ...(row as any),
+      id,
+    });
     const stored: StoredEntity<T> = {
       ...(sealed as any),
-      _syncStatus: 'pending',
+      _syncStatus: "pending",
       _localUpdatedAt: now,
     };
     await db.put(this.table, stored as any);
     await enqueue({
-      table: this.table, op: 'insert', entityId: id,
-      payload: serverPayload, userId: this.userId,
+      table: this.table,
+      op: "insert",
+      entityId: id,
+      payload: serverPayload,
+      userId: this.userId,
     });
-    void auditLog({ userId: this.userId, table: this.table, op: 'insert', entityId: id, payload: serverPayload });
+    void auditLog({
+      userId: this.userId,
+      table: this.table,
+      op: "insert",
+      entityId: id,
+      payload: serverPayload,
+    });
     return stored;
   }
 
-  async updateLocal(id: string, patch: Partial<T>): Promise<StoredEntity<T> | undefined> {
+  async updateLocal(
+    id: string,
+    patch: Partial<T>,
+  ): Promise<StoredEntity<T> | undefined> {
     const db = await getDB(this.userId);
     const prev = (await db.get(this.table, id)) as StoredEntity<T> | undefined;
     if (!prev) return undefined;
@@ -147,14 +204,24 @@ export class Repository<T extends { id: string }> {
     const sealed = await sealRow(this.userId, this.table, merged);
     const next: StoredEntity<T> = {
       ...(sealed as any),
-      _syncStatus: 'pending',
+      _syncStatus: "pending",
       _localUpdatedAt: Date.now(),
     };
     await db.put(this.table, next as any);
     await enqueue({
-      table: this.table, op: 'update', entityId: id, payload: patch, userId: this.userId,
+      table: this.table,
+      op: "update",
+      entityId: id,
+      payload: patch,
+      userId: this.userId,
     });
-    void auditLog({ userId: this.userId, table: this.table, op: 'update', entityId: id, payload: patch });
+    void auditLog({
+      userId: this.userId,
+      table: this.table,
+      op: "update",
+      entityId: id,
+      payload: patch,
+    });
     return next;
   }
 
@@ -162,22 +229,35 @@ export class Repository<T extends { id: string }> {
     const db = await getDB(this.userId);
     const prev = (await db.get(this.table, id)) as StoredEntity<T> | undefined;
     if (prev) {
-      await db.put(this.table, { ...prev, _syncStatus: 'pending', _deletedAt: Date.now() } as any);
+      await db.put(this.table, {
+        ...prev,
+        _syncStatus: "pending",
+        _deletedAt: Date.now(),
+      } as any);
     }
     await enqueue({
-      table: this.table, op: 'delete', entityId: id, payload: null, userId: this.userId,
+      table: this.table,
+      op: "delete",
+      entityId: id,
+      payload: null,
+      userId: this.userId,
     });
-    void auditLog({ userId: this.userId, table: this.table, op: 'delete', entityId: id });
+    void auditLog({
+      userId: this.userId,
+      table: this.table,
+      op: "delete",
+      entityId: id,
+    });
   }
 }
 
 export function repos(userId: string) {
   return {
-    transactions: new Repository<any>('transactions', userId),
-    accounts:     new Repository<any>('accounts', userId),
-    budgets:      new Repository<any>('budgets', userId),
-    goals:        new Repository<any>('goals', userId),
-    subscriptions:new Repository<any>('subscriptions', userId),
-    categories:   new Repository<any>('categories', userId),
+    transactions: new Repository<any>("transactions", userId),
+    accounts: new Repository<any>("accounts", userId),
+    budgets: new Repository<any>("budgets", userId),
+    goals: new Repository<any>("goals", userId),
+    subscriptions: new Repository<any>("subscriptions", userId),
+    categories: new Repository<any>("categories", userId),
   };
 }

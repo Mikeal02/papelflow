@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from "react";
 
 /**
  * Elite route prefetcher.
@@ -12,45 +12,52 @@ import { useCallback, useEffect } from 'react';
  */
 
 const routeModules: Record<string, () => Promise<unknown>> = {
-  '/': () => import('../pages/Index'),
-  '/transactions': () => import('../pages/Transactions'),
-  '/accounts': () => import('../pages/Accounts'),
-  '/budgets': () => import('../pages/Budgets'),
-  '/reports': () => import('../pages/Reports'),
-  '/subscriptions': () => import('../pages/Subscriptions'),
-  '/goals': () => import('../pages/Goals'),
-  '/net-worth': () => import('../pages/NetWorth'),
-  '/settings': () => import('../pages/Settings'),
-  '/categories': () => import('../pages/Categories'),
-  '/debt': () => import('../pages/DebtTracker'),
-  '/tax': () => import('../pages/TaxEstimator'),
-  '/investments': () => import('../pages/Investments'),
-  '/recurring': () => import('../pages/RecurringPayments'),
-  '/challenges': () => import('../pages/Challenges'),
-  '/analytics': () => import('../pages/Analytics'),
+  "/": () => import("../pages/Index"),
+  "/transactions": () => import("../pages/Transactions"),
+  "/accounts": () => import("../pages/Accounts"),
+  "/budgets": () => import("../pages/Budgets"),
+  "/reports": () => import("../pages/Reports"),
+  "/subscriptions": () => import("../pages/Subscriptions"),
+  "/goals": () => import("../pages/Goals"),
+  "/net-worth": () => import("../pages/NetWorth"),
+  "/settings": () => import("../pages/Settings"),
+  "/categories": () => import("../pages/Categories"),
+  "/debt": () => import("../pages/DebtTracker"),
+  "/tax": () => import("../pages/TaxEstimator"),
+  "/investments": () => import("../pages/Investments"),
+  "/recurring": () => import("../pages/RecurringPayments"),
+  "/challenges": () => import("../pages/Challenges"),
+  "/analytics": () => import("../pages/Analytics"),
 };
 
 // Ordered by user-journey likelihood after auth.
-const CRITICAL_ROUTES = ['/', '/transactions', '/accounts', '/budgets'];
-const SECONDARY_ROUTES = ['/reports', '/analytics', '/goals', '/net-worth'];
+const CRITICAL_ROUTES = ["/", "/transactions", "/accounts", "/budgets"];
+const SECONDARY_ROUTES = ["/reports", "/analytics", "/goals", "/net-worth"];
 
 const prefetched = new Set<string>();
 const inflight = new Map<string, Promise<unknown>>();
 
-interface NetInfo { saveData?: boolean; effectiveType?: string }
+interface NetInfo {
+  saveData?: boolean;
+  effectiveType?: string;
+}
 function connectionAllowsPrefetch(): boolean {
-  if (typeof navigator === 'undefined') return true;
+  if (typeof navigator === "undefined") return true;
   const c = (navigator as unknown as { connection?: NetInfo }).connection;
   if (!c) return true;
   if (c.saveData) return false;
-  if (c.effectiveType && /(^|-)(2g|slow-2g)$/i.test(c.effectiveType)) return false;
+  if (c.effectiveType && /(^|-)(2g|slow-2g)$/i.test(c.effectiveType))
+    return false;
   return true;
 }
 
 function schedule(cb: () => void, timeout = 2000) {
-  if (typeof window === 'undefined') return;
-  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
-    .requestIdleCallback;
+  if (typeof window === "undefined") return;
+  const ric = (
+    window as unknown as {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+    }
+  ).requestIdleCallback;
   if (ric) ric(cb, { timeout });
   else setTimeout(cb, 120);
 }
@@ -62,9 +69,16 @@ function warm(path: string): Promise<unknown> | undefined {
   const existing = inflight.get(path);
   if (existing) return existing;
   const p = loader()
-    .then((mod) => { prefetched.add(path); return mod; })
-    .catch(() => { /* swallow — best-effort */ })
-    .finally(() => { inflight.delete(path); });
+    .then((mod) => {
+      prefetched.add(path);
+      return mod;
+    })
+    .catch(() => {
+      /* swallow — best-effort */
+    })
+    .finally(() => {
+      inflight.delete(path);
+    });
   inflight.set(path, p);
   return p;
 }
@@ -72,7 +86,9 @@ function warm(path: string): Promise<unknown> | undefined {
 export function useRoutePreloader() {
   const prefetchRoute = useCallback((path: string) => {
     if (!connectionAllowsPrefetch()) return;
-    schedule(() => { warm(path); }, 3000);
+    schedule(() => {
+      warm(path);
+    }, 3000);
   }, []);
 
   return { prefetchRoute };
@@ -99,6 +115,9 @@ export function useCriticalRoutePrewarm(enabled: boolean) {
       schedule(() => SECONDARY_ROUTES.forEach(warm), 4000);
     }, 1500);
 
-    return () => { cancelled = true; window.clearTimeout(t); };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
   }, [enabled]);
 }

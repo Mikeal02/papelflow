@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
  * Viewport-gated lazy boundary.
@@ -28,7 +28,7 @@ interface DeferredProps {
 export function Deferred({
   children,
   fallback = null,
-  rootMargin = '320px',
+  rootMargin = "320px",
   eager = false,
   className,
 }: DeferredProps) {
@@ -41,7 +41,7 @@ export function Deferred({
     if (!el) return;
 
     // Environments without IntersectionObserver (or SSR snapshots) render eagerly.
-    if (typeof IntersectionObserver === 'undefined') {
+    if (typeof IntersectionObserver === "undefined") {
       setVisible(true);
       return;
     }
@@ -67,7 +67,7 @@ export function Deferred({
 }
 
 /** Neutral, layout-stable placeholder sized to the widget it replaces. */
-export function WidgetPlaceholder({ height = 'h-48' }: { height?: string }) {
+export function WidgetPlaceholder({ height = "h-48" }: { height?: string }) {
   return (
     <div
       className={`rounded-xl border border-border/30 bg-card/60 animate-pulse ${height}`}

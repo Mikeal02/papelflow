@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { invalidateDomains } from '@/lib/queryKeys';
+import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { invalidateDomains } from "@/lib/queryKeys";
 
 /**
  * Live transaction/account sync.
@@ -24,7 +24,7 @@ export function useRealtimeTransactions() {
   useEffect(() => {
     if (!user) return;
 
-    const pending = new Set<'transactions' | 'accounts'>();
+    const pending = new Set<"transactions" | "accounts">();
 
     const flush = () => {
       timer.current = null;
@@ -34,7 +34,7 @@ export function useRealtimeTransactions() {
       invalidateDomains(queryClient, ...domains);
     };
 
-    const schedule = (domain: 'transactions' | 'accounts') => {
+    const schedule = (domain: "transactions" | "accounts") => {
       pending.add(domain);
       if (timer.current) return;
       timer.current = setTimeout(flush, FLUSH_MS);
@@ -43,24 +43,37 @@ export function useRealtimeTransactions() {
     const channel = supabase
       .channel(`realtime-transactions:${user.id}`)
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` },
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "transactions",
+          filter: `user_id=eq.${user.id}`,
+        },
         (payload) => {
-          schedule('transactions');
+          schedule("transactions");
 
-          if (payload.eventType === 'INSERT') {
-            const row = payload.new as { payee?: string | null; amount?: number | string };
+          if (payload.eventType === "INSERT") {
+            const row = payload.new as {
+              payee?: string | null;
+              amount?: number | string;
+            };
             toast({
-              title: 'New transaction synced',
-              description: `${row.payee || 'Transaction'} — ${Number(row.amount ?? 0).toFixed(2)}`,
+              title: "New transaction synced",
+              description: `${row.payee || "Transaction"} — ${Number(row.amount ?? 0).toFixed(2)}`,
             });
           }
         },
       )
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'accounts', filter: `user_id=eq.${user.id}` },
-        () => schedule('accounts'),
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "accounts",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => schedule("accounts"),
       )
       .subscribe();
 

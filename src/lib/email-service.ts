@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 interface BudgetAlertData {
   budgetName: string;
@@ -20,19 +20,22 @@ interface SummaryData {
 export async function sendBudgetAlert(
   to: string,
   userName: string,
-  data: BudgetAlertData
+  data: BudgetAlertData,
 ) {
-  const { data: response, error } = await supabase.functions.invoke('send-email', {
-    body: {
-      type: 'budget_alert',
-      to,
-      userName,
-      data,
+  const { data: response, error } = await supabase.functions.invoke(
+    "send-email",
+    {
+      body: {
+        type: "budget_alert",
+        to,
+        userName,
+        data,
+      },
     },
-  });
+  );
 
   if (error) {
-    console.error('Failed to send budget alert:', error);
+    console.error("Failed to send budget alert:", error);
     throw error;
   }
 
@@ -42,19 +45,22 @@ export async function sendBudgetAlert(
 export async function sendWeeklySummary(
   to: string,
   userName: string,
-  data: SummaryData
+  data: SummaryData,
 ) {
-  const { data: response, error } = await supabase.functions.invoke('send-email', {
-    body: {
-      type: 'weekly_summary',
-      to,
-      userName,
-      data,
+  const { data: response, error } = await supabase.functions.invoke(
+    "send-email",
+    {
+      body: {
+        type: "weekly_summary",
+        to,
+        userName,
+        data,
+      },
     },
-  });
+  );
 
   if (error) {
-    console.error('Failed to send weekly summary:', error);
+    console.error("Failed to send weekly summary:", error);
     throw error;
   }
 
@@ -64,19 +70,22 @@ export async function sendWeeklySummary(
 export async function sendMonthlySummary(
   to: string,
   userName: string,
-  data: SummaryData
+  data: SummaryData,
 ) {
-  const { data: response, error } = await supabase.functions.invoke('send-email', {
-    body: {
-      type: 'monthly_summary',
-      to,
-      userName,
-      data,
+  const { data: response, error } = await supabase.functions.invoke(
+    "send-email",
+    {
+      body: {
+        type: "monthly_summary",
+        to,
+        userName,
+        data,
+      },
     },
-  });
+  );
 
   if (error) {
-    console.error('Failed to send monthly summary:', error);
+    console.error("Failed to send monthly summary:", error);
     throw error;
   }
 
@@ -84,12 +93,15 @@ export async function sendMonthlySummary(
 }
 
 export async function triggerWeeklySummary() {
-  const { data: response, error } = await supabase.functions.invoke('weekly-summary', {
-    body: {},
-  });
+  const { data: response, error } = await supabase.functions.invoke(
+    "weekly-summary",
+    {
+      body: {},
+    },
+  );
 
   if (error) {
-    console.error('Failed to trigger weekly summary:', error);
+    console.error("Failed to trigger weekly summary:", error);
     throw error;
   }
 

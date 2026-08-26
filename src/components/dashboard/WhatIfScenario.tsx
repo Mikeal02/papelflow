@@ -1,12 +1,18 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, TrendingUp, TrendingDown, DollarSign, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
-import { useGoals } from '@/hooks/useGoals';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { cn } from '@/lib/utils';
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import {
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  ArrowRight,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { useMonthlyStats, useTransactions } from "@/hooks/useTransactions";
+import { useGoals } from "@/hooks/useGoals";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { cn } from "@/lib/utils";
 
 export const WhatIfScenario = () => {
   const { data: stats } = useMonthlyStats();
@@ -30,9 +36,14 @@ export const WhatIfScenario = () => {
 
     // Impact on goals
     const activeGoal = goals[0];
-    const goalRemaining = activeGoal ? Number(activeGoal.target_amount) - Number(activeGoal.current_amount || 0) : 0;
-    const currentMonthsToGoal = currentSavings > 0 ? Math.ceil(goalRemaining / currentSavings) : Infinity;
-    const newMonthsToGoal = monthlySavings > 0 ? Math.ceil(goalRemaining / monthlySavings) : Infinity;
+    const goalRemaining = activeGoal
+      ? Number(activeGoal.target_amount) -
+        Number(activeGoal.current_amount || 0)
+      : 0;
+    const currentMonthsToGoal =
+      currentSavings > 0 ? Math.ceil(goalRemaining / currentSavings) : Infinity;
+    const newMonthsToGoal =
+      monthlySavings > 0 ? Math.ceil(goalRemaining / monthlySavings) : Infinity;
     const monthsSaved = currentMonthsToGoal - newMonthsToGoal;
 
     // Projection
@@ -45,16 +56,28 @@ export const WhatIfScenario = () => {
       currentSavings,
       extraSavingsMonthly: extraSavings,
       totalExtraSaved,
-      goalName: activeGoal?.name || 'Your Goal',
-      currentMonthsToGoal: currentMonthsToGoal === Infinity ? '∞' : currentMonthsToGoal,
-      newMonthsToGoal: newMonthsToGoal === Infinity ? '∞' : newMonthsToGoal,
+      goalName: activeGoal?.name || "Your Goal",
+      currentMonthsToGoal:
+        currentMonthsToGoal === Infinity ? "∞" : currentMonthsToGoal,
+      newMonthsToGoal: newMonthsToGoal === Infinity ? "∞" : newMonthsToGoal,
       monthsSaved: monthsSaved === Infinity ? 0 : monthsSaved,
       yearlyImpact: extraSavings * 12,
     };
-  }, [currentIncome, currentExpenses, spendingReduction, additionalIncome, months, goals]);
+  }, [
+    currentIncome,
+    currentExpenses,
+    spendingReduction,
+    additionalIncome,
+    months,
+    goals,
+  ]);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+    >
       <Card className="stat-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -67,8 +90,12 @@ export const WhatIfScenario = () => {
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-medium">Reduce spending by</label>
-                <span className="text-sm font-bold text-primary">{spendingReduction}%</span>
+                <label className="text-xs font-medium">
+                  Reduce spending by
+                </label>
+                <span className="text-sm font-bold text-primary">
+                  {spendingReduction}%
+                </span>
               </div>
               <Slider
                 value={[spendingReduction]}
@@ -81,8 +108,12 @@ export const WhatIfScenario = () => {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-medium">Additional monthly income</label>
-                <span className="text-sm font-bold text-income">{formatCurrency(additionalIncome)}</span>
+                <label className="text-xs font-medium">
+                  Additional monthly income
+                </label>
+                <span className="text-sm font-bold text-income">
+                  {formatCurrency(additionalIncome)}
+                </span>
               </div>
               <Slider
                 value={[additionalIncome]}
@@ -114,23 +145,35 @@ export const WhatIfScenario = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-income/5 border border-income/20 p-3 text-center">
                 <TrendingUp className="h-4 w-4 text-income mx-auto mb-1" />
-                <p className="text-lg font-bold text-income">{formatCurrency(scenarios.extraSavingsMonthly)}</p>
+                <p className="text-lg font-bold text-income">
+                  {formatCurrency(scenarios.extraSavingsMonthly)}
+                </p>
                 <p className="text-[10px] text-muted-foreground">Extra/month</p>
               </div>
               <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 text-center">
                 <DollarSign className="h-4 w-4 text-primary mx-auto mb-1" />
-                <p className="text-lg font-bold text-primary">{formatCurrency(scenarios.totalExtraSaved)}</p>
-                <p className="text-[10px] text-muted-foreground">In {months} months</p>
+                <p className="text-lg font-bold text-primary">
+                  {formatCurrency(scenarios.totalExtraSaved)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  In {months} months
+                </p>
               </div>
             </div>
 
             {goals.length > 0 && (
               <div className="rounded-xl bg-muted/50 p-3">
-                <p className="text-xs font-medium mb-2">Impact on "{scenarios.goalName}"</p>
+                <p className="text-xs font-medium mb-2">
+                  Impact on "{scenarios.goalName}"
+                </p>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">{scenarios.currentMonthsToGoal} mo</span>
+                  <span className="text-muted-foreground">
+                    {scenarios.currentMonthsToGoal} mo
+                  </span>
                   <ArrowRight className="h-3 w-3 text-primary" />
-                  <span className="font-bold text-income">{scenarios.newMonthsToGoal} mo</span>
+                  <span className="font-bold text-income">
+                    {scenarios.newMonthsToGoal} mo
+                  </span>
                   {scenarios.monthsSaved > 0 && (
                     <span className="text-[10px] text-income ml-auto">
                       {scenarios.monthsSaved} months faster!
@@ -142,10 +185,17 @@ export const WhatIfScenario = () => {
 
             <div className="rounded-xl bg-muted/50 p-3">
               <p className="text-xs font-medium mb-1">Yearly Impact</p>
-              <p className={cn('text-lg font-bold', scenarios.yearlyImpact >= 0 ? 'text-income' : 'text-expense')}>
+              <p
+                className={cn(
+                  "text-lg font-bold",
+                  scenarios.yearlyImpact >= 0 ? "text-income" : "text-expense",
+                )}
+              >
                 {formatCurrency(scenarios.yearlyImpact)}
               </p>
-              <p className="text-[10px] text-muted-foreground">additional savings per year</p>
+              <p className="text-[10px] text-muted-foreground">
+                additional savings per year
+              </p>
             </div>
           </div>
         </CardContent>

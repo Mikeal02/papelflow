@@ -5,22 +5,30 @@ import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 const MAX_PAYLOAD_CHARS = 24_000;
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS")
+    return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
   const authed = await requireAuth(req);
   if (authed instanceof Response) return authed;
 
-  const rl = await enforceRateLimit(authed.id, "insights", { limit: 10, windowSec: 60 }, { limit: 50, windowSec: 86400 });
+  const rl = await enforceRateLimit(
+    authed.id,
+    "insights",
+    { limit: 10, windowSec: 60 },
+    { limit: 50, windowSec: 86400 },
+  );
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   try {
     const body = await req.json().catch(() => null);
     const spendingData = body?.spendingData;
-    if (!spendingData || typeof spendingData !== "object") return json({ error: "invalid_spending_data" }, 400);
+    if (!spendingData || typeof spendingData !== "object")
+      return json({ error: "invalid_spending_data" }, 400);
     // Bound the size before shipping to the model.
     const serialised = JSON.stringify(spendingData);
-    if (serialised.length > MAX_PAYLOAD_CHARS) return json({ error: "payload_too_large" }, 413);
+    if (serialised.length > MAX_PAYLOAD_CHARS)
+      return json({ error: "payload_too_large" }, 413);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "ai_service_unavailable" }, 503);
@@ -58,36 +66,52 @@ ${serialised}
 
 Provide personalized spending insights and savings recommendations.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
       },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            error: "Rate limit exceeded. Please try again later.",
+          }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            error: "AI credits exhausted. Please add credits.",
+          }),
+          {
+            status: 402,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       return new Response(JSON.stringify({ error: "AI service unavailable" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -98,7 +122,10 @@ Provide personalized spending insights and savings recommendations.`;
     let parsed;
     try {
       // Try to extract JSON from potential markdown code fences
-      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [
+        null,
+        content,
+      ];
       parsed = JSON.parse(jsonMatch[1].trim());
     } catch {
       parsed = { error: "Failed to parse AI response", raw: content };

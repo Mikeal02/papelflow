@@ -1,4 +1,4 @@
-import { differenceInCalendarDays } from 'date-fns';
+import { differenceInCalendarDays } from "date-fns";
 
 export interface DuplicateCandidate {
   id: string;
@@ -40,7 +40,7 @@ export interface DuplicateCheckInput {
 export function findDuplicates(
   input: DuplicateCheckInput,
   pool: DuplicateCandidate[],
-  maxResults = 3
+  maxResults = 3,
 ): DuplicateMatch[] {
   const inputDate = new Date(input.date);
   const matches: DuplicateMatch[] = [];
@@ -55,30 +55,40 @@ export function findDuplicates(
     const amountDiff = Math.abs(amt - input.amount);
     if (amountDiff > 0.01) continue;
 
-    const dayDiff = Math.abs(differenceInCalendarDays(new Date(t.date), inputDate));
+    const dayDiff = Math.abs(
+      differenceInCalendarDays(new Date(t.date), inputDate),
+    );
     if (dayDiff > 3) continue;
 
     let score = 60; // base from amount + account + type
-    const reasons: string[] = ['Same amount', 'Same account', `Same type (${input.type})`];
+    const reasons: string[] = [
+      "Same amount",
+      "Same account",
+      `Same type (${input.type})`,
+    ];
 
     if (dayDiff === 0) {
       score += 20;
-      reasons.push('Same date');
+      reasons.push("Same date");
     } else {
       score += Math.max(0, 15 - dayDiff * 5);
-      reasons.push(`${dayDiff} day${dayDiff > 1 ? 's' : ''} apart`);
+      reasons.push(`${dayDiff} day${dayDiff > 1 ? "s" : ""} apart`);
     }
 
-    const inputPayee = (input.payee || '').trim().toLowerCase();
-    const tPayee = (t.payee || '').trim().toLowerCase();
+    const inputPayee = (input.payee || "").trim().toLowerCase();
+    const tPayee = (t.payee || "").trim().toLowerCase();
     if (inputPayee && tPayee && inputPayee === tPayee) {
       score += 15;
-      reasons.push('Same payee');
+      reasons.push("Same payee");
     }
 
-    if (input.category_id && t.category_id && input.category_id === t.category_id) {
+    if (
+      input.category_id &&
+      t.category_id &&
+      input.category_id === t.category_id
+    ) {
       score += 5;
-      reasons.push('Same category');
+      reasons.push("Same category");
     }
 
     matches.push({
@@ -88,7 +98,5 @@ export function findDuplicates(
     });
   }
 
-  return matches
-    .sort((a, b) => b.score - a.score)
-    .slice(0, maxResults);
+  return matches.sort((a, b) => b.score - a.score).slice(0, maxResults);
 }

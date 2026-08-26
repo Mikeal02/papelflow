@@ -1,9 +1,9 @@
-import { lazy } from 'react';
-import { motion } from 'framer-motion';
-import { Brain, Sparkles, TrendingUp, Zap } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { PageTransition } from '@/components/layout/PageTransition';
-import { Deferred, WidgetPlaceholder } from '@/components/ui/deferred';
+import { lazy } from "react";
+import { motion } from "framer-motion";
+import { Brain, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PageTransition } from "@/components/layout/PageTransition";
+import { Deferred, WidgetPlaceholder } from "@/components/ui/deferred";
 
 /**
  * Every panel here is code-split and viewport-gated. The Scenario Lab alone
@@ -11,17 +11,61 @@ import { Deferred, WidgetPlaceholder } from '@/components/ui/deferred';
  * the anomaly/merchant consoles each run their own heavy pipelines — mounting
  * them all eagerly blocked the main thread for seconds on page entry.
  */
-const IntelligenceEngine = lazy(() => import('@/components/analytics/IntelligenceEngine').then(m => ({ default: m.IntelligenceEngine })));
-const FinancialPulse = lazy(() => import('@/components/analytics/FinancialPulse').then(m => ({ default: m.FinancialPulse })));
-const SpendingHeatmap = lazy(() => import('@/components/analytics/SpendingHeatmap').then(m => ({ default: m.SpendingHeatmap })));
-const VelocityTracker = lazy(() => import('@/components/analytics/VelocityTracker').then(m => ({ default: m.VelocityTracker })));
-const AnomalyDetector = lazy(() => import('@/components/analytics/AnomalyDetector').then(m => ({ default: m.AnomalyDetector })));
-const CategoryTreemap = lazy(() => import('@/components/analytics/CategoryTreemap').then(m => ({ default: m.CategoryTreemap })));
-const MerchantIntelligence = lazy(() => import('@/components/analytics/MerchantIntelligence').then(m => ({ default: m.MerchantIntelligence })));
-const TimePatternAnalysis = lazy(() => import('@/components/analytics/TimePatternAnalysis').then(m => ({ default: m.TimePatternAnalysis })));
-const ScenarioLab = lazy(() => import('@/components/analytics/ScenarioLab').then(m => ({ default: m.ScenarioLab })));
-const SpendingDNA = lazy(() => import('@/components/analytics/SpendingDNA').then(m => ({ default: m.SpendingDNA })));
-const IntelligenceAlerts = lazy(() => import('@/components/analytics/IntelligenceAlerts').then(m => ({ default: m.IntelligenceAlerts })));
+const IntelligenceEngine = lazy(() =>
+  import("@/components/analytics/IntelligenceEngine").then((m) => ({
+    default: m.IntelligenceEngine,
+  })),
+);
+const FinancialPulse = lazy(() =>
+  import("@/components/analytics/FinancialPulse").then((m) => ({
+    default: m.FinancialPulse,
+  })),
+);
+const SpendingHeatmap = lazy(() =>
+  import("@/components/analytics/SpendingHeatmap").then((m) => ({
+    default: m.SpendingHeatmap,
+  })),
+);
+const VelocityTracker = lazy(() =>
+  import("@/components/analytics/VelocityTracker").then((m) => ({
+    default: m.VelocityTracker,
+  })),
+);
+const AnomalyDetector = lazy(() =>
+  import("@/components/analytics/AnomalyDetector").then((m) => ({
+    default: m.AnomalyDetector,
+  })),
+);
+const CategoryTreemap = lazy(() =>
+  import("@/components/analytics/CategoryTreemap").then((m) => ({
+    default: m.CategoryTreemap,
+  })),
+);
+const MerchantIntelligence = lazy(() =>
+  import("@/components/analytics/MerchantIntelligence").then((m) => ({
+    default: m.MerchantIntelligence,
+  })),
+);
+const TimePatternAnalysis = lazy(() =>
+  import("@/components/analytics/TimePatternAnalysis").then((m) => ({
+    default: m.TimePatternAnalysis,
+  })),
+);
+const ScenarioLab = lazy(() =>
+  import("@/components/analytics/ScenarioLab").then((m) => ({
+    default: m.ScenarioLab,
+  })),
+);
+const SpendingDNA = lazy(() =>
+  import("@/components/analytics/SpendingDNA").then((m) => ({
+    default: m.SpendingDNA,
+  })),
+);
+const IntelligenceAlerts = lazy(() =>
+  import("@/components/analytics/IntelligenceAlerts").then((m) => ({
+    default: m.IntelligenceAlerts,
+  })),
+);
 
 const Analytics = () => {
   return (
@@ -39,7 +83,9 @@ const Analytics = () => {
               <Brain className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Advanced Analytics</h1>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                Advanced Analytics
+              </h1>
               <p className="text-sm text-muted-foreground">
                 AI-powered financial intelligence
               </p>
@@ -47,15 +93,24 @@ const Analytics = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="text-[10px] font-medium gap-1">
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-medium gap-1"
+            >
               <Sparkles className="h-3 w-3" />
               Real-time
             </Badge>
-            <Badge variant="secondary" className="text-[10px] font-medium gap-1">
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-medium gap-1"
+            >
               <TrendingUp className="h-3 w-3" />
               ML-Powered
             </Badge>
-            <Badge variant="secondary" className="text-[10px] font-medium gap-1">
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-medium gap-1"
+            >
               <Zap className="h-3 w-3" />
               Live Data
             </Badge>
@@ -80,19 +135,35 @@ const Analytics = () => {
           {/* Left Column - Key Metrics */}
           <div className="lg:col-span-2 space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
-              <Deferred fallback={<WidgetPlaceholder height="h-64" />}><FinancialPulse /></Deferred>
-              <Deferred fallback={<WidgetPlaceholder height="h-64" />}><VelocityTracker /></Deferred>
+              <Deferred fallback={<WidgetPlaceholder height="h-64" />}>
+                <FinancialPulse />
+              </Deferred>
+              <Deferred fallback={<WidgetPlaceholder height="h-64" />}>
+                <VelocityTracker />
+              </Deferred>
             </div>
-            <Deferred fallback={<WidgetPlaceholder height="h-72" />}><SpendingHeatmap /></Deferred>
-            <Deferred fallback={<WidgetPlaceholder height="h-72" />}><TimePatternAnalysis /></Deferred>
+            <Deferred fallback={<WidgetPlaceholder height="h-72" />}>
+              <SpendingHeatmap />
+            </Deferred>
+            <Deferred fallback={<WidgetPlaceholder height="h-72" />}>
+              <TimePatternAnalysis />
+            </Deferred>
           </div>
 
           {/* Right Column - Insights */}
           <div className="space-y-5">
-            <Deferred fallback={<WidgetPlaceholder height="h-72" />}><IntelligenceAlerts /></Deferred>
-            <Deferred fallback={<WidgetPlaceholder height="h-72" />}><AnomalyDetector /></Deferred>
-            <Deferred fallback={<WidgetPlaceholder height="h-64" />}><CategoryTreemap /></Deferred>
-            <Deferred fallback={<WidgetPlaceholder height="h-72" />}><MerchantIntelligence /></Deferred>
+            <Deferred fallback={<WidgetPlaceholder height="h-72" />}>
+              <IntelligenceAlerts />
+            </Deferred>
+            <Deferred fallback={<WidgetPlaceholder height="h-72" />}>
+              <AnomalyDetector />
+            </Deferred>
+            <Deferred fallback={<WidgetPlaceholder height="h-64" />}>
+              <CategoryTreemap />
+            </Deferred>
+            <Deferred fallback={<WidgetPlaceholder height="h-72" />}>
+              <MerchantIntelligence />
+            </Deferred>
           </div>
         </div>
 
@@ -109,7 +180,8 @@ const Analytics = () => {
           <h3 className="text-base font-semibold">AI Financial Intelligence</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto leading-relaxed">
             Our analytics engine continuously monitors your financial patterns,
-            detects anomalies, and provides actionable insights to optimize your spending.
+            detects anomalies, and provides actionable insights to optimize your
+            spending.
           </p>
         </motion.div>
       </div>

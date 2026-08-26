@@ -1,13 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { qk, invalidateDomains } from '@/lib/queryKeys';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { qk, invalidateDomains } from "@/lib/queryKeys";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/integrations/supabase/types";
 
-export type Subscription = Tables<'subscriptions'>;
-export type SubscriptionInsert = TablesInsert<'subscriptions'>;
-export type SubscriptionUpdate = TablesUpdate<'subscriptions'>;
+export type Subscription = Tables<"subscriptions">;
+export type SubscriptionInsert = TablesInsert<"subscriptions">;
+export type SubscriptionUpdate = TablesUpdate<"subscriptions">;
 
 export function useSubscriptions() {
   const { user } = useAuth();
@@ -16,13 +20,15 @@ export function useSubscriptions() {
     queryKey: qk.subscriptions(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('subscriptions')
-        .select(`
+        .from("subscriptions")
+        .select(
+          `
           *,
           category:categories(id, name, icon, color),
           account:accounts(id, name)
-        `)
-        .order('next_due', { ascending: true });
+        `,
+        )
+        .order("next_due", { ascending: true });
 
       if (error) throw error;
       return data;
@@ -36,11 +42,11 @@ export function useCreateSubscription() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (subscription: Omit<SubscriptionInsert, 'user_id'>) => {
-      if (!user) throw new Error('Not authenticated');
+    mutationFn: async (subscription: Omit<SubscriptionInsert, "user_id">) => {
+      if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from('subscriptions')
+        .from("subscriptions")
         .insert({ ...subscription, user_id: user.id })
         .select()
         .single();
@@ -49,11 +55,15 @@ export function useCreateSubscription() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'subscriptions');
-      toast({ title: 'Subscription added successfully' });
+      invalidateDomains(queryClient, "subscriptions");
+      toast({ title: "Subscription added successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to add subscription', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to add subscription",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -62,11 +72,14 @@ export function useUpdateSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...subscription }: SubscriptionUpdate & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...subscription
+    }: SubscriptionUpdate & { id: string }) => {
       const { data, error } = await supabase
-        .from('subscriptions')
+        .from("subscriptions")
         .update(subscription)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -74,11 +87,15 @@ export function useUpdateSubscription() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'subscriptions');
-      toast({ title: 'Subscription updated successfully' });
+      invalidateDomains(queryClient, "subscriptions");
+      toast({ title: "Subscription updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to update subscription', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to update subscription",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -88,15 +105,22 @@ export function useDeleteSubscription() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('subscriptions').delete().eq('id', id);
+      const { error } = await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'subscriptions');
-      toast({ title: 'Subscription deleted successfully' });
+      invalidateDomains(queryClient, "subscriptions");
+      toast({ title: "Subscription deleted successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to delete subscription', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to delete subscription",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }

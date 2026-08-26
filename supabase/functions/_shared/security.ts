@@ -3,14 +3,18 @@
 // - readJson(): size-capped, strictly-typed body parsing.
 // - escapeHtml(): escapes strings before interpolation into HTML.
 // - json(): consistent JSON response with CORS + hardened response headers.
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2";
 import { recordSecurityEvent } from "./admin.ts";
 
 export const corsHeaders = {
   // Auth is carried in the Authorization header, never in cookies, so a wildcard
   // origin cannot be leveraged for a credentialed cross-site read.
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Max-Age": "86400",
   // Defence-in-depth: responses are data, never documents.
@@ -41,10 +45,15 @@ export async function readJson<T>(
   } catch {
     return json({ error: "bad_request" }, 400);
   }
-  if (raw.length > maxBytes) return json({ error: "payload_too_large", limit: maxBytes }, 413);
+  if (raw.length > maxBytes)
+    return json({ error: "payload_too_large", limit: maxBytes }, 413);
   try {
     const parsed = JSON.parse(raw);
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    if (
+      parsed === null ||
+      typeof parsed !== "object" ||
+      Array.isArray(parsed)
+    ) {
       return json({ error: "bad_json" }, 400);
     }
     return parsed as T;
@@ -52,7 +61,6 @@ export async function readJson<T>(
     return json({ error: "bad_json" }, 400);
   }
 }
-
 
 export function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -72,7 +80,9 @@ export interface AuthedUser {
  * return the userId + email. Rejects when the token is missing, malformed,
  * expired, or belongs to an anonymous session.
  */
-export async function requireAuth(req: Request): Promise<AuthedUser | Response> {
+export async function requireAuth(
+  req: Request,
+): Promise<AuthedUser | Response> {
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader.startsWith("Bearer ")) {
     return json({ error: "unauthorized" }, 401);
@@ -112,8 +122,11 @@ export async function requireAuth(req: Request): Promise<AuthedUser | Response> 
     return json({ error: "forbidden" }, 403);
   }
 
-  return { id: String(claims.sub), email: (claims.email ?? null) as string | null, client };
-
+  return {
+    id: String(claims.sub),
+    email: (claims.email ?? null) as string | null,
+    client,
+  };
 }
 
 /** Escape a string for safe interpolation into HTML text/attribute context. */

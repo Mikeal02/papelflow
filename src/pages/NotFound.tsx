@@ -8,7 +8,10 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    console.error(
+      "404 Error: User attempted to access non-existent route:",
+      location.pathname,
+    );
   }, [location.pathname]);
 
   return (
@@ -47,9 +50,15 @@ const NotFound = () => {
           transition={{ delay: 0.2 }}
           className="space-y-2 mb-2"
         >
-          <h2 className="text-xl font-semibold tracking-tight">Page not found</h2>
+          <h2 className="text-xl font-semibold tracking-tight">
+            Page not found
+          </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            The page <span className="font-medium text-foreground/70 font-mono text-xs bg-muted/50 px-1.5 py-0.5 rounded">{location.pathname}</span> doesn't exist or has been moved.
+            The page{" "}
+            <span className="font-medium text-foreground/70 font-mono text-xs bg-muted/50 px-1.5 py-0.5 rounded">
+              {location.pathname}
+            </span>{" "}
+            doesn't exist or has been moved.
           </p>
         </motion.div>
 

@@ -1,12 +1,22 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName?: string,
+  ) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -20,39 +30,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const logEvent = (
-      event_type: 'sign_in' | 'sign_out' | 'password_change' | 'token_refresh',
+      event_type: "sign_in" | "sign_out" | "password_change" | "token_refresh",
       session_id?: string,
     ) => {
       // Fire-and-forget; never block auth on telemetry.
-      supabase.functions.invoke('log-login', { body: { event_type, session_id } }).catch(() => {});
+      supabase.functions
+        .invoke("log-login", { body: { event_type, session_id } })
+        .catch(() => {});
     };
 
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
 
-        // Dedupe SIGNED_IN across tabs/refreshes. Only a short, non-reusable
-        // fingerprint of the token is persisted — never the JWT itself.
-        const token = session?.access_token;
-        const fingerprint = token ? token.slice(-16) : null;
-        if (event === 'SIGNED_IN' && fingerprint) {
-          const key = 'flow.lastLoggedToken';
-          if (typeof window !== 'undefined' && window.localStorage.getItem(key) !== fingerprint) {
-            window.localStorage.setItem(key, fingerprint);
-            setTimeout(() => logEvent('sign_in', fingerprint), 0);
-          }
-
-        } else if (event === 'SIGNED_OUT') {
-          if (typeof window !== 'undefined') window.localStorage.removeItem('flow.lastLoggedToken');
-          setTimeout(() => logEvent('sign_out'), 0);
-        } else if (event === 'PASSWORD_RECOVERY' || event === 'USER_UPDATED') {
-          setTimeout(() => logEvent('password_change', token?.slice(-16)), 0);
+      // Dedupe SIGNED_IN across tabs/refreshes. Only a short, non-reusable
+      // fingerprint of the token is persisted — never the JWT itself.
+      const token = session?.access_token;
+      const fingerprint = token ? token.slice(-16) : null;
+      if (event === "SIGNED_IN" && fingerprint) {
+        const key = "flow.lastLoggedToken";
+        if (
+          typeof window !== "undefined" &&
+          window.localStorage.getItem(key) !== fingerprint
+        ) {
+          window.localStorage.setItem(key, fingerprint);
+          setTimeout(() => logEvent("sign_in", fingerprint), 0);
         }
+      } else if (event === "SIGNED_OUT") {
+        if (typeof window !== "undefined")
+          window.localStorage.removeItem("flow.lastLoggedToken");
+        setTimeout(() => logEvent("sign_out"), 0);
+      } else if (event === "PASSWORD_RECOVERY" || event === "USER_UPDATED") {
+        setTimeout(() => logEvent("password_change", token?.slice(-16)), 0);
       }
-    );
+    });
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -64,10 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -94,7 +108,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, loading, signUp, signIn, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -103,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

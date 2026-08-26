@@ -1,17 +1,37 @@
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Upload, X, Loader2, Check, Receipt, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import { useCategories } from '@/hooks/useCategories';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useCreateTransaction } from '@/hooks/useTransactions';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Camera,
+  Upload,
+  X,
+  Loader2,
+  Check,
+  Receipt,
+  Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { useCategories } from "@/hooks/useCategories";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useCreateTransaction } from "@/hooks/useTransactions";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ScannedData {
   merchant: string | null;
@@ -19,7 +39,7 @@ interface ScannedData {
   total: number | null;
   items: { name: string; amount: number }[];
   category: string | null;
-  confidence: 'high' | 'medium' | 'low';
+  confidence: "high" | "medium" | "low";
 }
 
 export const ReceiptScanner = () => {
@@ -27,11 +47,11 @@ export const ReceiptScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState<ScannedData | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedAccount, setSelectedAccount] = useState<string>('');
-  const [editedAmount, setEditedAmount] = useState<string>('');
-  const [editedPayee, setEditedPayee] = useState<string>('');
-  const [editedDate, setEditedDate] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedAccount, setSelectedAccount] = useState<string>("");
+  const [editedAmount, setEditedAmount] = useState<string>("");
+  const [editedPayee, setEditedPayee] = useState<string>("");
+  const [editedDate, setEditedDate] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: categories = [] } = useCategories();
@@ -39,19 +59,21 @@ export const ReceiptScanner = () => {
   const createTransaction = useCreateTransaction();
   const { formatCurrency } = useCurrency();
 
-  const expenseCategories = categories.filter(c => c.type === 'expense');
+  const expenseCategories = categories.filter((c) => c.type === "expense");
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image must be smaller than 10MB');
+      toast.error("Image must be smaller than 10MB");
       return;
     }
 
@@ -70,37 +92,43 @@ export const ReceiptScanner = () => {
     setScannedData(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not signed in');
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-receipt`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in");
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-receipt`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ imageBase64 }),
         },
-        body: JSON.stringify({ imageBase64 }),
-      });
+      );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to scan receipt');
+        throw new Error(result.error || "Failed to scan receipt");
       }
 
       const data = result.data as ScannedData;
       setScannedData(data);
-      
+
       // Pre-fill form
-      setEditedAmount(data.total?.toString() || '');
-      setEditedPayee(data.merchant || '');
-      setEditedDate(data.date || new Date().toISOString().split('T')[0]);
-      
+      setEditedAmount(data.total?.toString() || "");
+      setEditedPayee(data.merchant || "");
+      setEditedDate(data.date || new Date().toISOString().split("T")[0]);
+
       // Try to match category
       if (data.category) {
         const matchedCategory = expenseCategories.find(
-          c => c.name.toLowerCase().includes(data.category!.toLowerCase()) ||
-               data.category!.toLowerCase().includes(c.name.toLowerCase())
+          (c) =>
+            c.name.toLowerCase().includes(data.category!.toLowerCase()) ||
+            data.category!.toLowerCase().includes(c.name.toLowerCase()),
         );
         if (matchedCategory) {
           setSelectedCategory(matchedCategory.id);
@@ -112,10 +140,12 @@ export const ReceiptScanner = () => {
         setSelectedAccount(accounts[0].id);
       }
 
-      toast.success('Receipt scanned successfully!');
+      toast.success("Receipt scanned successfully!");
     } catch (error) {
-      console.error('Scan error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to scan receipt');
+      console.error("Scan error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to scan receipt",
+      );
     } finally {
       setIsScanning(false);
     }
@@ -123,25 +153,28 @@ export const ReceiptScanner = () => {
 
   const handleCreateTransaction = async () => {
     if (!editedAmount || !selectedAccount) {
-      toast.error('Please fill in required fields');
+      toast.error("Please fill in required fields");
       return;
     }
 
     try {
       await createTransaction.mutateAsync({
-        type: 'expense',
+        type: "expense",
         amount: parseFloat(editedAmount),
-        date: editedDate || new Date().toISOString().split('T')[0],
+        date: editedDate || new Date().toISOString().split("T")[0],
         account_id: selectedAccount,
         category_id: selectedCategory || undefined,
         payee: editedPayee || undefined,
-        notes: scannedData?.items?.map(i => `${i.name}: ${formatCurrency(i.amount)}`).join('\n') || undefined,
+        notes:
+          scannedData?.items
+            ?.map((i) => `${i.name}: ${formatCurrency(i.amount)}`)
+            .join("\n") || undefined,
       });
 
-      toast.success('Transaction created from receipt!');
+      toast.success("Transaction created from receipt!");
       handleClose();
     } catch (error) {
-      console.error('Create transaction error:', error);
+      console.error("Create transaction error:", error);
     }
   };
 
@@ -149,26 +182,29 @@ export const ReceiptScanner = () => {
     setIsOpen(false);
     setScannedData(null);
     setImagePreview(null);
-    setEditedAmount('');
-    setEditedPayee('');
-    setEditedDate('');
-    setSelectedCategory('');
+    setEditedAmount("");
+    setEditedPayee("");
+    setEditedDate("");
+    setSelectedCategory("");
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const getConfidenceBadge = (confidence: string) => {
     const colors = {
-      high: 'bg-income/20 text-income',
-      medium: 'bg-chart-4/20 text-chart-4',
-      low: 'bg-destructive/20 text-destructive',
+      high: "bg-income/20 text-income",
+      medium: "bg-chart-4/20 text-chart-4",
+      low: "bg-destructive/20 text-destructive",
     };
     return colors[confidence as keyof typeof colors] || colors.medium;
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => open ? setIsOpen(true) : handleClose()}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => (open ? setIsOpen(true) : handleClose())}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Receipt className="h-4 w-4" />
@@ -239,7 +275,7 @@ export const ReceiptScanner = () => {
                     className="absolute top-2 right-2 bg-background/80"
                     onClick={() => {
                       setImagePreview(null);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
+                      if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                   >
                     <X className="h-4 w-4" />
@@ -267,8 +303,12 @@ export const ReceiptScanner = () => {
               >
                 {/* Confidence Badge */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Scan confidence:</span>
-                  <span className={`text-xs px-2 py-1 rounded-full ${getConfidenceBadge(scannedData.confidence)}`}>
+                  <span className="text-sm text-muted-foreground">
+                    Scan confidence:
+                  </span>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${getConfidenceBadge(scannedData.confidence)}`}
+                  >
                     {scannedData.confidence}
                   </span>
                 </div>
@@ -308,7 +348,10 @@ export const ReceiptScanner = () => {
                 {/* Category */}
                 <div className="space-y-2">
                   <Label>Category</Label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -328,7 +371,10 @@ export const ReceiptScanner = () => {
                 {/* Account */}
                 <div className="space-y-2">
                   <Label>Account *</Label>
-                  <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                  <Select
+                    value={selectedAccount}
+                    onValueChange={setSelectedAccount}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select account" />
                     </SelectTrigger>
@@ -348,7 +394,10 @@ export const ReceiptScanner = () => {
                     <Label>Items Detected</Label>
                     <div className="bg-muted/50 rounded-lg p-3 max-h-32 overflow-y-auto">
                       {scannedData.items.map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm py-1">
+                        <div
+                          key={i}
+                          className="flex justify-between text-sm py-1"
+                        >
                           <span className="truncate flex-1">{item.name}</span>
                           <span className="text-muted-foreground ml-2">
                             {formatCurrency(item.amount)}
@@ -367,7 +416,7 @@ export const ReceiptScanner = () => {
                     onClick={() => {
                       setScannedData(null);
                       setImagePreview(null);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
+                      if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                   >
                     Scan Another
@@ -375,7 +424,11 @@ export const ReceiptScanner = () => {
                   <Button
                     className="flex-1 gap-2"
                     onClick={handleCreateTransaction}
-                    disabled={createTransaction.isPending || !editedAmount || !selectedAccount}
+                    disabled={
+                      createTransaction.isPending ||
+                      !editedAmount ||
+                      !selectedAccount
+                    }
                   >
                     {createTransaction.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

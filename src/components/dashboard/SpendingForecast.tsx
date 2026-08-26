@@ -1,15 +1,28 @@
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, AlertTriangle, Zap, Calendar, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { useTransactions } from '@/hooks/useTransactions';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
-import { useBudgets } from '@/hooks/useBudgets';
-import { useCategories } from '@/hooks/useCategories';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { format, startOfMonth, endOfMonth, subMonths, differenceInDays } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Zap,
+  Calendar,
+  ArrowRight,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { useBudgets } from "@/hooks/useBudgets";
+import { useCategories } from "@/hooks/useCategories";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  differenceInDays,
+} from "date-fns";
+import { cn } from "@/lib/utils";
 import {
   LineChart,
   Line,
@@ -20,7 +33,7 @@ import {
   ReferenceLine,
   Area,
   AreaChart,
-} from 'recharts';
+} from "recharts";
 
 interface ForecastData {
   day: string;
@@ -43,13 +56,13 @@ export function SpendingForecast() {
     const dayOfMonth = today.getDate();
     const daysRemaining = daysInMonth - dayOfMonth;
 
-    const currentMonthExpenses = transactions.filter(t => {
+    const currentMonthExpenses = transactions.filter((t) => {
       const txDate = new Date(t.date);
-      return t.type === 'expense' && txDate >= monthStart && txDate <= today;
+      return t.type === "expense" && txDate >= monthStart && txDate <= today;
     });
 
     const dailySpending: Record<number, number> = {};
-    currentMonthExpenses.forEach(t => {
+    currentMonthExpenses.forEach((t) => {
       const day = new Date(t.date).getDate();
       dailySpending[day] = (dailySpending[day] || 0) + Number(t.amount);
     });
@@ -70,30 +83,36 @@ export function SpendingForecast() {
       const pastMonthStart = startOfMonth(pastMonth);
       const pastMonthEnd = endOfMonth(pastMonth);
       const pastDays = differenceInDays(pastMonthEnd, pastMonthStart) + 1;
-      
+
       const monthTotal = transactions
-        .filter(t => {
+        .filter((t) => {
           const txDate = new Date(t.date);
-          return t.type === 'expense' && txDate >= pastMonthStart && txDate <= pastMonthEnd;
+          return (
+            t.type === "expense" &&
+            txDate >= pastMonthStart &&
+            txDate <= pastMonthEnd
+          );
         })
         .reduce((sum, t) => sum + Number(t.amount), 0);
-      
+
       past3MonthsExpenses.push(monthTotal / pastDays);
     }
 
-    const avgDailySpending = past3MonthsExpenses.length > 0
-      ? past3MonthsExpenses.reduce((a, b) => a + b, 0) / past3MonthsExpenses.length
-      : cumulative / dayOfMonth;
+    const avgDailySpending =
+      past3MonthsExpenses.length > 0
+        ? past3MonthsExpenses.reduce((a, b) => a + b, 0) /
+          past3MonthsExpenses.length
+        : cumulative / dayOfMonth;
 
     const upcomingBills = subscriptions
-      .filter(s => s.is_active)
-      .filter(s => {
+      .filter((s) => s.is_active)
+      .filter((s) => {
         const dueDate = new Date(s.next_due);
         return dueDate > today && dueDate <= monthEnd;
       })
       .reduce((sum, s) => sum + Number(s.amount), 0);
 
-    const projectedRemaining = (avgDailySpending * daysRemaining) + upcomingBills;
+    const projectedRemaining = avgDailySpending * daysRemaining + upcomingBills;
     const projectedTotal = cumulative + projectedRemaining;
 
     const projectionData: ForecastData[] = [];
@@ -101,8 +120,8 @@ export function SpendingForecast() {
     for (let day = dayOfMonth + 1; day <= daysInMonth; day++) {
       projectedCumulative += avgDailySpending;
       subscriptions
-        .filter(s => s.is_active && new Date(s.next_due).getDate() === day)
-        .forEach(s => {
+        .filter((s) => s.is_active && new Date(s.next_due).getDate() === day)
+        .forEach((s) => {
           projectedCumulative += Number(s.amount);
         });
       projectionData.push({
@@ -113,30 +132,31 @@ export function SpendingForecast() {
 
     const chartData = [...actualData, ...projectionData];
 
-    const currentMonth = format(today, 'yyyy-MM');
+    const currentMonth = format(today, "yyyy-MM");
     const totalBudget = budgets
-      .filter(b => b.month === currentMonth)
+      .filter((b) => b.month === currentMonth)
       .reduce((sum, b) => sum + Number(b.amount), 0);
 
     const categorySpending: Record<string, number> = {};
-    currentMonthExpenses.forEach(t => {
+    currentMonthExpenses.forEach((t) => {
       if (t.category_id) {
-        categorySpending[t.category_id] = (categorySpending[t.category_id] || 0) + Number(t.amount);
+        categorySpending[t.category_id] =
+          (categorySpending[t.category_id] || 0) + Number(t.amount);
       }
     });
 
     const categoryForecasts = budgets
-      .filter(b => b.month === currentMonth)
-      .map(budget => {
-        const category = categories.find(c => c.id === budget.category_id);
+      .filter((b) => b.month === currentMonth)
+      .map((budget) => {
+        const category = categories.find((c) => c.id === budget.category_id);
         const spent = categorySpending[budget.category_id] || 0;
         const dailyAvg = spent / dayOfMonth;
-        const projectedSpend = spent + (dailyAvg * daysRemaining);
+        const projectedSpend = spent + dailyAvg * daysRemaining;
         const overBudget = projectedSpend > Number(budget.amount);
-        
+
         return {
           id: budget.id,
-          name: category?.name || 'Unknown',
+          name: category?.name || "Unknown",
           spent,
           budget: Number(budget.amount),
           projected: projectedSpend,
@@ -157,7 +177,8 @@ export function SpendingForecast() {
       chartData,
       categoryForecasts,
       isOverBudget: projectedTotal > totalBudget && totalBudget > 0,
-      percentOfBudget: totalBudget > 0 ? (projectedTotal / totalBudget) * 100 : 0,
+      percentOfBudget:
+        totalBudget > 0 ? (projectedTotal / totalBudget) * 100 : 0,
     };
   }, [transactions, subscriptions, budgets, categories]);
 
@@ -165,9 +186,15 @@ export function SpendingForecast() {
     if (active && payload && payload.length) {
       return (
         <div className="glass-panel rounded-xl p-3 shadow-lg border-border/50">
-          <p className="text-xs text-muted-foreground font-medium">Day {label}</p>
+          <p className="text-xs text-muted-foreground font-medium">
+            Day {label}
+          </p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm font-bold mt-1" style={{ color: entry.color }}>
+            <p
+              key={index}
+              className="text-sm font-bold mt-1"
+              style={{ color: entry.color }}
+            >
               {entry.name}: {formatCurrency(entry.value)}
             </p>
           ))}
@@ -195,33 +222,39 @@ export function SpendingForecast() {
         <CardContent className="space-y-4">
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-3">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
               className="p-3 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30"
             >
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Current</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">
+                Current
+              </p>
               <p className="text-base sm:text-xl font-bold mt-0.5 truncate">
                 {formatCurrency(forecast.currentSpending)}
               </p>
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.45 }}
               className={cn(
-                'p-3 rounded-xl border transition-all',
-                forecast.isOverBudget 
-                  ? 'bg-gradient-to-br from-expense/15 to-expense/5 border-expense/20' 
-                  : 'bg-gradient-to-br from-income/15 to-income/5 border-income/20'
+                "p-3 rounded-xl border transition-all",
+                forecast.isOverBudget
+                  ? "bg-gradient-to-br from-expense/15 to-expense/5 border-expense/20"
+                  : "bg-gradient-to-br from-income/15 to-income/5 border-income/20",
               )}
             >
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Projected</p>
-              <p className={cn(
-                'text-base sm:text-xl font-bold mt-0.5 truncate',
-                forecast.isOverBudget ? 'text-expense' : 'text-income'
-              )}>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">
+                Projected
+              </p>
+              <p
+                className={cn(
+                  "text-base sm:text-xl font-bold mt-0.5 truncate",
+                  forecast.isOverBudget ? "text-expense" : "text-income",
+                )}
+              >
                 {formatCurrency(forecast.projectedTotal)}
               </p>
             </motion.div>
@@ -229,47 +262,62 @@ export function SpendingForecast() {
 
           {/* Budget Progress */}
           {forecast.totalBudget > 0 && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
               className="space-y-2"
             >
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground font-medium">vs Budget</span>
-                <span className={cn(
-                  'font-bold',
-                  forecast.percentOfBudget > 100 ? 'text-expense' : 'text-foreground'
-                )}>
+                <span className="text-muted-foreground font-medium">
+                  vs Budget
+                </span>
+                <span
+                  className={cn(
+                    "font-bold",
+                    forecast.percentOfBudget > 100
+                      ? "text-expense"
+                      : "text-foreground",
+                  )}
+                >
                   {Math.round(forecast.percentOfBudget)}%
                 </span>
               </div>
               <div className="relative h-2 rounded-full bg-muted/50 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(forecast.percentOfBudget, 100)}%` }}
+                  animate={{
+                    width: `${Math.min(forecast.percentOfBudget, 100)}%`,
+                  }}
                   transition={{ delay: 0.55, duration: 0.8, ease: "easeOut" }}
                   className={cn(
-                    'absolute inset-y-0 left-0 rounded-full',
-                    forecast.percentOfBudget > 100 ? 'bg-gradient-to-r from-expense to-expense/80' : 'bg-gradient-to-r from-primary to-primary/80'
+                    "absolute inset-y-0 left-0 rounded-full",
+                    forecast.percentOfBudget > 100
+                      ? "bg-gradient-to-r from-expense to-expense/80"
+                      : "bg-gradient-to-r from-primary to-primary/80",
                   )}
                 />
               </div>
               {forecast.isOverBudget && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex items-center gap-1.5 text-xs text-expense bg-expense/10 rounded-lg px-2 py-1.5"
                 >
                   <AlertTriangle className="h-3 w-3" />
-                  <span className="font-medium">Over budget by {formatCurrency(forecast.projectedTotal - forecast.totalBudget)}</span>
+                  <span className="font-medium">
+                    Over budget by{" "}
+                    {formatCurrency(
+                      forecast.projectedTotal - forecast.totalBudget,
+                    )}
+                  </span>
                 </motion.div>
               )}
             </motion.div>
           )}
 
           {/* Chart */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
@@ -278,20 +326,34 @@ export function SpendingForecast() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={forecast.chartData}>
                 <defs>
-                  <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  <linearGradient
+                    id="actualGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
-                <XAxis 
-                  dataKey="day" 
-                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
                   interval="preserveStartEnd"
                 />
-                <YAxis 
-                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                <YAxis
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
@@ -299,9 +361,9 @@ export function SpendingForecast() {
                 />
                 <Tooltip content={<CustomTooltip />} />
                 {forecast.totalBudget > 0 && (
-                  <ReferenceLine 
-                    y={forecast.totalBudget} 
-                    stroke="hsl(var(--muted-foreground))" 
+                  <ReferenceLine
+                    y={forecast.totalBudget}
+                    stroke="hsl(var(--muted-foreground))"
                     strokeDasharray="5 5"
                     strokeOpacity={0.5}
                   />
@@ -330,9 +392,24 @@ export function SpendingForecast() {
           {/* Key Metrics */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: Calendar, label: 'Days Left', value: forecast.daysRemaining, color: 'text-muted-foreground' },
-              { icon: ArrowRight, label: 'Daily Avg', value: formatCurrency(forecast.avgDailySpending), color: 'text-foreground' },
-              { icon: AlertTriangle, label: 'Bills Due', value: formatCurrency(forecast.upcomingBills), color: 'text-warning' },
+              {
+                icon: Calendar,
+                label: "Days Left",
+                value: forecast.daysRemaining,
+                color: "text-muted-foreground",
+              },
+              {
+                icon: ArrowRight,
+                label: "Daily Avg",
+                value: formatCurrency(forecast.avgDailySpending),
+                color: "text-foreground",
+              },
+              {
+                icon: AlertTriangle,
+                label: "Bills Due",
+                value: formatCurrency(forecast.upcomingBills),
+                color: "text-warning",
+              },
             ].map((item, index) => (
               <motion.div
                 key={item.label}
@@ -341,22 +418,28 @@ export function SpendingForecast() {
                 transition={{ delay: 0.7 + index * 0.05 }}
                 className="p-2 rounded-xl bg-muted/30 text-center"
               >
-                <item.icon className={cn('h-3 w-3 mx-auto mb-1', item.color)} />
-                <p className="text-[10px] text-muted-foreground">{item.label}</p>
-                <p className={cn('text-xs font-bold truncate', item.color)}>{item.value}</p>
+                <item.icon className={cn("h-3 w-3 mx-auto mb-1", item.color)} />
+                <p className="text-[10px] text-muted-foreground">
+                  {item.label}
+                </p>
+                <p className={cn("text-xs font-bold truncate", item.color)}>
+                  {item.value}
+                </p>
               </motion.div>
             ))}
           </div>
 
           {/* Category Projections */}
           {forecast.categoryForecasts.length > 0 && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
               className="space-y-2 pt-3 border-t border-border/50"
             >
-              <p className="text-xs font-semibold text-muted-foreground">Category Projections</p>
+              <p className="text-xs font-semibold text-muted-foreground">
+                Category Projections
+              </p>
               <div className="space-y-2">
                 {forecast.categoryForecasts.map((cat, index) => (
                   <motion.div
@@ -368,21 +451,28 @@ export function SpendingForecast() {
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="truncate font-medium">{cat.name}</span>
-                      <span className={cn(
-                        'font-bold',
-                        cat.overBudget ? 'text-expense' : 'text-foreground'
-                      )}>
+                      <span
+                        className={cn(
+                          "font-bold",
+                          cat.overBudget ? "text-expense" : "text-foreground",
+                        )}
+                      >
                         {Math.round(cat.percentProjected)}%
                       </span>
                     </div>
                     <div className="relative h-1.5 rounded-full bg-muted/50 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(cat.percentProjected, 100)}%` }}
-                        transition={{ delay: 0.9 + index * 0.05, duration: 0.6 }}
+                        animate={{
+                          width: `${Math.min(cat.percentProjected, 100)}%`,
+                        }}
+                        transition={{
+                          delay: 0.9 + index * 0.05,
+                          duration: 0.6,
+                        }}
                         className={cn(
-                          'absolute inset-y-0 left-0 rounded-full',
-                          cat.overBudget ? 'bg-expense' : 'bg-primary'
+                          "absolute inset-y-0 left-0 rounded-full",
+                          cat.overBudget ? "bg-expense" : "bg-primary",
                         )}
                       />
                     </div>

@@ -2,7 +2,12 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -88,11 +93,11 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontSize: {
-        'xxs': ['0.625rem', { lineHeight: '0.875rem' }],
+        xxs: ["0.625rem", { lineHeight: "0.875rem" }],
       },
       spacing: {
-        '18': '4.5rem',
-        '22': '5.5rem',
+        "18": "4.5rem",
+        "22": "5.5rem",
       },
       keyframes: {
         "accordion-down": {
@@ -123,11 +128,11 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
         },
-        "float": {
+        float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-20px)" },
         },
-        "aurora": {
+        aurora: {
           "0%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
           "100%": { backgroundPosition: "0% 50%" },
@@ -162,8 +167,8 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
-        "float": "float 6s ease-in-out infinite",
-        "aurora": "aurora 8s ease-in-out infinite",
+        float: "float 6s ease-in-out infinite",
+        aurora: "aurora 8s ease-in-out infinite",
         "border-dance": "border-dance 4s ease-in-out infinite",
         "text-shimmer": "text-shimmer 3s ease-in-out infinite",
         "number-slide": "number-slide 0.3s ease-out",
@@ -171,19 +176,21 @@ export default {
         "gradient-x": "gradient-x 3s ease-in-out infinite",
       },
       boxShadow: {
-        'soft': '0 2px 8px -2px hsl(var(--foreground) / 0.06)',
-        'medium': '0 4px 20px -4px hsl(var(--foreground) / 0.1)',
-        'strong': '0 8px 40px -8px hsl(var(--foreground) / 0.15)',
-        'card': '0 1px 3px 0 hsl(var(--foreground) / 0.04), 0 1px 2px -1px hsl(var(--foreground) / 0.04)',
-        'card-hover': '0 8px 30px -4px hsl(var(--foreground) / 0.1)',
-        'glow': '0 0 20px -5px hsl(var(--primary) / 0.3)',
-        'glow-lg': '0 0 40px -10px hsl(var(--primary) / 0.4)',
-        'inner-glow': 'inset 0 1px 0 0 hsl(0 0% 100% / 0.1)',
+        soft: "0 2px 8px -2px hsl(var(--foreground) / 0.06)",
+        medium: "0 4px 20px -4px hsl(var(--foreground) / 0.1)",
+        strong: "0 8px 40px -8px hsl(var(--foreground) / 0.15)",
+        card: "0 1px 3px 0 hsl(var(--foreground) / 0.04), 0 1px 2px -1px hsl(var(--foreground) / 0.04)",
+        "card-hover": "0 8px 30px -4px hsl(var(--foreground) / 0.1)",
+        glow: "0 0 20px -5px hsl(var(--primary) / 0.3)",
+        "glow-lg": "0 0 40px -10px hsl(var(--primary) / 0.4)",
+        "inner-glow": "inset 0 1px 0 0 hsl(0 0% 100% / 0.1)",
       },
       backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'shimmer': 'linear-gradient(90deg, transparent 0%, hsl(var(--foreground) / 0.05) 50%, transparent 100%)',
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        shimmer:
+          "linear-gradient(90deg, transparent 0%, hsl(var(--foreground) / 0.05) 50%, transparent 100%)",
       },
     },
   },

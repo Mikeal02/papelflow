@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
-import { useTransactions } from './useTransactions';
-import { useAccounts } from './useAccounts';
-import { useGoals } from './useGoals';
-import { runIntelligence, type IntelligenceReport } from '@/lib/intelligence/engine';
+import { useMemo } from "react";
+import { useTransactions } from "./useTransactions";
+import { useAccounts } from "./useAccounts";
+import { useGoals } from "./useGoals";
+import {
+  runIntelligence,
+  type IntelligenceReport,
+} from "@/lib/intelligence/engine";
 
 /**
  * Memoized financial intelligence engine.
@@ -18,7 +21,11 @@ export function useFinancialIntelligence(): {
 
   const report = useMemo(() => {
     if (!transactions.length) return null;
-    return runIntelligence(transactions as any[], accounts as any[], goals as any[]);
+    return runIntelligence(
+      transactions as any[],
+      accounts as any[],
+      goals as any[],
+    );
   }, [transactions, accounts, goals]);
 
   return { report, isLoading: tl || al || gl };

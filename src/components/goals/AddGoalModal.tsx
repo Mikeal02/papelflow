@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import { Loader2, Calendar } from 'lucide-react';
+import { useState } from "react";
+import { Loader2, Calendar } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useCreateGoal } from '@/hooks/useGoals';
+} from "@/components/ui/select";
+import { useCreateGoal } from "@/hooks/useGoals";
 
 interface AddGoalModalProps {
   open: boolean;
@@ -25,30 +25,35 @@ interface AddGoalModalProps {
 }
 
 const GOAL_ICONS = [
-  { value: 'shield', label: 'Emergency Fund', emoji: '🛡️' },
-  { value: 'plane', label: 'Vacation', emoji: '✈️' },
-  { value: 'car', label: 'Car', emoji: '🚗' },
-  { value: 'home', label: 'Home', emoji: '🏠' },
-  { value: 'target', label: 'General', emoji: '🎯' },
+  { value: "shield", label: "Emergency Fund", emoji: "🛡️" },
+  { value: "plane", label: "Vacation", emoji: "✈️" },
+  { value: "car", label: "Car", emoji: "🚗" },
+  { value: "home", label: "Home", emoji: "🏠" },
+  { value: "target", label: "General", emoji: "🎯" },
 ];
 
 const COLORS = [
-  '#2563eb', '#059669', '#0d9488', '#f59e0b', '#ef4444', '#8b5cf6'
+  "#2563eb",
+  "#059669",
+  "#0d9488",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
 ];
 
 export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
-  const [name, setName] = useState('');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [currentAmount, setCurrentAmount] = useState('');
-  const [deadline, setDeadline] = useState('');
-  const [icon, setIcon] = useState('target');
-  const [color, setColor] = useState('#2563eb');
+  const [name, setName] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [currentAmount, setCurrentAmount] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [icon, setIcon] = useState("target");
+  const [color, setColor] = useState("#2563eb");
 
   const createGoal = useCreateGoal();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     await createGoal.mutateAsync({
       name,
       target_amount: parseFloat(targetAmount),
@@ -57,26 +62,30 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
       icon,
       color,
     });
-    
+
     onOpenChange(false);
     resetForm();
   };
 
   const resetForm = () => {
-    setName('');
-    setTargetAmount('');
-    setCurrentAmount('');
-    setDeadline('');
-    setIcon('target');
-    setColor('#2563eb');
+    setName("");
+    setTargetAmount("");
+    setCurrentAmount("");
+    setDeadline("");
+    setIcon("target");
+    setColor("#2563eb");
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">Create Goal</DialogTitle>
-          <DialogDescription>Set a savings target to work towards</DialogDescription>
+          <DialogTitle className="text-lg font-semibold">
+            Create Goal
+          </DialogTitle>
+          <DialogDescription>
+            Set a savings target to work towards
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -173,7 +182,7 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
                   type="button"
                   onClick={() => setColor(c)}
                   className={`h-8 w-8 rounded-lg transition-all duration-200 ${
-                    color === c ? 'ring-2 ring-offset-2 ring-ring' : ''
+                    color === c ? "ring-2 ring-offset-2 ring-ring" : ""
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -190,15 +199,15 @@ export function AddGoalModal({ open, onOpenChange }: AddGoalModalProps) {
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 h-10"
               disabled={createGoal.isPending}
             >
               {createGoal.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Create Goal'
+                "Create Goal"
               )}
             </Button>
           </div>

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 interface Particle {
   x: number;
@@ -19,12 +19,12 @@ interface ParticleFieldProps {
   interactive?: boolean;
 }
 
-export function ParticleField({ 
-  count = 50, 
-  className = '',
-  colors = ['217, 91%, 60%', '173, 80%, 45%', '280, 67%, 52%'],
+export function ParticleField({
+  count = 50,
+  className = "",
+  colors = ["217, 91%, 60%", "173, 80%, 45%", "280, 67%, 52%"],
   speed = 0.3,
-  interactive = true
+  interactive = true,
 }: ParticleFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -35,7 +35,7 @@ export function ParticleField({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const resize = () => {
@@ -45,7 +45,7 @@ export function ParticleField({
     };
 
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
     // Initialize particles
     particlesRef.current = Array.from({ length: count }, () => ({
@@ -89,7 +89,14 @@ export function ParticleField({
         ctx.fill();
 
         // Draw glow
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+        const gradient = ctx.createRadialGradient(
+          p.x,
+          p.y,
+          0,
+          p.x,
+          p.y,
+          p.size * 4,
+        );
         gradient.addColorStop(0, `hsla(${color}, ${p.opacity * 0.5})`);
         gradient.addColorStop(1, `hsla(${color}, 0)`);
         ctx.beginPath();
@@ -98,7 +105,7 @@ export function ParticleField({
         ctx.fill();
 
         // Connect nearby particles
-        particlesRef.current.slice(i + 1).forEach(p2 => {
+        particlesRef.current.slice(i + 1).forEach((p2) => {
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -127,12 +134,12 @@ export function ParticleField({
     };
 
     if (interactive) {
-      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener("mousemove", handleMouseMove);
     }
 
     return () => {
-      window.removeEventListener('resize', resize);
-      if (interactive) canvas.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("resize", resize);
+      if (interactive) canvas.removeEventListener("mousemove", handleMouseMove);
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, [count, colors, speed, interactive]);
@@ -151,7 +158,9 @@ export function ParticleField({
 // Floating orbs component
 export function FloatingOrbs({ className }: { className?: string }) {
   return (
-    <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
+    <div
+      className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
+    >
       {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
@@ -171,7 +180,7 @@ export function FloatingOrbs({ className }: { className?: string }) {
           transition={{
             duration: 15 + i * 3,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: "easeInOut",
           }}
         />
       ))}
@@ -183,38 +192,62 @@ export function FloatingOrbs({ className }: { className?: string }) {
 export function MeshGradient({ className }: { className?: string }) {
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
-      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+      <svg
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="xMidYMid slice"
+      >
         <defs>
           <radialGradient id="mesh1" cx="30%" cy="30%">
-            <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.15" />
+            <stop
+              offset="0%"
+              stopColor="hsl(217, 91%, 60%)"
+              stopOpacity="0.15"
+            />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
           <radialGradient id="mesh2" cx="70%" cy="70%">
-            <stop offset="0%" stopColor="hsl(173, 80%, 45%)" stopOpacity="0.12" />
+            <stop
+              offset="0%"
+              stopColor="hsl(173, 80%, 45%)"
+              stopOpacity="0.12"
+            />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
           <radialGradient id="mesh3" cx="80%" cy="20%">
-            <stop offset="0%" stopColor="hsl(280, 67%, 52%)" stopOpacity="0.1" />
+            <stop
+              offset="0%"
+              stopColor="hsl(280, 67%, 52%)"
+              stopOpacity="0.1"
+            />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
         </defs>
         <motion.ellipse
-          cx="30%" cy="30%" rx="40%" ry="30%"
+          cx="30%"
+          cy="30%"
+          rx="40%"
+          ry="30%"
           fill="url(#mesh1)"
-          animate={{ cx: ['30%', '35%', '30%'], cy: ['30%', '25%', '30%'] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{ cx: ["30%", "35%", "30%"], cy: ["30%", "25%", "30%"] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.ellipse
-          cx="70%" cy="70%" rx="35%" ry="40%"
+          cx="70%"
+          cy="70%"
+          rx="35%"
+          ry="40%"
           fill="url(#mesh2)"
-          animate={{ cx: ['70%', '65%', '70%'], cy: ['70%', '75%', '70%'] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{ cx: ["70%", "65%", "70%"], cy: ["70%", "75%", "70%"] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.ellipse
-          cx="80%" cy="20%" rx="30%" ry="25%"
+          cx="80%"
+          cy="20%"
+          rx="30%"
+          ry="25%"
           fill="url(#mesh3)"
-          animate={{ cx: ['80%', '75%', '80%'], cy: ['20%', '25%', '20%'] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{ cx: ["80%", "75%", "80%"], cy: ["20%", "25%", "20%"] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
       </svg>
     </div>

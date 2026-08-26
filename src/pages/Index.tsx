@@ -1,55 +1,153 @@
-import { lazy, Suspense, memo, useMemo } from 'react';
-import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
+import { lazy, Suspense, memo, useMemo } from "react";
+import { Wallet, TrendingUp, TrendingDown, Scale } from "lucide-react";
 
-import { StatCard } from '@/components/dashboard/StatCard';
-import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
-import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
-import { QuickStats } from '@/components/dashboard/QuickStats';
-import { PageTransition } from '@/components/layout/PageTransition';
-import { DashboardSkeleton } from '@/components/ui/elite-skeleton';
-import { Deferred, WidgetPlaceholder } from '@/components/ui/deferred';
-import { useMonthlyStats, useTransactions } from '@/hooks/useTransactions';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useCategories } from '@/hooks/useCategories';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { useRecurringTransactions } from '@/hooks/useRecurringTransactions';
-import { useBillReminders } from '@/hooks/useBillReminders';
-import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
+import { StatCard } from "@/components/dashboard/StatCard";
+import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
+import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
+import { QuickStats } from "@/components/dashboard/QuickStats";
+import { PageTransition } from "@/components/layout/PageTransition";
+import { DashboardSkeleton } from "@/components/ui/elite-skeleton";
+import { Deferred, WidgetPlaceholder } from "@/components/ui/deferred";
+import { useMonthlyStats, useTransactions } from "@/hooks/useTransactions";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useCategories } from "@/hooks/useCategories";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useRecurringTransactions } from "@/hooks/useRecurringTransactions";
+import { useBillReminders } from "@/hooks/useBillReminders";
+import { useRealtimeTransactions } from "@/hooks/useRealtimeTransactions";
 
-const SmartNudges = lazy(() => import('@/components/dashboard/SmartNudges').then(m => ({ default: m.SmartNudges })));
-const SmartTransactionEntry = lazy(() => import('@/components/transactions/SmartTransactionEntry').then(m => ({ default: m.SmartTransactionEntry })));
-const NetWorthMini = lazy(() => import('@/components/dashboard/NetWorthMini').then(m => ({ default: m.NetWorthMini })));
-const SmartInsights = lazy(() => import('@/components/insights/SmartInsights').then(m => ({ default: m.SmartInsights })));
-const MoneyFlowSankey = lazy(() => import('@/components/dashboard/MoneyFlowSankey').then(m => ({ default: m.MoneyFlowSankey })));
-const CashFlowChart = lazy(() => import('@/components/dashboard/CashFlowChart').then(m => ({ default: m.CashFlowChart })));
-const SavingsRateGauge = lazy(() => import('@/components/dashboard/SavingsRateGauge').then(m => ({ default: m.SavingsRateGauge })));
-const BudgetOverview = lazy(() => import('@/components/dashboard/BudgetOverview').then(m => ({ default: m.BudgetOverview })));
-const TopCategories = lazy(() => import('@/components/dashboard/TopCategories').then(m => ({ default: m.TopCategories })));
-const FinancialCalendar = lazy(() => import('@/components/dashboard/FinancialCalendar').then(m => ({ default: m.FinancialCalendar })));
-const SpendingForecast = lazy(() => import('@/components/dashboard/SpendingForecast').then(m => ({ default: m.SpendingForecast })));
-const FinancialHealthScore = lazy(() => import('@/components/dashboard/FinancialHealthScore').then(m => ({ default: m.FinancialHealthScore })));
-const AISpendingInsights = lazy(() => import('@/components/dashboard/AISpendingInsights').then(m => ({ default: m.AISpendingInsights })));
-const SpendingHeatmapCalendar = lazy(() => import('@/components/dashboard/SpendingHeatmapCalendar').then(m => ({ default: m.SpendingHeatmapCalendar })));
-const WhatIfScenario = lazy(() => import('@/components/dashboard/WhatIfScenario').then(m => ({ default: m.WhatIfScenario })));
-const FutureYouSimulator = lazy(() => import('@/components/dashboard/FutureYouSimulator').then(m => ({ default: m.FutureYouSimulator })));
-const GoalsMini = lazy(() => import('@/components/dashboard/GoalsMini').then(m => ({ default: m.GoalsMini })));
-const DailySpendingTracker = lazy(() => import('@/components/dashboard/DailySpendingTracker').then(m => ({ default: m.DailySpendingTracker })));
-const SpendingByTimeOfDay = lazy(() => import('@/components/dashboard/SpendingByTimeOfDay').then(m => ({ default: m.SpendingByTimeOfDay })));
-const AccountsOverview = lazy(() => import('@/components/dashboard/AccountsOverview').then(m => ({ default: m.AccountsOverview })));
-const CurrencyConverter = lazy(() => import('@/components/dashboard/CurrencyConverter').then(m => ({ default: m.CurrencyConverter })));
-const UpcomingBills = lazy(() => import('@/components/dashboard/UpcomingBills').then(m => ({ default: m.UpcomingBills })));
-const FinancialAdvisor = lazy(() => import('@/components/ai/FinancialAdvisor').then(m => ({ default: m.FinancialAdvisor })));
+const SmartNudges = lazy(() =>
+  import("@/components/dashboard/SmartNudges").then((m) => ({
+    default: m.SmartNudges,
+  })),
+);
+const SmartTransactionEntry = lazy(() =>
+  import("@/components/transactions/SmartTransactionEntry").then((m) => ({
+    default: m.SmartTransactionEntry,
+  })),
+);
+const NetWorthMini = lazy(() =>
+  import("@/components/dashboard/NetWorthMini").then((m) => ({
+    default: m.NetWorthMini,
+  })),
+);
+const SmartInsights = lazy(() =>
+  import("@/components/insights/SmartInsights").then((m) => ({
+    default: m.SmartInsights,
+  })),
+);
+const MoneyFlowSankey = lazy(() =>
+  import("@/components/dashboard/MoneyFlowSankey").then((m) => ({
+    default: m.MoneyFlowSankey,
+  })),
+);
+const CashFlowChart = lazy(() =>
+  import("@/components/dashboard/CashFlowChart").then((m) => ({
+    default: m.CashFlowChart,
+  })),
+);
+const SavingsRateGauge = lazy(() =>
+  import("@/components/dashboard/SavingsRateGauge").then((m) => ({
+    default: m.SavingsRateGauge,
+  })),
+);
+const BudgetOverview = lazy(() =>
+  import("@/components/dashboard/BudgetOverview").then((m) => ({
+    default: m.BudgetOverview,
+  })),
+);
+const TopCategories = lazy(() =>
+  import("@/components/dashboard/TopCategories").then((m) => ({
+    default: m.TopCategories,
+  })),
+);
+const FinancialCalendar = lazy(() =>
+  import("@/components/dashboard/FinancialCalendar").then((m) => ({
+    default: m.FinancialCalendar,
+  })),
+);
+const SpendingForecast = lazy(() =>
+  import("@/components/dashboard/SpendingForecast").then((m) => ({
+    default: m.SpendingForecast,
+  })),
+);
+const FinancialHealthScore = lazy(() =>
+  import("@/components/dashboard/FinancialHealthScore").then((m) => ({
+    default: m.FinancialHealthScore,
+  })),
+);
+const AISpendingInsights = lazy(() =>
+  import("@/components/dashboard/AISpendingInsights").then((m) => ({
+    default: m.AISpendingInsights,
+  })),
+);
+const SpendingHeatmapCalendar = lazy(() =>
+  import("@/components/dashboard/SpendingHeatmapCalendar").then((m) => ({
+    default: m.SpendingHeatmapCalendar,
+  })),
+);
+const WhatIfScenario = lazy(() =>
+  import("@/components/dashboard/WhatIfScenario").then((m) => ({
+    default: m.WhatIfScenario,
+  })),
+);
+const FutureYouSimulator = lazy(() =>
+  import("@/components/dashboard/FutureYouSimulator").then((m) => ({
+    default: m.FutureYouSimulator,
+  })),
+);
+const GoalsMini = lazy(() =>
+  import("@/components/dashboard/GoalsMini").then((m) => ({
+    default: m.GoalsMini,
+  })),
+);
+const DailySpendingTracker = lazy(() =>
+  import("@/components/dashboard/DailySpendingTracker").then((m) => ({
+    default: m.DailySpendingTracker,
+  })),
+);
+const SpendingByTimeOfDay = lazy(() =>
+  import("@/components/dashboard/SpendingByTimeOfDay").then((m) => ({
+    default: m.SpendingByTimeOfDay,
+  })),
+);
+const AccountsOverview = lazy(() =>
+  import("@/components/dashboard/AccountsOverview").then((m) => ({
+    default: m.AccountsOverview,
+  })),
+);
+const CurrencyConverter = lazy(() =>
+  import("@/components/dashboard/CurrencyConverter").then((m) => ({
+    default: m.CurrencyConverter,
+  })),
+);
+const UpcomingBills = lazy(() =>
+  import("@/components/dashboard/UpcomingBills").then((m) => ({
+    default: m.UpcomingBills,
+  })),
+);
+const FinancialAdvisor = lazy(() =>
+  import("@/components/ai/FinancialAdvisor").then((m) => ({
+    default: m.FinancialAdvisor,
+  })),
+);
 
 const WidgetFallback = memo(() => <WidgetPlaceholder />);
-WidgetFallback.displayName = 'WidgetFallback';
+WidgetFallback.displayName = "WidgetFallback";
 
-const SectionHeader = memo(({ title, description }: { title: string; description?: string }) => (
-  <div className="space-y-0.5 mb-3">
-    <h2 className="eyebrow-bar text-[11px] font-medium text-muted-foreground/70 uppercase tracking-[0.12em]">{title}</h2>
-    {description && <p className="text-xs text-muted-foreground/50 ml-6">{description}</p>}
-  </div>
-));
-SectionHeader.displayName = 'SectionHeader';
+const SectionHeader = memo(
+  ({ title, description }: { title: string; description?: string }) => (
+    <div className="space-y-0.5 mb-3">
+      <h2 className="eyebrow-bar text-[11px] font-medium text-muted-foreground/70 uppercase tracking-[0.12em]">
+        {title}
+      </h2>
+      {description && (
+        <p className="text-xs text-muted-foreground/50 ml-6">{description}</p>
+      )}
+    </div>
+  ),
+);
+SectionHeader.displayName = "SectionHeader";
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
@@ -57,7 +155,6 @@ const Dashboard = () => {
   const { data: transactions = [], isLoading: txLoading } = useTransactions();
   const { data: categories = [] } = useCategories();
   const { formatCurrency } = useCurrency();
-  
 
   useRecurringTransactions();
   useBillReminders();
@@ -79,30 +176,70 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <PageTransition>
-         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6 md:space-y-10">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6 md:space-y-10">
             <WelcomeHeader />
 
             {/* Key Metrics */}
             <div>
               <div className="grid gap-2.5 sm:gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Income" value={formatCurrency(stats?.income || 0)} icon={TrendingUp} iconColor="bg-income/8 text-income" delay={0.05} autoCompare="income" />
-                <StatCard title="Total Expenses" value={formatCurrency(stats?.expenses || 0)} icon={TrendingDown} iconColor="bg-expense/8 text-expense" delay={0.1} autoCompare="expense" />
-                <StatCard title="Net Cash Flow" value={formatCurrency(stats?.netFlow || 0, true)} icon={Scale} iconColor="bg-primary/8 text-primary" delay={0.15} autoCompare="net" />
-                <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Wallet} iconColor="bg-accent/8 text-accent" delay={0.2} />
+                <StatCard
+                  title="Total Income"
+                  value={formatCurrency(stats?.income || 0)}
+                  icon={TrendingUp}
+                  iconColor="bg-income/8 text-income"
+                  delay={0.05}
+                  autoCompare="income"
+                />
+                <StatCard
+                  title="Total Expenses"
+                  value={formatCurrency(stats?.expenses || 0)}
+                  icon={TrendingDown}
+                  iconColor="bg-expense/8 text-expense"
+                  delay={0.1}
+                  autoCompare="expense"
+                />
+                <StatCard
+                  title="Net Cash Flow"
+                  value={formatCurrency(stats?.netFlow || 0, true)}
+                  icon={Scale}
+                  iconColor="bg-primary/8 text-primary"
+                  delay={0.15}
+                  autoCompare="net"
+                />
+                <StatCard
+                  title="Total Balance"
+                  value={formatCurrency(totalBalance)}
+                  icon={Wallet}
+                  iconColor="bg-accent/8 text-accent"
+                  delay={0.2}
+                />
               </div>
             </div>
-            <Suspense fallback={null}><SmartNudges /></Suspense>
+            <Suspense fallback={null}>
+              <SmartNudges />
+            </Suspense>
 
             <QuickStats />
 
             {/* Insights & Net Worth — first fold, load eagerly */}
             <div>
               <SectionHeader title="Wealth Overview" />
-              <Suspense fallback={<div className="grid gap-5 lg:grid-cols-2"><WidgetFallback /><WidgetFallback /></div>}>
+              <Suspense
+                fallback={
+                  <div className="grid gap-5 lg:grid-cols-2">
+                    <WidgetFallback />
+                    <WidgetFallback />
+                  </div>
+                }
+              >
                 <div className="grid gap-5 lg:grid-cols-2">
                   <NetWorthMini />
                   {transactions.length > 0 && (
-                    <SmartInsights transactions={transactions} categories={categories} formatCurrency={formatCurrency} />
+                    <SmartInsights
+                      transactions={transactions}
+                      categories={categories}
+                      formatCurrency={formatCurrency}
+                    />
                   )}
                 </div>
               </Suspense>
@@ -114,35 +251,75 @@ const Dashboard = () => {
               every widget's mount-time computation competing for the main
               thread during first paint.
             */}
-            <div className="grid gap-5 lg:gap-6 lg:grid-cols-3 min-w-0">
-              <div className="lg:col-span-2 space-y-6 min-w-0">
-                <div>
-                  <SectionHeader title="Activity" />
-                  <RecentTransactions />
-                </div>
-                <Deferred fallback={<WidgetFallback />}><MoneyFlowSankey /></Deferred>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Deferred fallback={<WidgetFallback />}><CashFlowChart /></Deferred>
-                  <Deferred fallback={<WidgetFallback />}><SavingsRateGauge /></Deferred>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Deferred fallback={<WidgetFallback />}><BudgetOverview /></Deferred>
-                  <Deferred fallback={<WidgetFallback />}><TopCategories /></Deferred>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Deferred fallback={<WidgetFallback />}><FinancialCalendar /></Deferred>
-                  <Deferred fallback={<WidgetFallback />}><SpendingForecast /></Deferred>
-                </div>
+            {/* Activity */}
+            <div className="space-y-6 min-w-0">
+              <SectionHeader title="Activity" />
+
+              <RecentTransactions />
+
+              <Deferred fallback={<WidgetFallback />}>
+                <MoneyFlowSankey />
+              </Deferred>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Deferred fallback={<WidgetFallback />}>
+                  <CashFlowChart />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <SavingsRateGauge />
+                </Deferred>
               </div>
 
-              <div className="space-y-5">
-                <SectionHeader title="Intelligence" />
-                <Deferred fallback={<WidgetFallback />} eager><FinancialHealthScore /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><AISpendingInsights /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><SpendingHeatmapCalendar /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><WhatIfScenario /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><FutureYouSimulator /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><GoalsMini /></Deferred>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Deferred fallback={<WidgetFallback />}>
+                  <BudgetOverview />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <TopCategories />
+                </Deferred>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Deferred fallback={<WidgetFallback />}>
+                  <FinancialCalendar />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <SpendingForecast />
+                </Deferred>
+              </div>
+            </div>
+
+            {/* Intelligence */}
+            <div className="space-y-5 min-w-0">
+              <SectionHeader title="Intelligence" />
+
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <Deferred fallback={<WidgetFallback />} eager>
+                  <FinancialHealthScore />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <AISpendingInsights />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <SpendingHeatmapCalendar />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <WhatIfScenario />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <FutureYouSimulator />
+                </Deferred>
+
+                <Deferred fallback={<WidgetFallback />}>
+                  <GoalsMini />
+                </Deferred>
               </div>
             </div>
 
@@ -150,20 +327,32 @@ const Dashboard = () => {
             <div>
               <SectionHeader title="Tracking & Accounts" />
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <Deferred fallback={<WidgetFallback />}><DailySpendingTracker /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><SpendingByTimeOfDay /></Deferred>
-                <Deferred fallback={<WidgetFallback />}><AccountsOverview /></Deferred>
+                <Deferred fallback={<WidgetFallback />}>
+                  <DailySpendingTracker />
+                </Deferred>
+                <Deferred fallback={<WidgetFallback />}>
+                  <SpendingByTimeOfDay />
+                </Deferred>
+                <Deferred fallback={<WidgetFallback />}>
+                  <AccountsOverview />
+                </Deferred>
               </div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Deferred fallback={<WidgetFallback />}><CurrencyConverter /></Deferred>
-              <Deferred fallback={<WidgetFallback />}><UpcomingBills /></Deferred>
+              <Deferred fallback={<WidgetFallback />}>
+                <CurrencyConverter />
+              </Deferred>
+              <Deferred fallback={<WidgetFallback />}>
+                <UpcomingBills />
+              </Deferred>
             </div>
           </div>
         </PageTransition>
       )}
 
-      <Suspense fallback={null}><FinancialAdvisor /></Suspense>
+      <Suspense fallback={null}>
+        <FinancialAdvisor />
+      </Suspense>
     </>
   );
 };

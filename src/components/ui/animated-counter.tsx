@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useSpring, useTransform, useMotionValue } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState } from "react";
+import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface AnimatedCounterProps {
   value: number;
@@ -14,8 +14,8 @@ interface AnimatedCounterProps {
 
 export const AnimatedCounter = ({
   value,
-  prefix = '',
-  suffix = '',
+  prefix = "",
+  suffix = "",
   decimals = 0,
   duration = 1,
   className,
@@ -27,14 +27,14 @@ export const AnimatedCounter = ({
     damping: 30,
     duration: duration * 1000,
   });
-  const [displayValue, setDisplayValue] = useState('0');
+  const [displayValue, setDisplayValue] = useState("0");
 
   useEffect(() => {
     motionValue.set(value);
   }, [value, motionValue]);
 
   useEffect(() => {
-    const unsubscribe = springValue.on('change', (latest) => {
+    const unsubscribe = springValue.on("change", (latest) => {
       setDisplayValue(latest.toFixed(decimals));
     });
     return unsubscribe;
@@ -43,10 +43,10 @@ export const AnimatedCounter = ({
   return (
     <span
       className={cn(
-        'tabular-nums',
-        colorize && value > 0 && 'text-income',
-        colorize && value < 0 && 'text-expense',
-        className
+        "tabular-nums",
+        colorize && value > 0 && "text-income",
+        colorize && value < 0 && "text-expense",
+        className,
       )}
     >
       {prefix}
@@ -69,8 +69,8 @@ export const FlipDigit = ({ value, className }: FlipDigitProps) => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 20, opacity: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className={cn('inline-block', className)}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={cn("inline-block", className)}
     >
       {value}
     </motion.span>
@@ -91,7 +91,7 @@ export const Sparkline = ({
   data,
   width = 80,
   height = 24,
-  color = 'hsl(var(--primary))',
+  color = "hsl(var(--primary))",
   showDot = true,
   className,
 }: SparklineProps) => {
@@ -107,7 +107,7 @@ export const Sparkline = ({
     return `${x},${y}`;
   });
 
-  const pathD = `M ${points.join(' L ')}`;
+  const pathD = `M ${points.join(" L ")}`;
   const areaD = `${pathD} L ${width},${height} L 0,${height} Z`;
 
   const lastPoint = {
@@ -115,20 +115,27 @@ export const Sparkline = ({
     y: height - ((data[data.length - 1] - min) / range) * height,
   };
 
-  const trend = data[data.length - 1] >= data[0] ? 'up' : 'down';
-  const trendColor = trend === 'up' ? 'hsl(var(--income))' : 'hsl(var(--expense))';
+  const trend = data[data.length - 1] >= data[0] ? "up" : "down";
+  const trendColor =
+    trend === "up" ? "hsl(var(--income))" : "hsl(var(--expense))";
 
   return (
     <svg width={width} height={height + 4} className={className}>
       <defs>
-        <linearGradient id={`sparkline-gradient-${data.join('-')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient
+          id={`sparkline-gradient-${data.join("-")}`}
+          x1="0%"
+          y1="0%"
+          x2="0%"
+          y2="100%"
+        >
           <stop offset="0%" stopColor={trendColor} stopOpacity={0.3} />
           <stop offset="100%" stopColor={trendColor} stopOpacity={0} />
         </linearGradient>
       </defs>
       <motion.path
         d={areaD}
-        fill={`url(#sparkline-gradient-${data.join('-')})`}
+        fill={`url(#sparkline-gradient-${data.join("-")})`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -141,7 +148,7 @@ export const Sparkline = ({
         strokeLinecap="round"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
+        transition={{ duration: 1, ease: "easeOut" }}
       />
       {showDot && (
         <motion.circle

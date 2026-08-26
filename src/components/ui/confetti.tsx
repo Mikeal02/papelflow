@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Particle {
   id: number;
@@ -13,11 +13,11 @@ interface Particle {
 }
 
 const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--accent))',
-  'hsl(var(--income))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-6))',
+  "hsl(var(--primary))",
+  "hsl(var(--accent))",
+  "hsl(var(--income))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-6))",
 ];
 
 export const useConfetti = () => {
@@ -31,7 +31,7 @@ export const useConfetti = () => {
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
       const velocity = 8 + Math.random() * 12;
-      
+
       newParticles.push({
         id: Date.now() + i,
         x: origin.x * 100,
@@ -91,7 +91,7 @@ export const Confetti = ({ particles, isActive }: ConfettiProps) => {
               y: p.velocity.y * friction + gravity,
             },
           }))
-          .filter((p) => p.y < 150)
+          .filter((p) => p.y < 150),
       );
     }, 16);
 
@@ -109,13 +109,13 @@ export const Confetti = ({ particles, isActive }: ConfettiProps) => {
               animate={{ opacity: 0.8, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 left: `${particle.x}%`,
                 top: `${particle.y}%`,
                 width: particle.size,
                 height: particle.size,
                 backgroundColor: particle.color,
-                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                borderRadius: Math.random() > 0.5 ? "50%" : "2px",
                 transform: `rotate(${particle.rotation}deg)`,
               }}
             />

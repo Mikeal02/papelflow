@@ -1,52 +1,70 @@
-import { useState } from 'react';
-import { Calendar, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Calendar, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useCategories } from '@/hooks/useCategories';
-import { useCreateTransaction } from '@/hooks/useTransactions';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { cn } from '@/lib/utils';
-import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from 'lucide-react';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useCategories } from "@/hooks/useCategories";
+import { useCreateTransaction } from "@/hooks/useTransactions";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { cn } from "@/lib/utils";
+import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from "lucide-react";
 
 interface AddTransactionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-type TransactionType = 'expense' | 'income' | 'transfer';
+type TransactionType = "expense" | "income" | "transfer";
 
 const transactionTypes = [
-  { type: 'expense' as const, label: 'Expense', icon: ArrowDownLeft, color: 'expense' },
-  { type: 'income' as const, label: 'Income', icon: ArrowUpRight, color: 'income' },
-  { type: 'transfer' as const, label: 'Transfer', icon: ArrowLeftRight, color: 'transfer' },
+  {
+    type: "expense" as const,
+    label: "Expense",
+    icon: ArrowDownLeft,
+    color: "expense",
+  },
+  {
+    type: "income" as const,
+    label: "Income",
+    icon: ArrowUpRight,
+    color: "income",
+  },
+  {
+    type: "transfer" as const,
+    label: "Transfer",
+    icon: ArrowLeftRight,
+    color: "transfer",
+  },
 ];
 
-export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalProps) {
-  const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('');
-  const [accountId, setAccountId] = useState('');
-  const [toAccountId, setToAccountId] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [payee, setPayee] = useState('');
-  const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+export function AddTransactionModal({
+  open,
+  onOpenChange,
+}: AddTransactionModalProps) {
+  const [type, setType] = useState<TransactionType>("expense");
+  const [amount, setAmount] = useState("");
+  const [accountId, setAccountId] = useState("");
+  const [toAccountId, setToAccountId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [payee, setPayee] = useState("");
+  const [notes, setNotes] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
@@ -54,43 +72,47 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
   const { currencySymbol } = useCurrency();
 
   const filteredCategories = categories.filter(
-    (cat) => cat.type === (type === 'income' ? 'income' : 'expense')
+    (cat) => cat.type === (type === "income" ? "income" : "expense"),
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     await createTransaction.mutateAsync({
       type,
       amount: parseFloat(amount),
       date,
       account_id: accountId,
-      category_id: type !== 'transfer' ? categoryId : null,
-      to_account_id: type === 'transfer' ? toAccountId : null,
+      category_id: type !== "transfer" ? categoryId : null,
+      to_account_id: type === "transfer" ? toAccountId : null,
       payee: payee || null,
       notes: notes || null,
     });
-    
+
     onOpenChange(false);
     resetForm();
   };
 
   const resetForm = () => {
-    setAmount('');
-    setAccountId('');
-    setToAccountId('');
-    setCategoryId('');
-    setPayee('');
-    setNotes('');
-    setDate(new Date().toISOString().split('T')[0]);
+    setAmount("");
+    setAccountId("");
+    setToAccountId("");
+    setCategoryId("");
+    setPayee("");
+    setNotes("");
+    setDate(new Date().toISOString().split("T")[0]);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">Add Transaction</DialogTitle>
-          <DialogDescription>Record a new transaction for your accounts</DialogDescription>
+          <DialogTitle className="text-lg font-semibold">
+            Add Transaction
+          </DialogTitle>
+          <DialogDescription>
+            Record a new transaction for your accounts
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -102,14 +124,14 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
                 type="button"
                 onClick={() => setType(t)}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all duration-200',
+                  "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all duration-200",
                   type === t
-                    ? color === 'expense'
-                      ? 'bg-expense text-white shadow-sm'
-                      : color === 'income'
-                      ? 'bg-income text-white shadow-sm'
-                      : 'bg-transfer text-white shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? color === "expense"
+                      ? "bg-expense text-white shadow-sm"
+                      : color === "income"
+                        ? "bg-income text-white shadow-sm"
+                        : "bg-transfer text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -157,10 +179,14 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             </div>
 
             {/* To Account (for transfers) or Category */}
-            {type === 'transfer' ? (
+            {type === "transfer" ? (
               <div className="space-y-2">
                 <Label>To Account</Label>
-                <Select value={toAccountId} onValueChange={setToAccountId} required>
+                <Select
+                  value={toAccountId}
+                  onValueChange={setToAccountId}
+                  required
+                >
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select account" />
                   </SelectTrigger>
@@ -178,7 +204,11 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             ) : (
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select value={categoryId} onValueChange={setCategoryId} required>
+                <Select
+                  value={categoryId}
+                  onValueChange={setCategoryId}
+                  required
+                >
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -212,12 +242,14 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             </div>
 
             {/* Payee */}
-            {type !== 'transfer' && (
+            {type !== "transfer" && (
               <div className="space-y-2">
-                <Label htmlFor="payee">{type === 'income' ? 'From' : 'Payee'}</Label>
+                <Label htmlFor="payee">
+                  {type === "income" ? "From" : "Payee"}
+                </Label>
                 <Input
                   id="payee"
-                  placeholder={type === 'income' ? 'Source' : 'Merchant name'}
+                  placeholder={type === "income" ? "Source" : "Merchant name"}
                   value={payee}
                   onChange={(e) => setPayee(e.target.value)}
                   className="h-10"
@@ -249,15 +281,15 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 h-10"
               disabled={createTransaction.isPending}
             >
               {createTransaction.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Add Transaction'
+                "Add Transaction"
               )}
             </Button>
           </div>

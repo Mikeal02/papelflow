@@ -1,20 +1,36 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useTransactions } from '@/hooks/useTransactions';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useTransactions } from "@/hooks/useTransactions";
 import {
-  buildFingerprintMap, diffTransactions, loadCache, saveCache, shouldIncremental,
-  type CachedReport, type DiffSummary,
-} from '@/lib/intelligence/intelligenceCache';
-import type { EliteAnomalyReport } from '@/lib/intelligence/anomalyElite';
-import type { MerchantReport } from '@/lib/intelligence/merchantElite';
-import { evaluateRules, type DraftAlert, type ExistingAlert } from '@/lib/intelligence/rulesEngine';
-import { loadAlertSettings, meetsMinSeverity } from '@/lib/intelligence/alertSettings';
+  buildFingerprintMap,
+  diffTransactions,
+  loadCache,
+  saveCache,
+  shouldIncremental,
+  type CachedReport,
+  type DiffSummary,
+} from "@/lib/intelligence/intelligenceCache";
+import type { EliteAnomalyReport } from "@/lib/intelligence/anomalyElite";
+import type { MerchantReport } from "@/lib/intelligence/merchantElite";
+import {
+  evaluateRules,
+  type DraftAlert,
+  type ExistingAlert,
+} from "@/lib/intelligence/rulesEngine";
+import {
+  loadAlertSettings,
+  meetsMinSeverity,
+} from "@/lib/intelligence/alertSettings";
 
 type WorkerResp = {
-  id: string; ok: boolean; durationMs: number; error?: string;
-  anomalies?: EliteAnomalyReport; merchants?: MerchantReport;
+  id: string;
+  ok: boolean;
+  durationMs: number;
+  error?: string;
+  anomalies?: EliteAnomalyReport;
+  merchants?: MerchantReport;
 };
 
 interface State {
@@ -24,14 +40,14 @@ interface State {
   diff: DiffSummary | null;
   durationMs: number;
   computedAt: number;
-  mode: 'cold' | 'cached' | 'incremental' | 'full';
+  mode: "cold" | "cached" | "incremental" | "full";
 }
 
 function makeWorker(): Worker | null {
   try {
     return new Worker(
-      new URL('../lib/intelligence/intelligence.worker.ts', import.meta.url),
-      { type: 'module' }
+      new URL("../lib/intelligence/intelligence.worker.ts", import.meta.url),
+      { type: "module" },
     );
   } catch {
     return null;
@@ -44,8 +60,13 @@ export function useEliteIntelligence() {
   const queryClient = useQueryClient();
 
   const [state, setState] = useState<State>({
-    loading: true, anomalies: null, merchants: null, diff: null,
-    durationMs: 0, computedAt: 0, mode: 'cold',
+    loading: true,
+    anomalies: null,
+    merchants: null,
+    diff: null,
+    durationMs: 0,
+    computedAt: 0,
+    mode: "cold",
   });
 
   const workerRef = useRef<Worker | null>(null);
@@ -57,10 +78,14 @@ export function useEliteIntelligence() {
     if (!user) return;
     const cached = loadCache(user.id);
     if (cached) {
-      setState(s => ({
-        ...s, anomalies: cached.anomalies, merchants: cached.merchants,
-        loading: false, computedAt: cached.computedAt, durationMs: cached.durationMs,
-        mode: 'cached',
+      setState((s) => ({
+        ...s,
+        anomalies: cached.anomalies,
+        merchants: cached.merchants,
+        loading: false,
+        computedAt: cached.computedAt,
+        durationMs: cached.durationMs,
+        mode: "cached",
       }));
     }
   }, [user?.id]);
@@ -68,7 +93,10 @@ export function useEliteIntelligence() {
   // Spin up worker once
   useEffect(() => {
     workerRef.current = makeWorker();
-    return () => { workerRef.current?.terminate(); workerRef.current = null; };
+    return () => {
+      workerRef.current?.terminate();
+      workerRef.current = null;
+    };
   }, []);
 
   // Trigger compute on tx change
@@ -79,21 +107,26 @@ export function useEliteIntelligence() {
     const diff = diffTransactions(txs, cached?.fingerprintMap || null);
 
     // Nothing changed → keep cached
-    if (cached && diff.added.length === 0 && diff.removed.length === 0 && diff.changed.length === 0) {
-      setState(s => ({ ...s, diff, loading: false, mode: 'cached' }));
+    if (
+      cached &&
+      diff.added.length === 0 &&
+      diff.removed.length === 0 &&
+      diff.changed.length === 0
+    ) {
+      setState((s) => ({ ...s, diff, loading: false, mode: "cached" }));
       return;
     }
 
     const incremental = cached && shouldIncremental(diff);
     const reqId = `r${++reqIdRef.current}`;
     inflightRef.current = reqId;
-    setState(s => ({ ...s, loading: true, diff }));
+    setState((s) => ({ ...s, loading: true, diff }));
 
     const onMsg = (e: MessageEvent<WorkerResp>) => {
       if (e.data.id !== reqId) return;
-      workerRef.current?.removeEventListener('message', onMsg);
+      workerRef.current?.removeEventListener("message", onMsg);
       if (!e.data.ok || !e.data.anomalies || !e.data.merchants) {
-        setState(s => ({ ...s, loading: false }));
+        setState((s) => ({ ...s, loading: false }));
         return;
       }
       const fpMap = buildFingerprintMap(txs);
@@ -114,15 +147,15 @@ export function useEliteIntelligence() {
         diff,
         durationMs: e.data.durationMs,
         computedAt: cachePayload.computedAt,
-        mode: incremental ? 'incremental' : 'full',
+        mode: incremental ? "incremental" : "full",
       });
       // Trigger alerts sync
-      queryClient.invalidateQueries({ queryKey: ['intelligence-alerts'] });
+      queryClient.invalidateQueries({ queryKey: ["intelligence-alerts"] });
     };
-    workerRef.current.addEventListener('message', onMsg);
+    workerRef.current.addEventListener("message", onMsg);
     workerRef.current.postMessage({
       id: reqId,
-      type: incremental ? 'incremental' : 'full',
+      type: incremental ? "incremental" : "full",
       transactions: txs,
       newTransactions: diff.added,
     });
@@ -132,7 +165,7 @@ export function useEliteIntelligence() {
   useEffect(() => {
     if (!user || !state.anomalies || !state.merchants) return;
     void syncAlerts(user.id, state.anomalies, state.merchants).then(() => {
-      queryClient.invalidateQueries({ queryKey: ['intelligence-alerts'] });
+      queryClient.invalidateQueries({ queryKey: ["intelligence-alerts"] });
     });
   }, [user?.id, state.computedAt]);
 
@@ -145,9 +178,11 @@ async function syncAlerts(
   merchants: MerchantReport,
 ) {
   const { data: existing } = await supabase
-    .from('intelligence_alerts')
-    .select('dedup_key, acknowledged_at, dismissed_at, snooze_until, fired_count, severity')
-    .eq('user_id', userId);
+    .from("intelligence_alerts")
+    .select(
+      "dedup_key, acknowledged_at, dismissed_at, snooze_until, fired_count, severity",
+    )
+    .eq("user_id", userId);
 
   const ex: ExistingAlert[] = (existing || []) as any;
   const settings = loadAlertSettings();
@@ -156,14 +191,15 @@ async function syncAlerts(
     quietHourEnd: settings.quietHourEnd,
     maxPerRun: settings.maxPerRun,
   });
-  const upserts = rawUpserts.filter(u =>
-    settings.enabledKinds[u.kind] !== false &&
-    meetsMinSeverity(u.severity, settings.minSeverity)
+  const upserts = rawUpserts.filter(
+    (u) =>
+      settings.enabledKinds[u.kind] !== false &&
+      meetsMinSeverity(u.severity, settings.minSeverity),
   );
 
   if (upserts.length === 0) return;
 
-  const exMap = new Map(ex.map(e => [e.dedup_key, e]));
+  const exMap = new Map(ex.map((e) => [e.dedup_key, e]));
   const rows = upserts.map((u: DraftAlert) => {
     const prev = exMap.get(u.dedupKey);
     return {
@@ -181,22 +217,22 @@ async function syncAlerts(
   });
 
   await supabase
-    .from('intelligence_alerts')
-    .upsert(rows, { onConflict: 'user_id,dedup_key' });
+    .from("intelligence_alerts")
+    .upsert(rows, { onConflict: "user_id,dedup_key" });
 }
 
 export function useIntelligenceAlerts() {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ['intelligence-alerts', user?.id],
+    queryKey: ["intelligence-alerts", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('intelligence_alerts')
-        .select('*')
-        .eq('user_id', user!.id)
-        .is('dismissed_at', null)
-        .order('scheduled_for', { ascending: false })
+        .from("intelligence_alerts")
+        .select("*")
+        .eq("user_id", user!.id)
+        .is("dismissed_at", null)
+        .order("scheduled_for", { ascending: false })
         .limit(50);
       if (error) throw error;
       return data;

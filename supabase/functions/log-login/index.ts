@@ -1,12 +1,22 @@
 // Records a login/logout/security event for the authenticated user.
 // Captures IP + UA server-side so the client cannot forge geolocation.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, json, requireAuth , readJson } from "../_shared/security.ts";
+import {
+  corsHeaders,
+  json,
+  requireAuth,
+  readJson,
+} from "../_shared/security.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 import { recordSecurityEvent } from "../_shared/admin.ts";
 
 interface Body {
-  event_type: "sign_in" | "sign_out" | "token_refresh" | "password_change" | "failed_attempt";
+  event_type:
+    | "sign_in"
+    | "sign_out"
+    | "token_refresh"
+    | "password_change"
+    | "failed_attempt";
   session_id?: string;
 }
 
@@ -38,39 +48,67 @@ async function geolocate(ip: string) {
   try {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 1500);
-    const r = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, { signal: ctl.signal });
+    const r = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, {
+      signal: ctl.signal,
+    });
     clearTimeout(t);
     if (!r.ok) return {};
     const j = await r.json();
-    return { city: j.city ?? null, region: j.region ?? null, country: j.country_name ?? null };
-  } catch { return {}; }
+    return {
+      city: j.city ?? null,
+      region: j.region ?? null,
+      country: j.country_name ?? null,
+    };
+  } catch {
+    return {};
+  }
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS")
+    return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
 
-  const rl = await enforceRateLimit(auth.id, "login_log", { limit: 30, windowSec: 60 }, { limit: 500, windowSec: 86400 });
+  const rl = await enforceRateLimit(
+    auth.id,
+    "login_log",
+    { limit: 30, windowSec: 60 },
+    { limit: 500, windowSec: 86400 },
+  );
   if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
 
   let body: Body;
   const parsed = await readJson<Body>(req, 4 * 1024);
   if (parsed instanceof Response) return parsed;
   body = parsed;
-  const allowed = ["sign_in", "sign_out", "token_refresh", "password_change", "failed_attempt"];
-  if (!allowed.includes(body.event_type)) return json({ error: "invalid_event_type" }, 400);
+  const allowed = [
+    "sign_in",
+    "sign_out",
+    "token_refresh",
+    "password_change",
+    "failed_attempt",
+  ];
+  if (!allowed.includes(body.event_type))
+    return json({ error: "invalid_event_type" }, 400);
 
   const ua = req.headers.get("user-agent") ?? "";
   const fwd = req.headers.get("x-forwarded-for") ?? "";
-  const ip = fwd.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || "";
+  const ip =
+    fwd.split(",")[0]?.trim() ||
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-real-ip") ||
+    "";
   const { device, browser, os } = parseUA(ua);
   const geo = await geolocate(ip);
 
   // Suspicion heuristic: new country vs last recorded event.
-  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  const admin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
   const { data: prev } = await admin
     .from("login_events")
     .select("country")
@@ -80,19 +118,26 @@ Deno.serve(async (req) => {
     .limit(1)
     .maybeSingle();
 
-  const is_suspicious = !!(geo.country && prev?.country && geo.country !== prev.country);
+  const is_suspicious = !!(
+    geo.country &&
+    prev?.country &&
+    geo.country !== prev.country
+  );
 
   const { error } = await admin.from("login_events").insert({
     user_id: auth.id,
     event_type: body.event_type,
     ip_address: ip || null,
     user_agent: ua || null,
-    device, browser, os,
+    device,
+    browser,
+    os,
     ...geo,
     session_id: body.session_id ?? null,
     is_suspicious,
   });
-  if (error) return json({ error: "insert_failed", detail: error.message }, 500);
+  if (error)
+    return json({ error: "insert_failed", detail: error.message }, 500);
 
   if (is_suspicious) {
     void recordSecurityEvent({
@@ -100,7 +145,13 @@ Deno.serve(async (req) => {
       kind: "new_geo_signin",
       severity: "high",
       source: "log-login",
-      detail: { country: geo.country ?? null, previous_country: prev?.country ?? null, device, browser, os },
+      detail: {
+        country: geo.country ?? null,
+        previous_country: prev?.country ?? null,
+        device,
+        browser,
+        os,
+      },
       req,
     });
   }

@@ -17,33 +17,33 @@
  */
 
 export type Domain =
-  | 'transactions'
-  | 'accounts'
-  | 'categories'
-  | 'budgets'
-  | 'goals'
-  | 'subscriptions'
-  | 'profile'
-  | 'monthlyStats'
-  | 'aggregations'
-  | 'intelligenceAlerts'
-  | 'exchangeRates'
-  | 'pipeline';
+  | "transactions"
+  | "accounts"
+  | "categories"
+  | "budgets"
+  | "goals"
+  | "subscriptions"
+  | "profile"
+  | "monthlyStats"
+  | "aggregations"
+  | "intelligenceAlerts"
+  | "exchangeRates"
+  | "pipeline";
 
 /** Root prefix for every domain. Prefix-matching covers all per-user variants. */
 const ROOT: Record<Domain, readonly [string]> = {
-  transactions: ['transactions'],
-  accounts: ['accounts'],
-  categories: ['categories'],
-  budgets: ['budgets'],
-  goals: ['goals'],
-  subscriptions: ['subscriptions'],
-  profile: ['profile'],
-  monthlyStats: ['monthly-stats'],
-  aggregations: ['aggregations'],
-  intelligenceAlerts: ['intelligence-alerts'],
-  exchangeRates: ['exchange-rates'],
-  pipeline: ['pipeline'],
+  transactions: ["transactions"],
+  accounts: ["accounts"],
+  categories: ["categories"],
+  budgets: ["budgets"],
+  goals: ["goals"],
+  subscriptions: ["subscriptions"],
+  profile: ["profile"],
+  monthlyStats: ["monthly-stats"],
+  aggregations: ["aggregations"],
+  intelligenceAlerts: ["intelligence-alerts"],
+  exchangeRates: ["exchange-rates"],
+  pipeline: ["pipeline"],
 };
 
 /**
@@ -51,13 +51,19 @@ const ROOT: Record<Domain, readonly [string]> = {
  * Edges are transitive — declare only direct consumers.
  */
 const DEPENDENTS: Record<Domain, readonly Domain[]> = {
-  transactions: ['monthlyStats', 'budgets', 'accounts', 'aggregations', 'intelligenceAlerts'],
-  accounts: ['transactions', 'monthlyStats', 'aggregations'],
-  categories: ['transactions', 'budgets'],
-  budgets: ['monthlyStats'],
-  goals: ['aggregations'],
-  subscriptions: ['accounts', 'aggregations'],
-  profile: ['exchangeRates'],
+  transactions: [
+    "monthlyStats",
+    "budgets",
+    "accounts",
+    "aggregations",
+    "intelligenceAlerts",
+  ],
+  accounts: ["transactions", "monthlyStats", "aggregations"],
+  categories: ["transactions", "budgets"],
+  budgets: ["monthlyStats"],
+  goals: ["aggregations"],
+  subscriptions: ["accounts", "aggregations"],
+  profile: ["exchangeRates"],
   monthlyStats: [],
   aggregations: [],
   intelligenceAlerts: [],
@@ -67,18 +73,23 @@ const DEPENDENTS: Record<Domain, readonly Domain[]> = {
 
 /** Canonical key factories. Always build keys through these. */
 export const qk = {
-  transactions: (userId?: string, limit?: number) => ['transactions', userId, limit] as const,
-  accounts: (userId?: string) => ['accounts', userId] as const,
-  categories: (userId?: string) => ['categories', userId] as const,
-  budgets: (userId?: string, month?: string) => ['budgets', userId, month] as const,
-  goals: (userId?: string) => ['goals', userId] as const,
-  subscriptions: (userId?: string) => ['subscriptions', userId] as const,
-  profile: (userId?: string) => ['profile', userId] as const,
-  monthlyStats: (userId?: string, month?: string) => ['monthly-stats', userId, month] as const,
-  aggregations: (userId?: string, scope?: string) => ['aggregations', userId, scope] as const,
-  intelligenceAlerts: (userId?: string) => ['intelligence-alerts', userId] as const,
-  exchangeRates: (base: string) => ['exchange-rates', base] as const,
-  pipeline: (table?: string) => ['pipeline', table] as const,
+  transactions: (userId?: string, limit?: number) =>
+    ["transactions", userId, limit] as const,
+  accounts: (userId?: string) => ["accounts", userId] as const,
+  categories: (userId?: string) => ["categories", userId] as const,
+  budgets: (userId?: string, month?: string) =>
+    ["budgets", userId, month] as const,
+  goals: (userId?: string) => ["goals", userId] as const,
+  subscriptions: (userId?: string) => ["subscriptions", userId] as const,
+  profile: (userId?: string) => ["profile", userId] as const,
+  monthlyStats: (userId?: string, month?: string) =>
+    ["monthly-stats", userId, month] as const,
+  aggregations: (userId?: string, scope?: string) =>
+    ["aggregations", userId, scope] as const,
+  intelligenceAlerts: (userId?: string) =>
+    ["intelligence-alerts", userId] as const,
+  exchangeRates: (base: string) => ["exchange-rates", base] as const,
+  pipeline: (table?: string) => ["pipeline", table] as const,
 } as const;
 
 /** Expand a set of changed domains into the full set of affected domains. */
@@ -102,7 +113,10 @@ interface Invalidator {
  * Invalidate the transitive closure of caches affected by `changed`.
  * Replaces long hand-written invalidation lists and blanket cache wipes.
  */
-export function invalidateDomains(client: Invalidator, ...changed: Domain[]): void {
+export function invalidateDomains(
+  client: Invalidator,
+  ...changed: Domain[]
+): void {
   for (const domain of affectedDomains(changed)) {
     client.invalidateQueries({ queryKey: ROOT[domain] });
   }

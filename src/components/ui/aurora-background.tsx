@@ -1,32 +1,36 @@
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface AuroraBackgroundProps {
   children?: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'success' | 'warning' | 'danger';
-  intensity?: 'low' | 'medium' | 'high';
+  variant?: "default" | "success" | "warning" | "danger";
+  intensity?: "low" | "medium" | "high";
 }
 
 const variantColors = {
-  default: ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--chart-6))'],
-  success: ['hsl(var(--income))', 'hsl(var(--accent))', 'hsl(var(--chart-3))'],
-  warning: ['hsl(var(--warning))', 'hsl(var(--chart-4))', 'hsl(var(--primary))'],
-  danger: ['hsl(var(--expense))', 'hsl(var(--chart-5))', 'hsl(var(--warning))'],
+  default: ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--chart-6))"],
+  success: ["hsl(var(--income))", "hsl(var(--accent))", "hsl(var(--chart-3))"],
+  warning: [
+    "hsl(var(--warning))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--primary))",
+  ],
+  danger: ["hsl(var(--expense))", "hsl(var(--chart-5))", "hsl(var(--warning))"],
 };
 
-export const AuroraBackground = ({ 
-  children, 
-  className, 
-  variant = 'default',
-  intensity = 'medium' 
+export const AuroraBackground = ({
+  children,
+  className,
+  variant = "default",
+  intensity = "medium",
 }: AuroraBackgroundProps) => {
   const colors = variantColors[variant];
   const opacityMap = { low: 0.1, medium: 0.2, high: 0.35 };
   const opacity = opacityMap[intensity];
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn("relative overflow-hidden", className)}>
       {/* Aurora layers */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -38,15 +42,15 @@ export const AuroraBackground = ({
               radial-gradient(ellipse 70% 60% at 50% 80%, ${colors[2]} 0%, transparent 50%)
             `,
             opacity,
-            filter: 'blur(60px)',
+            filter: "blur(60px)",
           }}
           animate={{
             rotate: [0, 360],
             scale: [1, 1.1, 1],
           }}
           transition={{
-            rotate: { duration: 60, repeat: Infinity, ease: 'linear' },
-            scale: { duration: 10, repeat: Infinity, ease: 'easeInOut' },
+            rotate: { duration: 60, repeat: Infinity, ease: "linear" },
+            scale: { duration: 10, repeat: Infinity, ease: "easeInOut" },
           }}
         />
         <motion.div
@@ -57,7 +61,7 @@ export const AuroraBackground = ({
               radial-gradient(ellipse 40% 50% at 30% 70%, ${colors[2]} 0%, transparent 50%)
             `,
             opacity: opacity * 0.7,
-            filter: 'blur(80px)',
+            filter: "blur(80px)",
           }}
           animate={{
             rotate: [360, 0],
@@ -65,9 +69,9 @@ export const AuroraBackground = ({
             y: [0, -30, 0],
           }}
           transition={{
-            rotate: { duration: 80, repeat: Infinity, ease: 'linear' },
-            x: { duration: 15, repeat: Infinity, ease: 'easeInOut' },
-            y: { duration: 12, repeat: Infinity, ease: 'easeInOut' },
+            rotate: { duration: 80, repeat: Infinity, ease: "linear" },
+            x: { duration: 15, repeat: Infinity, ease: "easeInOut" },
+            y: { duration: 12, repeat: Infinity, ease: "easeInOut" },
           }}
         />
       </div>
@@ -85,10 +89,10 @@ interface ReactiveParticlesProps {
   count?: number;
 }
 
-export const ReactiveParticles = ({ 
-  intensity, 
-  color = 'hsl(var(--primary))',
-  count = 30 
+export const ReactiveParticles = ({
+  intensity,
+  color = "hsl(var(--primary))",
+  count = 30,
 }: ReactiveParticlesProps) => {
   const particles = Array.from({ length: count }, (_, i) => ({
     id: i,
@@ -123,7 +127,7 @@ export const ReactiveParticles = ({
             duration: particle.duration,
             repeat: Infinity,
             delay: particle.delay,
-            ease: 'easeInOut',
+            ease: "easeInOut",
           }}
         />
       ))}
@@ -132,18 +136,18 @@ export const ReactiveParticles = ({
 };
 
 // Morphing blob background
-export const MorphingBlob = ({ 
-  color = 'hsl(var(--primary))',
+export const MorphingBlob = ({
+  color = "hsl(var(--primary))",
   size = 300,
-  className 
-}: { 
-  color?: string; 
+  className,
+}: {
+  color?: string;
   size?: number;
   className?: string;
 }) => {
   return (
     <motion.div
-      className={cn('absolute rounded-full blur-3xl', className)}
+      className={cn("absolute rounded-full blur-3xl", className)}
       style={{
         width: size,
         height: size,
@@ -152,18 +156,18 @@ export const MorphingBlob = ({
       }}
       animate={{
         borderRadius: [
-          '60% 40% 30% 70% / 60% 30% 70% 40%',
-          '30% 60% 70% 40% / 50% 60% 30% 60%',
-          '50% 60% 30% 60% / 40% 30% 70% 50%',
-          '60% 40% 60% 30% / 70% 50% 40% 60%',
-          '60% 40% 30% 70% / 60% 30% 70% 40%',
+          "60% 40% 30% 70% / 60% 30% 70% 40%",
+          "30% 60% 70% 40% / 50% 60% 30% 60%",
+          "50% 60% 30% 60% / 40% 30% 70% 50%",
+          "60% 40% 60% 30% / 70% 50% 40% 60%",
+          "60% 40% 30% 70% / 60% 30% 70% 40%",
         ],
         scale: [1, 1.1, 0.95, 1.05, 1],
       }}
       transition={{
         duration: 12,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: "easeInOut",
       }}
     />
   );

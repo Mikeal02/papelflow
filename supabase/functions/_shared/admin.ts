@@ -3,7 +3,10 @@
 // Never returned to, or derived from, client input. Used exclusively for
 // deny-all tables (rate_limit_counters) and append-only logs (security_events)
 // that intentionally have no INSERT policy.
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2";
 
 let cached: SupabaseClient | null = null;
 
@@ -40,7 +43,8 @@ export async function hashIp(ip: string): Promise<string | null> {
   );
   const bytes = new Uint8Array(buf);
   let hex = "";
-  for (let i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, "0");
+  for (let i = 0; i < bytes.length; i++)
+    hex += bytes[i].toString(16).padStart(2, "0");
   return hex.slice(0, 48);
 }
 

@@ -4,12 +4,12 @@
  * Supports full recompute and incremental "merge new transactions" mode.
  */
 
-import { runEliteAnomalies } from './anomalyElite';
-import { runMerchantElite } from './merchantElite';
+import { runEliteAnomalies } from "./anomalyElite";
+import { runMerchantElite } from "./merchantElite";
 
 export interface WorkerRequest {
   id: string;
-  type: 'full' | 'incremental';
+  type: "full" | "incremental";
   transactions: any[];
   newTransactions?: any[];
 }
@@ -35,14 +35,17 @@ self.onmessage = (e: MessageEvent<WorkerRequest>) => {
     const anomalies = runEliteAnomalies(transactions);
     const merchants = runMerchantElite(transactions);
     const res: WorkerResponse = {
-      id, ok: true,
+      id,
+      ok: true,
       durationMs: Math.round(performance.now() - t0),
-      anomalies, merchants,
+      anomalies,
+      merchants,
     };
     (self as any).postMessage(res);
   } catch (err: any) {
     const res: WorkerResponse = {
-      id, ok: false,
+      id,
+      ok: false,
       durationMs: Math.round(performance.now() - t0),
       error: err?.message || String(err),
     };

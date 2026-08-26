@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useCategories } from '@/hooks/useCategories';
-import { useCreateBudget } from '@/hooks/useBudgets';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useCategories } from "@/hooks/useCategories";
+import { useCreateBudget } from "@/hooks/useBudgets";
 
 interface AddBudgetModalProps {
   open: boolean;
@@ -27,33 +27,37 @@ interface AddBudgetModalProps {
   month: string;
 }
 
-export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProps) {
-  const [categoryId, setCategoryId] = useState('');
-  const [amount, setAmount] = useState('');
+export function AddBudgetModal({
+  open,
+  onOpenChange,
+  month,
+}: AddBudgetModalProps) {
+  const [categoryId, setCategoryId] = useState("");
+  const [amount, setAmount] = useState("");
   const [rollover, setRollover] = useState(false);
 
   const { data: categories = [] } = useCategories();
   const createBudget = useCreateBudget();
 
-  const expenseCategories = categories.filter((cat) => cat.type === 'expense');
+  const expenseCategories = categories.filter((cat) => cat.type === "expense");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     await createBudget.mutateAsync({
       category_id: categoryId,
       amount: parseFloat(amount),
       month,
       rollover,
     });
-    
+
     onOpenChange(false);
     resetForm();
   };
 
   const resetForm = () => {
-    setCategoryId('');
-    setAmount('');
+    setCategoryId("");
+    setAmount("");
     setRollover(false);
   };
 
@@ -61,8 +65,12 @@ export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">Create Budget</DialogTitle>
-          <DialogDescription>Set a spending limit for a category</DialogDescription>
+          <DialogTitle className="text-lg font-semibold">
+            Create Budget
+          </DialogTitle>
+          <DialogDescription>
+            Set a spending limit for a category
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -103,7 +111,9 @@ export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProp
 
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div>
-              <Label htmlFor="rollover" className="font-medium">Rollover unused budget</Label>
+              <Label htmlFor="rollover" className="font-medium">
+                Rollover unused budget
+              </Label>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Carry over unspent amounts to next month
               </p>
@@ -124,15 +134,15 @@ export function AddBudgetModal({ open, onOpenChange, month }: AddBudgetModalProp
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 h-10"
               disabled={createBudget.isPending}
             >
               {createBudget.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Create Budget'
+                "Create Budget"
               )}
             </Button>
           </div>

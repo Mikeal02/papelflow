@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   CalendarDays,
   CalendarRange,
@@ -10,13 +10,13 @@ import {
   Clock,
   Command,
   ArrowRight,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, RangeCalendar } from '@/components/ui/calendar-rac';
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Calendar, RangeCalendar } from "@/components/ui/calendar-rac";
 import {
   getLocalTimeZone,
   today,
@@ -24,16 +24,16 @@ import {
   startOfMonth,
   endOfMonth,
   CalendarDate,
-} from '@internationalized/date';
-import type { DateValue } from 'react-aria-components';
-import { useTransactions } from '@/hooks/useTransactions';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { cn } from '@/lib/utils';
+} from "@internationalized/date";
+import type { DateValue } from "react-aria-components";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { cn } from "@/lib/utils";
 
 type RangeVal = { start: DateValue; end: DateValue } | null;
 
 const toISO = (d: DateValue) =>
-  `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
+  `${d.year}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`;
 
 export default function CalendarPage() {
   const now = today(getLocalTimeZone());
@@ -50,20 +50,20 @@ export default function CalendarPage() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA/)) return;
-      if (e.key === 't' || e.key === 'T') setDate(now);
-      if (e.key === 'w' || e.key === 'W')
-        setRange({ start: startOfWeek(now, 'en-US'), end: now });
-      if (e.key === 'm' || e.key === 'M')
+      if (e.key === "t" || e.key === "T") setDate(now);
+      if (e.key === "w" || e.key === "W")
+        setRange({ start: startOfWeek(now, "en-US"), end: now });
+      if (e.key === "m" || e.key === "M")
         setRange({ start: startOfMonth(now), end: endOfMonth(now) });
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [now]);
 
   // Selected day activity
   const dayTx = useMemo(() => {
     const iso = toISO(date);
-    return transactions.filter((t: any) => (t.date || '').startsWith(iso));
+    return transactions.filter((t: any) => (t.date || "").startsWith(iso));
   }, [transactions, date]);
 
   const dayStats = useMemo(() => {
@@ -71,8 +71,8 @@ export default function CalendarPage() {
       expense = 0;
     dayTx.forEach((t: any) => {
       const amt = Number(t.amount) || 0;
-      if (t.type === 'income') income += amt;
-      else if (t.type === 'expense') expense += amt;
+      if (t.type === "income") income += amt;
+      else if (t.type === "expense") expense += amt;
     });
     return { income, expense, net: income - expense, count: dayTx.length };
   }, [dayTx]);
@@ -83,14 +83,14 @@ export default function CalendarPage() {
     const startISO = toISO(range.start);
     const endISO = toISO(range.end);
     const inRange = transactions.filter(
-      (t: any) => (t.date || '') >= startISO && (t.date || '') <= endISO,
+      (t: any) => (t.date || "") >= startISO && (t.date || "") <= endISO,
     );
     let income = 0,
       expense = 0;
     inRange.forEach((t: any) => {
       const amt = Number(t.amount) || 0;
-      if (t.type === 'income') income += amt;
-      else if (t.type === 'expense') expense += amt;
+      if (t.type === "income") income += amt;
+      else if (t.type === "expense") expense += amt;
     });
     const days = Math.max(
       1,
@@ -109,29 +109,29 @@ export default function CalendarPage() {
   }, [transactions, range]);
 
   const presets: { label: string; run: () => void }[] = [
-    { label: 'Today', run: () => setRange({ start: now, end: now }) },
+    { label: "Today", run: () => setRange({ start: now, end: now }) },
     {
-      label: 'This Week',
-      run: () => setRange({ start: startOfWeek(now, 'en-US'), end: now }),
+      label: "This Week",
+      run: () => setRange({ start: startOfWeek(now, "en-US"), end: now }),
     },
     {
-      label: 'This Month',
+      label: "This Month",
       run: () => setRange({ start: startOfMonth(now), end: endOfMonth(now) }),
     },
     {
-      label: 'Last 7 Days',
+      label: "Last 7 Days",
       run: () => setRange({ start: now.subtract({ days: 6 }), end: now }),
     },
     {
-      label: 'Last 30 Days',
+      label: "Last 30 Days",
       run: () => setRange({ start: now.subtract({ days: 29 }), end: now }),
     },
     {
-      label: 'Last 90 Days',
+      label: "Last 90 Days",
       run: () => setRange({ start: now.subtract({ days: 89 }), end: now }),
     },
     {
-      label: 'Year to Date',
+      label: "Year to Date",
       run: () =>
         setRange({
           start: new CalendarDate(now.year, 1, 1),
@@ -207,10 +207,10 @@ export default function CalendarPage() {
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               {date.toDate(getLocalTimeZone()).toLocaleDateString(undefined, {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
               })}
             </p>
           </CardHeader>
@@ -232,7 +232,7 @@ export default function CalendarPage() {
                 icon={<Wallet className="h-3 w-3" />}
                 label="Net"
                 value={formatCurrency(dayStats.net)}
-                tone={dayStats.net >= 0 ? 'pos' : 'neg'}
+                tone={dayStats.net >= 0 ? "pos" : "neg"}
               />
             </div>
             <Separator />
@@ -255,24 +255,28 @@ export default function CalendarPage() {
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {t.description || t.category?.name || 'Transaction'}
+                          {t.description || t.category?.name || "Transaction"}
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          {t.account?.name || '—'} ·{' '}
+                          {t.account?.name || "—"} ·{" "}
                           {t.category?.name || t.type}
                         </p>
                       </div>
                       <span
                         className={cn(
-                          'text-sm font-semibold tabular-nums shrink-0',
-                          t.type === 'income'
-                            ? 'text-emerald-500'
-                            : t.type === 'expense'
-                              ? 'text-rose-500'
-                              : 'text-muted-foreground',
+                          "text-sm font-semibold tabular-nums shrink-0",
+                          t.type === "income"
+                            ? "text-emerald-500"
+                            : t.type === "expense"
+                              ? "text-rose-500"
+                              : "text-muted-foreground",
                         )}
                       >
-                        {t.type === 'expense' ? '-' : t.type === 'income' ? '+' : ''}
+                        {t.type === "expense"
+                          ? "-"
+                          : t.type === "income"
+                            ? "+"
+                            : ""}
                         {formatCurrency(Number(t.amount) || 0)}
                       </span>
                     </li>
@@ -330,7 +334,7 @@ export default function CalendarPage() {
               <p className="text-xs text-muted-foreground">
                 {range
                   ? `${toISO(range.start)} → ${toISO(range.end)} · ${rangeStats.days} days`
-                  : 'No range selected'}
+                  : "No range selected"}
               </p>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -347,7 +351,7 @@ export default function CalendarPage() {
               <SummaryRow
                 label="Net"
                 value={formatCurrency(rangeStats.net)}
-                tone={rangeStats.net >= 0 ? 'pos' : 'neg'}
+                tone={rangeStats.net >= 0 ? "pos" : "neg"}
                 bold
               />
               <Separator className="my-2" />
@@ -376,7 +380,7 @@ function MiniStat({
   icon: React.ReactNode;
   label: string;
   value: string;
-  tone?: 'pos' | 'neg';
+  tone?: "pos" | "neg";
 }) {
   return (
     <div className="rounded-lg border border-border/40 bg-card/40 px-2.5 py-2">
@@ -386,9 +390,9 @@ function MiniStat({
       </div>
       <div
         className={cn(
-          'text-sm font-semibold tabular-nums mt-0.5 truncate',
-          tone === 'pos' && 'text-emerald-500',
-          tone === 'neg' && 'text-rose-500',
+          "text-sm font-semibold tabular-nums mt-0.5 truncate",
+          tone === "pos" && "text-emerald-500",
+          tone === "neg" && "text-rose-500",
         )}
       >
         {value}
@@ -405,7 +409,7 @@ function SummaryRow({
 }: {
   label: string;
   value: string;
-  tone?: 'pos' | 'neg';
+  tone?: "pos" | "neg";
   bold?: boolean;
 }) {
   return (
@@ -413,10 +417,10 @@ function SummaryRow({
       <span className="text-muted-foreground">{label}</span>
       <span
         className={cn(
-          'tabular-nums',
-          bold && 'font-semibold',
-          tone === 'pos' && 'text-emerald-500',
-          tone === 'neg' && 'text-rose-500',
+          "tabular-nums",
+          bold && "font-semibold",
+          tone === "pos" && "text-emerald-500",
+          tone === "neg" && "text-rose-500",
         )}
       >
         {value}

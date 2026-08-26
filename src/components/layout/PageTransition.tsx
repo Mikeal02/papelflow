@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -42,15 +42,15 @@ export function PageTransition({ children }: PageTransitionProps) {
 interface ScrollRevealProps {
   children: ReactNode;
   delay?: number;
-  direction?: 'up' | 'down' | 'left' | 'right';
+  direction?: "up" | "down" | "left" | "right";
   className?: string;
 }
 
 export function ScrollReveal({
   children,
   delay = 0,
-  direction = 'up',
-  className = ''
+  direction = "up",
+  className = "",
 }: ScrollRevealProps) {
   const directions = {
     up: { y: 24, x: 0 },
@@ -63,7 +63,7 @@ export function ScrollReveal({
     <motion.div
       initial={{ opacity: 0, ...directions[direction] }}
       whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
+      viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
@@ -81,8 +81,8 @@ interface StaggerContainerProps {
 
 export function StaggerContainer({
   children,
-  className = '',
-  staggerDelay = 0.04
+  className = "",
+  staggerDelay = 0.04,
 }: StaggerContainerProps) {
   return (
     <motion.div
@@ -99,12 +99,22 @@ export function StaggerContainer({
   );
 }
 
-export function StaggerItem({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function StaggerItem({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <motion.div
       variants={{
         hidden: { opacity: 0, y: 12 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+        },
       }}
       className={className}
     >
@@ -122,15 +132,15 @@ interface HoverGlowProps {
 
 export function HoverGlow({
   children,
-  className = '',
-  glowColor = 'var(--primary)'
+  className = "",
+  glowColor = "var(--primary)",
 }: HoverGlowProps) {
   return (
     <motion.div
       className={`relative ${className}`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       {children}
     </motion.div>

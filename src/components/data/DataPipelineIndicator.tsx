@@ -1,14 +1,31 @@
-import { useDataPipeline } from '@/hooks/useDataPipeline';
-import { CloudCog, CloudOff, Loader2, RefreshCcw, AlertTriangle, ShieldCheck, KeyRound } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { drain, purgeQueue, listQueue, retryDead } from '@/lib/data/offlineQueue';
-import { rotateUserKey } from '@/lib/data/crypto';
-import { readAudit } from '@/lib/data/audit';
-import { forceReconcile } from '@/lib/data/syncEngine';
-import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { useDataPipeline } from "@/hooks/useDataPipeline";
+import {
+  CloudCog,
+  CloudOff,
+  Loader2,
+  RefreshCcw,
+  AlertTriangle,
+  ShieldCheck,
+  KeyRound,
+} from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import {
+  drain,
+  purgeQueue,
+  listQueue,
+  retryDead,
+} from "@/lib/data/offlineQueue";
+import { rotateUserKey } from "@/lib/data/crypto";
+import { readAudit } from "@/lib/data/audit";
+import { forceReconcile } from "@/lib/data/syncEngine";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 /**
  * Compact status pill for the elite data pipeline: shows hydration,
@@ -16,7 +33,8 @@ import { toast } from '@/hooks/use-toast';
  */
 export function DataPipelineIndicator() {
   const { user } = useAuth();
-  const { hydrated, queue, hydratingError, lastHydratedAt, encryption } = useDataPipeline();
+  const { hydrated, queue, hydratingError, lastHydratedAt, encryption } =
+    useDataPipeline();
   const [preview, setPreview] = useState<any[]>([]);
   const [audit, setAudit] = useState<any[]>([]);
   const [rotating, setRotating] = useState(false);
@@ -32,40 +50,65 @@ export function DataPipelineIndicator() {
     setRotating(true);
     try {
       const { rotated } = await rotateUserKey(user.id);
-      toast({ title: 'Encryption key rotated', description: `${rotated} rows re-sealed under a fresh key.` });
+      toast({
+        title: "Encryption key rotated",
+        description: `${rotated} rows re-sealed under a fresh key.`,
+      });
     } catch (e: any) {
-      toast({ title: 'Rotation failed', description: e?.message ?? String(e), variant: 'destructive' });
-    } finally { setRotating(false); }
+      toast({
+        title: "Rotation failed",
+        description: e?.message ?? String(e),
+        variant: "destructive",
+      });
+    } finally {
+      setRotating(false);
+    }
   }
 
-  const state =
-    hydratingError ? 'error' :
-    queue.dead > 0 ? 'blocked' :
-    !queue.online ? 'offline' :
-    !hydrated ? 'hydrating' :
-    queue.size > 0 ? 'syncing' :
-    'ready';
+  const state = hydratingError
+    ? "error"
+    : queue.dead > 0
+      ? "blocked"
+      : !queue.online
+        ? "offline"
+        : !hydrated
+          ? "hydrating"
+          : queue.size > 0
+            ? "syncing"
+            : "ready";
 
   const tone: Record<string, string> = {
-    ready:     'text-emerald-500 border-emerald-500/30 bg-emerald-500/10',
-    syncing:   'text-amber-500 border-amber-500/30 bg-amber-500/10',
-    hydrating: 'text-sky-500 border-sky-500/30 bg-sky-500/10',
-    blocked:   'text-destructive border-destructive/40 bg-destructive/10',
-    offline:   'text-muted-foreground border-border bg-muted/40',
-    error:     'text-destructive border-destructive/40 bg-destructive/10',
+    ready: "text-emerald-500 border-emerald-500/30 bg-emerald-500/10",
+    syncing: "text-amber-500 border-amber-500/30 bg-amber-500/10",
+    hydrating: "text-sky-500 border-sky-500/30 bg-sky-500/10",
+    blocked: "text-destructive border-destructive/40 bg-destructive/10",
+    offline: "text-muted-foreground border-border bg-muted/40",
+    error: "text-destructive border-destructive/40 bg-destructive/10",
   };
 
-  const icon = state === 'offline' ? <CloudOff className="w-3.5 h-3.5" />
-    : state === 'ready' ? <CloudCog className="w-3.5 h-3.5" />
-    : state === 'error' || state === 'blocked' ? <AlertTriangle className="w-3.5 h-3.5" />
-    : <Loader2 className="w-3.5 h-3.5 animate-spin" />;
+  const icon =
+    state === "offline" ? (
+      <CloudOff className="w-3.5 h-3.5" />
+    ) : state === "ready" ? (
+      <CloudCog className="w-3.5 h-3.5" />
+    ) : state === "error" || state === "blocked" ? (
+      <AlertTriangle className="w-3.5 h-3.5" />
+    ) : (
+      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+    );
 
-  const label = state === 'offline' ? 'Offline'
-    : state === 'ready' ? 'Synced'
-    : state === 'error' ? 'Sync error'
-    : state === 'blocked' ? `Blocked · ${queue.dead}` 
-    : state === 'hydrating' ? 'Hydrating'
-    : `Syncing · ${queue.size}`;
+  const label =
+    state === "offline"
+      ? "Offline"
+      : state === "ready"
+        ? "Synced"
+        : state === "error"
+          ? "Sync error"
+          : state === "blocked"
+            ? `Blocked · ${queue.dead}`
+            : state === "hydrating"
+              ? "Hydrating"
+              : `Syncing · ${queue.size}`;
 
   return (
     <Popover>
@@ -92,9 +135,23 @@ export function DataPipelineIndicator() {
             <Stat label="Failing" value={String(queue.failing)} />
             <Stat label="Dead" value={String(queue.dead)} />
             <Stat label="Blocked lanes" value={String(queue.blockedLanes)} />
-            <Stat label="Online" value={queue.online ? 'yes' : 'no'} />
-            <Stat label="Last hydrate" value={lastHydratedAt ? new Date(lastHydratedAt).toLocaleTimeString() : '—'} />
-            <Stat label="Last drain" value={queue.lastDrainAt ? new Date(queue.lastDrainAt).toLocaleTimeString() : '—'} />
+            <Stat label="Online" value={queue.online ? "yes" : "no"} />
+            <Stat
+              label="Last hydrate"
+              value={
+                lastHydratedAt
+                  ? new Date(lastHydratedAt).toLocaleTimeString()
+                  : "—"
+              }
+            />
+            <Stat
+              label="Last drain"
+              value={
+                queue.lastDrainAt
+                  ? new Date(queue.lastDrainAt).toLocaleTimeString()
+                  : "—"
+              }
+            />
           </div>
           {queue.lastError && (
             <div className="text-[11px] text-destructive break-all">
@@ -103,9 +160,14 @@ export function DataPipelineIndicator() {
           )}
           {preview.length > 0 && (
             <div className="max-h-32 overflow-auto rounded-md border border-border/60 divide-y divide-border/40">
-              {preview.slice(0, 6).map(m => (
-                <div key={m.id} className="px-2 py-1.5 text-[11px] flex justify-between gap-2">
-                  <span className="truncate">{m.op} · {m.table}</span>
+              {preview.slice(0, 6).map((m) => (
+                <div
+                  key={m.id}
+                  className="px-2 py-1.5 text-[11px] flex justify-between gap-2"
+                >
+                  <span className="truncate">
+                    {m.op} · {m.table}
+                  </span>
                   <span className="text-muted-foreground tabular-nums">
                     #{m.seq} ×{m.attempts}
                   </span>
@@ -116,60 +178,97 @@ export function DataPipelineIndicator() {
           <div className="rounded-md border border-emerald-500/25 bg-emerald-500/[0.06] p-2.5 space-y-1.5">
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-500">
               <ShieldCheck className="w-3.5 h-3.5" />
-              At-rest encryption {encryption.enabled ? 'active' : 'off'}
+              At-rest encryption {encryption.enabled ? "active" : "off"}
             </div>
             <div className="text-[10px] text-muted-foreground leading-snug">
-              AES-GCM 256 · non-extractable per-user key · sensitive fields sealed with AAD binding.
+              AES-GCM 256 · non-extractable per-user key · sensitive fields
+              sealed with AAD binding.
             </div>
             <div className="flex items-center justify-between gap-2 pt-1">
               <span className="text-[10px] text-muted-foreground tabular-nums">
-                Key: {encryption.keyCreatedAt ? new Date(encryption.keyCreatedAt).toLocaleDateString() : '—'}
+                Key:{" "}
+                {encryption.keyCreatedAt
+                  ? new Date(encryption.keyCreatedAt).toLocaleDateString()
+                  : "—"}
               </span>
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]"
-                disabled={rotating || !encryption.enabled} onClick={handleRotate}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-[11px]"
+                disabled={rotating || !encryption.enabled}
+                onClick={handleRotate}
+              >
                 <KeyRound className="w-3 h-3 mr-1" />
-                {rotating ? 'Rotating…' : 'Rotate key'}
+                {rotating ? "Rotating…" : "Rotate key"}
               </Button>
             </div>
           </div>
           {audit.length > 0 && (
             <div>
-              <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Audit trail</div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+                Audit trail
+              </div>
               <div className="max-h-28 overflow-auto rounded-md border border-border/60 divide-y divide-border/40">
-                {audit.slice(0, 6).map(a => (
-                  <div key={a.id} className="px-2 py-1 text-[10px] flex justify-between gap-2">
-                    <span className="truncate">{a.op} · {a.table}</span>
-                    <span className="text-muted-foreground tabular-nums">{a.hash.slice(0, 6) || '—'}</span>
+                {audit.slice(0, 6).map((a) => (
+                  <div
+                    key={a.id}
+                    className="px-2 py-1 text-[10px] flex justify-between gap-2"
+                  >
+                    <span className="truncate">
+                      {a.op} · {a.table}
+                    </span>
+                    <span className="text-muted-foreground tabular-nums">
+                      {a.hash.slice(0, 6) || "—"}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
           )}
           <div className="flex gap-2">
-            <Button size="sm" variant="secondary" className="flex-1"
-              onClick={() => user && drain(user.id)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="flex-1"
+              onClick={() => user && drain(user.id)}
+            >
               <RefreshCcw className="w-3.5 h-3.5 mr-1" /> Retry
             </Button>
             {queue.dead > 0 && (
-              <Button size="sm" variant="secondary" className="flex-1"
-                onClick={() => user && retryDead(user.id)}>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="flex-1"
+                onClick={() => user && retryDead(user.id)}
+              >
                 Rearm dead
               </Button>
             )}
-            <Button size="sm" variant="ghost" className="flex-1"
-              onClick={() => user && purgeQueue(user.id)}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="flex-1"
+              onClick={() => user && purgeQueue(user.id)}
+            >
               Purge queue
             </Button>
           </div>
-          <Button size="sm" variant="outline" className="w-full text-[11px]"
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full text-[11px]"
             onClick={() => {
               if (!user) return;
-              void forceReconcile(user.id).then(res => {
+              void forceReconcile(user.id).then((res) => {
                 const tomb = res.reduce((s, r) => s + r.tombstoned, 0);
                 const rows = res.reduce((s, r) => s + r.changed, 0);
-                toast({ title: 'Full reconcile complete', description: `${rows} rows verified · ${tomb} stale removed.` });
+                toast({
+                  title: "Full reconcile complete",
+                  description: `${rows} rows verified · ${tomb} stale removed.`,
+                });
               });
-            }}>
+            }}
+          >
             Force full reconcile
           </Button>
         </div>
@@ -181,7 +280,9 @@ export function DataPipelineIndicator() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-border/60 bg-muted/30 px-2 py-1.5">
-      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
       <div className="text-xs font-semibold tabular-nums">{value}</div>
     </div>
   );

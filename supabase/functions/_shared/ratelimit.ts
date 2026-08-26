@@ -39,7 +39,11 @@ export interface RateLimitResult {
 }
 
 /** In-memory sliding window. Synchronous, best-effort, per-instance. */
-export function rateLimit(userId: string, name: string, ...limits: Limit[]): RateLimitResult {
+export function rateLimit(
+  userId: string,
+  name: string,
+  ...limits: Limit[]
+): RateLimitResult {
   const now = Date.now();
   const longest = Math.max(...limits.map((l) => l.windowSec)) * 1000;
   const key = `${name}:${userId}`;
@@ -114,7 +118,12 @@ export async function enforceRateLimit(
           kind: "rate_limit_exceeded",
           severity: "high",
           source: name,
-          detail: { scope: "durable", hits: row.hits, limit, window_sec: windowSec },
+          detail: {
+            scope: "durable",
+            hits: row.hits,
+            limit,
+            window_sec: windowSec,
+          },
         });
         return { allowed: false, retryAfter, scope: "durable" };
       }
@@ -126,12 +135,23 @@ export async function enforceRateLimit(
   return { allowed: true, retryAfter: 0, scope: "durable" };
 }
 
-export function tooManyRequests(retryAfter: number, corsHeaders: Record<string, string>) {
+export function tooManyRequests(
+  retryAfter: number,
+  corsHeaders: Record<string, string>,
+) {
   return new Response(
-    JSON.stringify({ error: "rate_limited", message: "Too many requests. Please slow down.", retryAfter }),
+    JSON.stringify({
+      error: "rate_limited",
+      message: "Too many requests. Please slow down.",
+      retryAfter,
+    }),
     {
       status: 429,
-      headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(retryAfter) },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+        "Retry-After": String(retryAfter),
+      },
     },
   );
 }

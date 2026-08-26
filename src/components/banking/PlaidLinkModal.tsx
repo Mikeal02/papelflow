@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
   Link as LinkIcon,
@@ -12,24 +12,24 @@ import {
   Wallet,
   CreditCard,
   PiggyBank,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { usePlaid } from '@/hooks/usePlaid';
-import { useCreateAccount, useAccounts } from '@/hooks/useAccounts';
-import { useCreateTransaction } from '@/hooks/useTransactions';
-import { useCategories } from '@/hooks/useCategories';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { toast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { usePlaid } from "@/hooks/usePlaid";
+import { useCreateAccount, useAccounts } from "@/hooks/useAccounts";
+import { useCreateTransaction } from "@/hooks/useTransactions";
+import { useCategories } from "@/hooks/useCategories";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface PlaidLinkModalProps {
   open: boolean;
@@ -43,22 +43,40 @@ const accountTypeIcons: Record<string, typeof Wallet> = {
   loan: CreditCard,
 };
 
-const mapPlaidAccountType = (type: string, subtype: string): 'bank' | 'credit_card' | 'investment' | 'loan' | 'wallet' => {
-  if (type === 'credit') return 'credit_card';
-  if (type === 'investment') return 'investment';
-  if (type === 'loan') return 'loan';
-  if (subtype === 'savings') return 'wallet';
-  return 'bank';
+const mapPlaidAccountType = (
+  type: string,
+  subtype: string,
+): "bank" | "credit_card" | "investment" | "loan" | "wallet" => {
+  if (type === "credit") return "credit_card";
+  if (type === "investment") return "investment";
+  if (type === "loan") return "loan";
+  if (subtype === "savings") return "wallet";
+  return "bank";
 };
 
 export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
-  const [step, setStep] = useState<'init' | 'connecting' | 'syncing' | 'importing' | 'complete' | 'error' | 'needs-setup'>('init');
+  const [step, setStep] = useState<
+    | "init"
+    | "connecting"
+    | "syncing"
+    | "importing"
+    | "complete"
+    | "error"
+    | "needs-setup"
+  >("init");
   const [progress, setProgress] = useState(0);
   const [syncedAccounts, setSyncedAccounts] = useState<any[]>([]);
   const [syncedTransactions, setSyncedTransactions] = useState(0);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  const { isLoading, needsSetup, createLinkToken, exchangePublicToken, getAccounts, getTransactions } = usePlaid();
+  const {
+    isLoading,
+    needsSetup,
+    createLinkToken,
+    exchangePublicToken,
+    getAccounts,
+    getTransactions,
+  } = usePlaid();
   const createAccount = useCreateAccount();
   const createTransaction = useCreateTransaction();
   const { data: existingAccounts = [] } = useAccounts();
@@ -67,20 +85,20 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
 
   useEffect(() => {
     if (needsSetup) {
-      setStep('needs-setup');
+      setStep("needs-setup");
     }
   }, [needsSetup]);
 
   const handleConnect = async () => {
-    setStep('connecting');
+    setStep("connecting");
     setProgress(10);
 
     const token = await createLinkToken();
     if (!token) {
       if (needsSetup) {
-        setStep('needs-setup');
+        setStep("needs-setup");
       } else {
-        setStep('error');
+        setStep("error");
       }
       return;
     }
@@ -92,20 +110,22 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
     // Simulate Plaid Link completion (in real app, this comes from Plaid Link callback)
     // For now, show message that Plaid Link SDK needs to be loaded
     toast({
-      title: 'Plaid Link Ready',
-      description: 'In production, Plaid Link would open here. Contact admin to complete setup.',
+      title: "Plaid Link Ready",
+      description:
+        "In production, Plaid Link would open here. Contact admin to complete setup.",
     });
 
     setProgress(50);
-    setStep('syncing');
+    setStep("syncing");
 
     // For demo purposes, we'll show the flow but note that real data requires Plaid Link SDK
     setTimeout(() => {
       setProgress(100);
-      setStep('complete');
+      setStep("complete");
       toast({
-        title: 'Demo Mode',
-        description: 'Plaid integration is ready. Add your Plaid credentials to connect real bank accounts.',
+        title: "Demo Mode",
+        description:
+          "Plaid integration is ready. Add your Plaid credentials to connect real bank accounts.",
       });
     }, 2000);
   };
@@ -113,12 +133,12 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
   const handleSyncTransactions = async () => {
     if (!accessToken) return;
 
-    setStep('importing');
+    setStep("importing");
     setProgress(0);
 
     const result = await getTransactions(accessToken);
     if (!result) {
-      setStep('error');
+      setStep("error");
       return;
     }
 
@@ -128,22 +148,24 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
     // Find default account or first synced account
     const targetAccount = syncedAccounts[0];
     if (!targetAccount) {
-      toast({ title: 'No accounts to import to', variant: 'destructive' });
+      toast({ title: "No accounts to import to", variant: "destructive" });
       return;
     }
 
-    for (const tx of added.slice(0, 50)) { // Limit to 50 for demo
+    for (const tx of added.slice(0, 50)) {
+      // Limit to 50 for demo
       // Smart category matching
-      const categoryName = tx.category?.[0]?.toLowerCase() || '';
-      const matchedCategory = categories.find(c =>
-        c.name.toLowerCase().includes(categoryName) ||
-        categoryName.includes(c.name.toLowerCase())
+      const categoryName = tx.category?.[0]?.toLowerCase() || "";
+      const matchedCategory = categories.find(
+        (c) =>
+          c.name.toLowerCase().includes(categoryName) ||
+          categoryName.includes(c.name.toLowerCase()),
       );
 
       await createTransaction.mutateAsync({
         amount: Math.abs(tx.amount),
         payee: tx.merchant_name || tx.name,
-        type: tx.amount > 0 ? 'expense' : 'income',
+        type: tx.amount > 0 ? "expense" : "income",
         date: tx.date,
         account_id: targetAccount.id,
         category_id: matchedCategory?.id || null,
@@ -155,15 +177,15 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
       setSyncedTransactions(imported);
     }
 
-    setStep('complete');
+    setStep("complete");
     toast({
-      title: 'Transactions imported',
+      title: "Transactions imported",
       description: `Successfully imported ${imported} transactions`,
     });
   };
 
   const resetModal = () => {
-    setStep('init');
+    setStep("init");
     setProgress(0);
     setSyncedAccounts([]);
     setSyncedTransactions(0);
@@ -185,13 +207,14 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
             Connect Bank Account
           </DialogTitle>
           <DialogDescription>
-            Securely link your bank accounts to automatically import transactions
+            Securely link your bank accounts to automatically import
+            transactions
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           <AnimatePresence mode="wait">
-            {step === 'init' && (
+            {step === "init" && (
               <motion.div
                 key="init"
                 initial={{ opacity: 0, y: 10 }}
@@ -241,7 +264,7 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
               </motion.div>
             )}
 
-            {step === 'needs-setup' && (
+            {step === "needs-setup" && (
               <motion.div
                 key="needs-setup"
                 initial={{ opacity: 0, y: 10 }}
@@ -255,7 +278,8 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
                 <div>
                   <h3 className="font-semibold">Plaid Setup Required</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    To connect bank accounts, you need to configure Plaid API credentials.
+                    To connect bank accounts, you need to configure Plaid API
+                    credentials.
                   </p>
                 </div>
                 <div className="rounded-xl bg-muted/50 p-4 text-left space-y-2">
@@ -267,7 +291,11 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
                   </ul>
                 </div>
                 <Button variant="outline" className="gap-2" asChild>
-                  <a href="https://dashboard.plaid.com/signup" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href="https://dashboard.plaid.com/signup"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <ExternalLink className="h-4 w-4" />
                     Get Plaid Credentials
                   </a>
@@ -275,7 +303,9 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
               </motion.div>
             )}
 
-            {(step === 'connecting' || step === 'syncing' || step === 'importing') && (
+            {(step === "connecting" ||
+              step === "syncing" ||
+              step === "importing") && (
               <motion.div
                 key="progress"
                 initial={{ opacity: 0, y: 10 }}
@@ -288,19 +318,20 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
                 </div>
                 <div>
                   <h3 className="font-semibold">
-                    {step === 'connecting' && 'Connecting to Plaid...'}
-                    {step === 'syncing' && 'Syncing accounts...'}
-                    {step === 'importing' && `Importing transactions...`}
+                    {step === "connecting" && "Connecting to Plaid..."}
+                    {step === "syncing" && "Syncing accounts..."}
+                    {step === "importing" && `Importing transactions...`}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {step === 'importing' && `${syncedTransactions} transactions imported`}
+                    {step === "importing" &&
+                      `${syncedTransactions} transactions imported`}
                   </p>
                 </div>
                 <Progress value={progress} className="h-2" />
               </motion.div>
             )}
 
-            {step === 'complete' && (
+            {step === "complete" && (
               <motion.div
                 key="complete"
                 initial={{ opacity: 0, y: 10 }}
@@ -323,14 +354,19 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
                     {syncedAccounts.map((acc) => {
                       const Icon = accountTypeIcons[acc.type] || Wallet;
                       return (
-                        <div key={acc.account_id} className="flex items-center justify-between rounded-xl bg-muted/50 p-3">
+                        <div
+                          key={acc.account_id}
+                          className="flex items-center justify-between rounded-xl bg-muted/50 p-3"
+                        >
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
                               <Icon className="h-4 w-4 text-primary" />
                             </div>
                             <div className="text-left">
                               <p className="text-sm font-medium">{acc.name}</p>
-                              <p className="text-xs text-muted-foreground">••••{acc.mask}</p>
+                              <p className="text-xs text-muted-foreground">
+                                ••••{acc.mask}
+                              </p>
                             </div>
                           </div>
                           <p className="font-semibold text-sm">
@@ -343,11 +379,18 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
                 )}
 
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => onOpenChange(false)}
+                  >
                     Done
                   </Button>
                   {syncedAccounts.length > 0 && (
-                    <Button className="flex-1 btn-premium gap-2" onClick={handleSyncTransactions}>
+                    <Button
+                      className="flex-1 btn-premium gap-2"
+                      onClick={handleSyncTransactions}
+                    >
                       <Download className="h-4 w-4" />
                       Import Transactions
                     </Button>
@@ -356,7 +399,7 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
               </motion.div>
             )}
 
-            {step === 'error' && (
+            {step === "error" && (
               <motion.div
                 key="error"
                 initial={{ opacity: 0, y: 10 }}
@@ -373,7 +416,7 @@ export const PlaidLinkModal = ({ open, onOpenChange }: PlaidLinkModalProps) => {
                     Unable to connect to your bank. Please try again.
                   </p>
                 </div>
-                <Button className="w-full" onClick={() => setStep('init')}>
+                <Button className="w-full" onClick={() => setStep("init")}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Try Again
                 </Button>

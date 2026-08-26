@@ -1,6 +1,7 @@
-export type TransactionType = 'expense' | 'income' | 'transfer';
+export type TransactionType = "expense" | "income" | "transfer";
 
-export type AccountType = 'cash' | 'bank' | 'credit_card' | 'wallet' | 'loan' | 'investment';
+export type AccountType =
+  "cash" | "bank" | "credit_card" | "wallet" | "loan" | "investment";
 
 export interface Account {
   id: string;
@@ -20,7 +21,7 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
-  type: 'expense' | 'income';
+  type: "expense" | "income";
   group?: string;
   budget?: number;
 }
@@ -62,7 +63,7 @@ export interface Subscription {
   id: string;
   name: string;
   amount: number;
-  frequency: 'weekly' | 'monthly' | 'yearly';
+  frequency: "weekly" | "monthly" | "yearly";
   nextDue: string;
   categoryId: string;
   accountId: string;

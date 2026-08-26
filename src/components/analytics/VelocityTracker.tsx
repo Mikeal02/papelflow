@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo } from "react";
+import { motion } from "framer-motion";
 import {
   Gauge,
   TrendingUp,
@@ -9,13 +9,13 @@ import {
   AlertTriangle,
   Zap,
   Activity,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAdvancedAnalytics } from '@/hooks/useAdvancedAnalytics';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { cn } from '@/lib/utils';
-import { GradientBadge } from '@/components/ui/glowing-border';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAdvancedAnalytics } from "@/hooks/useAdvancedAnalytics";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { cn } from "@/lib/utils";
+import { GradientBadge } from "@/components/ui/glowing-border";
 
 export const VelocityTracker = () => {
   const { velocityMetrics } = useAdvancedAnalytics();
@@ -29,11 +29,9 @@ export const VelocityTracker = () => {
 
   const currentVelocity = Number(velocityMetrics?.currentVelocity) || 0;
   const averageVelocity = Number(velocityMetrics?.averageVelocity) || 0;
-  const projectedMonthEnd =
-    Number(velocityMetrics?.projectedMonthEnd) || 0;
+  const projectedMonthEnd = Number(velocityMetrics?.projectedMonthEnd) || 0;
 
-  const rawDaysUntilBudgetExhausted =
-    velocityMetrics?.daysUntilBudgetExhausted;
+  const rawDaysUntilBudgetExhausted = velocityMetrics?.daysUntilBudgetExhausted;
 
   const daysUntilBudgetExhausted =
     rawDaysUntilBudgetExhausted === null ||
@@ -50,33 +48,32 @@ export const VelocityTracker = () => {
   const trendConfig = {
     accelerating: {
       icon: TrendingUp,
-      color: 'text-expense',
-      label: 'Accelerating',
-      desc: 'Spending is rising',
-      badge: 'warning' as const,
+      color: "text-expense",
+      label: "Accelerating",
+      desc: "Spending is rising",
+      badge: "warning" as const,
     },
 
     stable: {
       icon: Minus,
-      color: 'text-primary',
-      label: 'Stable',
-      desc: 'On track',
-      badge: 'primary' as const,
+      color: "text-primary",
+      label: "Stable",
+      desc: "On track",
+      badge: "primary" as const,
     },
 
     decelerating: {
       icon: TrendingDown,
-      color: 'text-income',
-      label: 'Decelerating',
-      desc: 'Spending is dropping',
-      badge: 'success' as const,
+      color: "text-income",
+      label: "Decelerating",
+      desc: "Spending is dropping",
+      badge: "success" as const,
     },
   };
 
   const trend =
-    trendConfig[
-      velocityMetrics?.velocityTrend as keyof typeof trendConfig
-    ] ?? trendConfig.stable;
+    trendConfig[velocityMetrics?.velocityTrend as keyof typeof trendConfig] ??
+    trendConfig.stable;
 
   const TrendIcon = trend.icon;
 
@@ -91,13 +88,11 @@ export const VelocityTracker = () => {
    */
 
   const velocityRatio =
-    averageVelocity > 0
-      ? (currentVelocity / averageVelocity) * 100
-      : 100;
+    averageVelocity > 0 ? (currentVelocity / averageVelocity) * 100 : 100;
 
   const safeVelocityRatio = Number.isFinite(velocityRatio)
-  ? Math.min(Math.max(velocityRatio, 0), 200)
-  : 100;
+    ? Math.min(Math.max(velocityRatio, 0), 200)
+    : 100;
 
   /*
    * Gauge only displays 0% -> 200%.
@@ -108,7 +103,7 @@ export const VelocityTracker = () => {
    * 200% = far right
    */
 
-  const gaugePercent = safeVelocityRatio/200;
+  const gaugePercent = safeVelocityRatio / 200;
 
   const isHigh = safeVelocityRatio > 120;
   const isLow = safeVelocityRatio < 80;
@@ -143,10 +138,9 @@ export const VelocityTracker = () => {
     cx: number,
     cy: number,
     radius: number,
-    angleInDegrees: number
+    angleInDegrees: number,
   ) => {
-    const angleInRadians =
-      ((angleInDegrees - 90) * Math.PI) / 180;
+    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
 
     return {
       x: cx + radius * Math.cos(angleInRadians),
@@ -159,42 +153,25 @@ export const VelocityTracker = () => {
     cy: number,
     radius: number,
     startAngle: number,
-    endAngle: number
+    endAngle: number,
   ) => {
-    const start = polarToCartesian(
-      cx,
-      cy,
-      radius,
-      endAngle
-    );
+    const start = polarToCartesian(cx, cy, radius, endAngle);
 
-    const end = polarToCartesian(
-      cx,
-      cy,
-      radius,
-      startAngle
-    );
+    const end = polarToCartesian(cx, cy, radius, startAngle);
 
     const angleDifference = endAngle - startAngle;
 
-    const largeArcFlag = angleDifference <= 180 ? '0' : '1';
+    const largeArcFlag = angleDifference <= 180 ? "0" : "1";
 
     return [
       `M ${start.x} ${start.y}`,
       `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
-    ].join(' ');
+    ].join(" ");
   };
 
   const bgArc = useMemo(
-    () =>
-      describeArc(
-        CENTER_X,
-        CENTER_Y,
-        RADIUS,
-        START_ANGLE,
-        END_ANGLE
-      ),
-    []
+    () => describeArc(CENTER_X, CENTER_Y, RADIUS, START_ANGLE, END_ANGLE),
+    [],
   );
 
   /*
@@ -207,22 +184,15 @@ export const VelocityTracker = () => {
     const count = 24;
 
     return Array.from({ length: count + 1 }, (_, i) => {
-      const angle =
-        START_ANGLE +
-        (i / count) * (END_ANGLE - START_ANGLE);
+      const angle = START_ANGLE + (i / count) * (END_ANGLE - START_ANGLE);
 
-      const outer = polarToCartesian(
-        CENTER_X,
-        CENTER_Y,
-        86,
-        angle
-      );
+      const outer = polarToCartesian(CENTER_X, CENTER_Y, 86, angle);
 
       const inner = polarToCartesian(
         CENTER_X,
         CENTER_Y,
         i % 6 === 0 ? 73 : 77,
-        angle
+        angle,
       );
 
       return {
@@ -241,24 +211,22 @@ export const VelocityTracker = () => {
    * ---------------------------------------------------------
    */
 
-  const needleAngle =
-  START_ANGLE +
-  gaugePercent * (END_ANGLE - START_ANGLE);
+  const needleAngle = START_ANGLE + gaugePercent * (END_ANGLE - START_ANGLE);
 
-const NEEDLE_LENGTH = 62;
+  const NEEDLE_LENGTH = 62;
 
-const needlePoint = polarToCartesian(
-  CENTER_X,
-  CENTER_Y,
-  NEEDLE_LENGTH,
-  needleAngle
-);
+  const needlePoint = polarToCartesian(
+    CENTER_X,
+    CENTER_Y,
+    NEEDLE_LENGTH,
+    needleAngle,
+  );
 
   const needleColor = isHigh
-    ? 'hsl(var(--expense))'
+    ? "hsl(var(--expense))"
     : isLow
-      ? 'hsl(var(--income))'
-      : 'hsl(var(--primary))';
+      ? "hsl(var(--income))"
+      : "hsl(var(--primary))";
 
   /*
    * ---------------------------------------------------------
@@ -319,7 +287,7 @@ const needlePoint = polarToCartesian(
               viewBox="0 0 200 160"
               className="w-full max-w-[240px]"
               aria-label={`Spending velocity ${safeVelocityRatio.toFixed(
-                0
+                0,
               )}% of average`}
             >
               <defs>
@@ -330,25 +298,13 @@ const needlePoint = polarToCartesian(
                   x2="100%"
                   y2="0%"
                 >
-                  <stop
-                    offset="0%"
-                    stopColor="hsl(var(--income))"
-                  />
+                  <stop offset="0%" stopColor="hsl(var(--income))" />
 
-                  <stop
-                    offset="40%"
-                    stopColor="hsl(var(--primary))"
-                  />
+                  <stop offset="40%" stopColor="hsl(var(--primary))" />
 
-                  <stop
-                    offset="70%"
-                    stopColor="hsl(var(--warning))"
-                  />
+                  <stop offset="70%" stopColor="hsl(var(--warning))" />
 
-                  <stop
-                    offset="100%"
-                    stopColor="hsl(var(--expense))"
-                  />
+                  <stop offset="100%" stopColor="hsl(var(--expense))" />
                 </linearGradient>
 
                 <filter
@@ -358,10 +314,7 @@ const needlePoint = polarToCartesian(
                   width="200%"
                   height="200%"
                 >
-                  <feGaussianBlur
-                    stdDeviation="3"
-                    result="blur"
-                  />
+                  <feGaussianBlur stdDeviation="3" result="blur" />
 
                   <feMerge>
                     <feMergeNode in="blur" />
@@ -369,12 +322,7 @@ const needlePoint = polarToCartesian(
                   </feMerge>
                 </filter>
 
-                <radialGradient
-                  id="needleGlow"
-                  cx="50%"
-                  cy="50%"
-                  r="50%"
-                >
+                <radialGradient id="needleGlow" cx="50%" cy="50%" r="50%">
                   <stop
                     offset="0%"
                     stopColor="hsl(var(--foreground))"
@@ -435,7 +383,7 @@ const needlePoint = polarToCartesian(
                 animate={{ pathLength: gaugePercent }}
                 transition={{
                   duration: 1,
-                  ease: 'easeOut',
+                  ease: "easeOut",
                 }}
               />
 
@@ -455,65 +403,65 @@ const needlePoint = polarToCartesian(
                   ========================= */}
 
               <motion.line
-  x1={CENTER_X}
-  y1={CENTER_Y}
-  x2={needlePoint.x}
-  y2={needlePoint.y}
-  stroke="hsl(var(--foreground))"
-  strokeWidth="2.5"
-  strokeLinecap="round"
-  initial={{
-    x2: polarToCartesian(
-      CENTER_X,
-      CENTER_Y,
-      NEEDLE_LENGTH,
-      START_ANGLE
-    ).x,
-    y2: polarToCartesian(
-      CENTER_X,
-      CENTER_Y,
-      NEEDLE_LENGTH,
-      START_ANGLE
-    ).y,
-  }}
-  animate={{
-    x2: needlePoint.x,
-    y2: needlePoint.y,
-  }}
-  transition={{
-    type: 'spring',
-    stiffness: 70,
-    damping: 14,
-  }}
-/>
+                x1={CENTER_X}
+                y1={CENTER_Y}
+                x2={needlePoint.x}
+                y2={needlePoint.y}
+                stroke="hsl(var(--foreground))"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                initial={{
+                  x2: polarToCartesian(
+                    CENTER_X,
+                    CENTER_Y,
+                    NEEDLE_LENGTH,
+                    START_ANGLE,
+                  ).x,
+                  y2: polarToCartesian(
+                    CENTER_X,
+                    CENTER_Y,
+                    NEEDLE_LENGTH,
+                    START_ANGLE,
+                  ).y,
+                }}
+                animate={{
+                  x2: needlePoint.x,
+                  y2: needlePoint.y,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 70,
+                  damping: 14,
+                }}
+              />
 
-<motion.circle
-  r="3.5"
-  fill={needleColor}
-  initial={{
-    cx: polarToCartesian(
-      CENTER_X,
-      CENTER_Y,
-      NEEDLE_LENGTH,
-      START_ANGLE
-    ).x,
-    cy: polarToCartesian(
-      CENTER_X,
-      CENTER_Y,
-      NEEDLE_LENGTH,
-      START_ANGLE
-    ).y,
-  }}
-  animate={{
-    cx: needlePoint.x,
-    cy: needlePoint.y,
-  }}
-  transition={{
-    type: 'spring',
-    stiffness: 70,
-    damping: 14,
-  }}
-/>
+              <motion.circle
+                r="3.5"
+                fill={needleColor}
+                initial={{
+                  cx: polarToCartesian(
+                    CENTER_X,
+                    CENTER_Y,
+                    NEEDLE_LENGTH,
+                    START_ANGLE,
+                  ).x,
+                  cy: polarToCartesian(
+                    CENTER_X,
+                    CENTER_Y,
+                    NEEDLE_LENGTH,
+                    START_ANGLE,
+                  ).y,
+                }}
+                animate={{
+                  cx: needlePoint.x,
+                  cy: needlePoint.y,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 70,
+                  damping: 14,
+                }}
+              />
 
               {/* =========================
                   Center hub
@@ -570,12 +518,10 @@ const needlePoint = polarToCartesian(
             <div className="absolute bottom-0 left-0 right-0 text-center">
               <p
                 className={cn(
-                  'text-2xl font-bold tabular-nums',
-                  isHigh && 'text-expense',
-                  isLow && 'text-income',
-                  !isHigh &&
-                    !isLow &&
-                    'text-foreground'
+                  "text-2xl font-bold tabular-nums",
+                  isHigh && "text-expense",
+                  isLow && "text-income",
+                  !isHigh && !isLow && "text-foreground",
                 )}
               >
                 {formatCurrency(currentVelocity)}
@@ -599,12 +545,10 @@ const needlePoint = polarToCartesian(
 
               <span
                 className={cn(
-                  'font-bold tabular-nums',
-                  isHigh && 'text-expense',
-                  isLow && 'text-income',
-                  !isHigh &&
-                    !isLow &&
-                    'text-foreground'
+                  "font-bold tabular-nums",
+                  isHigh && "text-expense",
+                  isLow && "text-income",
+                  !isHigh && !isLow && "text-foreground",
                 )}
               >
                 {safeVelocityRatio.toFixed(0)}%
@@ -616,7 +560,7 @@ const needlePoint = polarToCartesian(
 
               <div
                 className="absolute top-0 bottom-0 w-px bg-foreground/30 z-10"
-                style={{ left: '50%' }}
+                style={{ left: "50%" }}
               />
 
               {/* Progress */}
@@ -625,10 +569,10 @@ const needlePoint = polarToCartesian(
                 className="absolute inset-y-0 left-0 rounded-full"
                 style={{
                   background: isHigh
-                    ? 'linear-gradient(90deg, hsl(var(--warning)), hsl(var(--expense)))'
+                    ? "linear-gradient(90deg, hsl(var(--warning)), hsl(var(--expense)))"
                     : isLow
-                      ? 'linear-gradient(90deg, hsl(var(--income)), hsl(var(--primary)))'
-                      : 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))',
+                      ? "linear-gradient(90deg, hsl(var(--income)), hsl(var(--primary)))"
+                      : "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))",
                 }}
                 initial={{ width: 0 }}
                 animate={{
@@ -636,7 +580,7 @@ const needlePoint = polarToCartesian(
                 }}
                 transition={{
                   duration: 0.8,
-                  ease: 'easeOut',
+                  ease: "easeOut",
                 }}
               />
             </div>
@@ -666,9 +610,7 @@ const needlePoint = polarToCartesian(
                 {formatCurrency(averageVelocity)}
               </p>
 
-              <p className="text-[9px] text-muted-foreground">
-                per day
-              </p>
+              <p className="text-[9px] text-muted-foreground">per day</p>
             </div>
 
             {/* Projected */}
@@ -682,20 +624,17 @@ const needlePoint = polarToCartesian(
 
               <p
                 className={cn(
-                  'text-sm font-bold tabular-nums',
+                  "text-sm font-bold tabular-nums",
                   averageVelocity > 0 &&
-                    projectedMonthEnd >
-                      averageVelocity * 30
-                    ? 'text-expense'
-                    : 'text-income'
+                    projectedMonthEnd > averageVelocity * 30
+                    ? "text-expense"
+                    : "text-income",
                 )}
               >
                 {formatCurrency(projectedMonthEnd)}
               </p>
 
-              <p className="text-[9px] text-muted-foreground">
-                this month
-              </p>
+              <p className="text-[9px] text-muted-foreground">this month</p>
             </div>
 
             {/* Variance */}
@@ -709,21 +648,19 @@ const needlePoint = polarToCartesian(
 
               <p
                 className={cn(
-                  'text-sm font-bold tabular-nums',
+                  "text-sm font-bold tabular-nums",
                   safeVelocityRatio > 100
-                    ? 'text-expense'
+                    ? "text-expense"
                     : safeVelocityRatio < 100
-                      ? 'text-income'
-                      : 'text-foreground'
+                      ? "text-income"
+                      : "text-foreground",
                 )}
               >
-                {safeVelocityRatio > 100 ? '+' : ''}
+                {safeVelocityRatio > 100 ? "+" : ""}
                 {(safeVelocityRatio - 100).toFixed(0)}%
               </p>
 
-              <p className="text-[9px] text-muted-foreground">
-                vs average
-              </p>
+              <p className="text-[9px] text-muted-foreground">vs average</p>
             </div>
           </div>
 
@@ -738,18 +675,18 @@ const needlePoint = polarToCartesian(
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={cn(
-                  'p-3.5 rounded-xl flex items-center gap-3 border',
+                  "p-3.5 rounded-xl flex items-center gap-3 border",
                   daysUntilBudgetExhausted <= 7
-                    ? 'bg-expense/5 border-expense/20'
-                    : 'bg-warning/5 border-warning/20'
+                    ? "bg-expense/5 border-expense/20"
+                    : "bg-warning/5 border-warning/20",
                 )}
               >
                 <div
                   className={cn(
-                    'h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0',
+                    "h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0",
                     daysUntilBudgetExhausted <= 7
-                      ? 'bg-expense/15'
-                      : 'bg-warning/15'
+                      ? "bg-expense/15"
+                      : "bg-warning/15",
                   )}
                 >
                   {daysUntilBudgetExhausted <= 7 ? (
@@ -762,14 +699,14 @@ const needlePoint = polarToCartesian(
                 <div className="min-w-0">
                   <p className="text-sm font-semibold">
                     {daysUntilBudgetExhausted <= 7
-                      ? 'Budget running low!'
-                      : 'Budget projection'}
+                      ? "Budget running low!"
+                      : "Budget projection"}
                   </p>
 
                   <p className="text-xs text-muted-foreground">
                     <span className="font-bold text-foreground">
                       {Math.round(daysUntilBudgetExhausted)} days
-                    </span>{' '}
+                    </span>{" "}
                     until budget exhausted at current rate
                   </p>
                 </div>

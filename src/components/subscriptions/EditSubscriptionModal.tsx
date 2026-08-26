@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Loader2, Calendar } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Loader2, Calendar } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useCategories } from '@/hooks/useCategories';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useUpdateSubscription, Subscription } from '@/hooks/useSubscriptions';
+} from "@/components/ui/select";
+import { useCategories } from "@/hooks/useCategories";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useUpdateSubscription, Subscription } from "@/hooks/useSubscriptions";
 
 interface EditSubscriptionModalProps {
   open: boolean;
@@ -27,35 +27,41 @@ interface EditSubscriptionModalProps {
   subscription: Subscription | null;
 }
 
-export function EditSubscriptionModal({ open, onOpenChange, subscription }: EditSubscriptionModalProps) {
-  const [name, setName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [frequency, setFrequency] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
-  const [nextDue, setNextDue] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [accountId, setAccountId] = useState('');
+export function EditSubscriptionModal({
+  open,
+  onOpenChange,
+  subscription,
+}: EditSubscriptionModalProps) {
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [frequency, setFrequency] = useState<"weekly" | "monthly" | "yearly">(
+    "monthly",
+  );
+  const [nextDue, setNextDue] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [accountId, setAccountId] = useState("");
 
   const { data: categories = [] } = useCategories();
   const { data: accounts = [] } = useAccounts();
   const updateSubscription = useUpdateSubscription();
 
-  const expenseCategories = categories.filter((cat) => cat.type === 'expense');
+  const expenseCategories = categories.filter((cat) => cat.type === "expense");
 
   useEffect(() => {
     if (subscription) {
       setName(subscription.name);
       setAmount(String(subscription.amount));
       setFrequency(subscription.frequency);
-      setNextDue(subscription.next_due.split('T')[0]);
-      setCategoryId(subscription.category_id || '');
-      setAccountId(subscription.account_id || '');
+      setNextDue(subscription.next_due.split("T")[0]);
+      setCategoryId(subscription.category_id || "");
+      setAccountId(subscription.account_id || "");
     }
   }, [subscription]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subscription) return;
-    
+
     await updateSubscription.mutateAsync({
       id: subscription.id,
       name,
@@ -65,7 +71,7 @@ export function EditSubscriptionModal({ open, onOpenChange, subscription }: Edit
       category_id: categoryId || null,
       account_id: accountId || null,
     });
-    
+
     onOpenChange(false);
   };
 
@@ -75,8 +81,12 @@ export function EditSubscriptionModal({ open, onOpenChange, subscription }: Edit
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px] bg-card/95 backdrop-blur-xl border-border/50">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Edit Subscription</DialogTitle>
-          <DialogDescription>Update your subscription details</DialogDescription>
+          <DialogTitle className="text-xl font-semibold">
+            Edit Subscription
+          </DialogTitle>
+          <DialogDescription>
+            Update your subscription details
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -114,7 +124,10 @@ export function EditSubscriptionModal({ open, onOpenChange, subscription }: Edit
 
             <div className="space-y-2">
               <Label>Frequency</Label>
-              <Select value={frequency} onValueChange={(v) => setFrequency(v as any)}>
+              <Select
+                value={frequency}
+                onValueChange={(v) => setFrequency(v as any)}
+              >
                 <SelectTrigger className="h-11 bg-muted/30">
                   <SelectValue />
                 </SelectTrigger>
@@ -183,15 +196,15 @@ export function EditSubscriptionModal({ open, onOpenChange, subscription }: Edit
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 h-11"
               disabled={updateSubscription.isPending}
             >
               {updateSubscription.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Save Changes'
+                "Save Changes"
               )}
             </Button>
           </div>

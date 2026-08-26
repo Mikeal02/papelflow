@@ -1,21 +1,33 @@
-import { Bell, BellOff, BellRing } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
-import { cn } from '@/lib/utils';
+import { Bell, BellOff, BellRing } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { cn } from "@/lib/utils";
 
 export function NotificationSettings() {
-  const { isSupported, permission, isSubscribed, requestPermission, showNotification } = usePushNotifications();
+  const {
+    isSupported,
+    permission,
+    isSubscribed,
+    requestPermission,
+    showNotification,
+  } = usePushNotifications();
 
   const handleEnableNotifications = async () => {
     await requestPermission();
   };
 
   const handleTestNotification = () => {
-    showNotification('Test Notification', {
-      body: 'This is a test notification from PapelFlow',
+    showNotification("Test Notification", {
+      body: "This is a test notification from PapelFlow",
     });
   };
 
@@ -49,28 +61,30 @@ export function NotificationSettings() {
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <Label className="text-base font-medium">Enable Notifications</Label>
+            <Label className="text-base font-medium">
+              Enable Notifications
+            </Label>
             <p className="text-sm text-muted-foreground">
-              {permission === 'granted' 
-                ? 'Notifications are enabled'
-                : permission === 'denied'
-                ? 'Notifications are blocked. Please enable in browser settings.'
-                : 'Allow browser notifications'}
+              {permission === "granted"
+                ? "Notifications are enabled"
+                : permission === "denied"
+                  ? "Notifications are blocked. Please enable in browser settings."
+                  : "Allow browser notifications"}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                'h-3 w-3 rounded-full',
-                isSubscribed ? 'bg-income' : 'bg-muted'
+                "h-3 w-3 rounded-full",
+                isSubscribed ? "bg-income" : "bg-muted",
               )}
             />
-            {permission !== 'granted' ? (
-              <Button 
-                variant="outline" 
-                size="sm" 
+            {permission !== "granted" ? (
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleEnableNotifications}
-                disabled={permission === 'denied'}
+                disabled={permission === "denied"}
               >
                 <BellRing className="h-4 w-4 mr-2" />
                 Enable
@@ -84,10 +98,10 @@ export function NotificationSettings() {
         {isSubscribed && (
           <>
             <div className="h-px bg-border" />
-            
+
             <div className="space-y-4">
               <h4 className="text-sm font-medium">Notification Types</h4>
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Budget Alerts</Label>
@@ -121,9 +135,9 @@ export function NotificationSettings() {
 
             <div className="h-px bg-border" />
 
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleTestNotification}
               className="w-full"
             >

@@ -1,7 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getLocalTimeZone, today, type DateValue } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  today,
+  type DateValue,
+} from "@internationalized/date";
 import type { ComponentProps } from "react";
 import {
   Button,
@@ -21,17 +25,25 @@ interface BaseCalendarProps {
   className?: string;
 }
 
-type CalendarProps = Omit<ComponentProps<typeof CalendarRac>, 'onChange' | 'value' | 'defaultValue'> & BaseCalendarProps & {
-  value?: DateValue | null;
-  defaultValue?: DateValue | null;
-  onChange?: (value: DateValue | null) => void;
-};
+type CalendarProps = Omit<
+  ComponentProps<typeof CalendarRac>,
+  "onChange" | "value" | "defaultValue"
+> &
+  BaseCalendarProps & {
+    value?: DateValue | null;
+    defaultValue?: DateValue | null;
+    onChange?: (value: DateValue | null) => void;
+  };
 
-type RangeCalendarProps = Omit<ComponentProps<typeof RangeCalendarRac>, 'onChange' | 'value' | 'defaultValue'> & BaseCalendarProps & {
-  value?: { start: DateValue; end: DateValue } | null;
-  defaultValue?: { start: DateValue; end: DateValue } | null;
-  onChange?: (value: { start: DateValue; end: DateValue } | null) => void;
-};
+type RangeCalendarProps = Omit<
+  ComponentProps<typeof RangeCalendarRac>,
+  "onChange" | "value" | "defaultValue"
+> &
+  BaseCalendarProps & {
+    value?: { start: DateValue; end: DateValue } | null;
+    defaultValue?: { start: DateValue; end: DateValue } | null;
+    onChange?: (value: { start: DateValue; end: DateValue } | null) => void;
+  };
 
 const CalendarHeader = () => (
   <header className="flex w-full items-center gap-2 pb-3">
@@ -78,7 +90,7 @@ const CalendarGridComponent = ({ isRange = false }: { isRange?: boolean }) => {
                 "font-bold text-primary ring-1 ring-primary/40",
               isRange
                 ? "data-[selected]:bg-primary/15 data-[selected]:text-primary data-[selection-start]:bg-primary data-[selection-start]:text-primary-foreground data-[selection-end]:bg-primary data-[selection-end]:text-primary-foreground data-[selected]:rounded-none data-[selection-start]:rounded-l-lg data-[selection-end]:rounded-r-lg"
-                : "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:font-semibold data-[selected]:shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.5)]"
+                : "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:font-semibold data-[selected]:shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.5)]",
             )}
           />
         )}
@@ -91,12 +103,7 @@ const Calendar = ({ className, ...props }: CalendarProps) => {
   return (
     <CalendarRac
       {...props}
-      className={composeRenderProps(className, (cls) =>
-        cn(
-          "w-fit p-1",
-          cls
-        )
-      )}
+      className={composeRenderProps(className, (cls) => cn("w-fit p-1", cls))}
     >
       <CalendarHeader />
       <CalendarGridComponent />
@@ -108,12 +115,7 @@ const RangeCalendar = ({ className, ...props }: RangeCalendarProps) => {
   return (
     <RangeCalendarRac
       {...props}
-      className={composeRenderProps(className, (cls) =>
-        cn(
-          "w-fit p-1",
-          cls
-        )
-      )}
+      className={composeRenderProps(className, (cls) => cn("w-fit p-1", cls))}
     >
       <CalendarHeader />
       <CalendarGridComponent isRange />

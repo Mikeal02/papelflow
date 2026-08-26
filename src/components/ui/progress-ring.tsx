@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface ProgressRingProps {
   progress: number;
@@ -7,25 +7,25 @@ interface ProgressRingProps {
   strokeWidth?: number;
   className?: string;
   children?: React.ReactNode;
-  color?: 'primary' | 'income' | 'expense' | 'warning' | 'accent';
+  color?: "primary" | "income" | "expense" | "warning" | "accent";
   showGlow?: boolean;
   animated?: boolean;
 }
 
 const colorMap = {
-  primary: 'stroke-primary',
-  income: 'stroke-income',
-  expense: 'stroke-expense',
-  warning: 'stroke-warning',
-  accent: 'stroke-accent',
+  primary: "stroke-primary",
+  income: "stroke-income",
+  expense: "stroke-expense",
+  warning: "stroke-warning",
+  accent: "stroke-accent",
 };
 
 const glowMap = {
-  primary: 'drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]',
-  income: 'drop-shadow-[0_0_8px_hsl(var(--income)/0.5)]',
-  expense: 'drop-shadow-[0_0_8px_hsl(var(--expense)/0.5)]',
-  warning: 'drop-shadow-[0_0_8px_hsl(var(--warning)/0.5)]',
-  accent: 'drop-shadow-[0_0_8px_hsl(var(--accent)/0.5)]',
+  primary: "drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]",
+  income: "drop-shadow-[0_0_8px_hsl(var(--income)/0.5)]",
+  expense: "drop-shadow-[0_0_8px_hsl(var(--expense)/0.5)]",
+  warning: "drop-shadow-[0_0_8px_hsl(var(--warning)/0.5)]",
+  accent: "drop-shadow-[0_0_8px_hsl(var(--accent)/0.5)]",
 };
 
 export const ProgressRing = ({
@@ -34,16 +34,20 @@ export const ProgressRing = ({
   strokeWidth = 8,
   className,
   children,
-  color = 'primary',
+  color = "primary",
   showGlow = true,
   animated = true,
 }: ProgressRingProps) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const strokeDashoffset = circumference - (Math.min(progress, 100) / 100) * circumference;
+  const strokeDashoffset =
+    circumference - (Math.min(progress, 100) / 100) * circumference;
 
   return (
-    <div className={cn('relative', className)} style={{ width: size, height: size }}>
+    <div
+      className={cn("relative", className)}
+      style={{ width: size, height: size }}
+    >
       <svg className="transform -rotate-90" width={size} height={size}>
         {/* Background circle */}
         <circle
@@ -54,7 +58,7 @@ export const ProgressRing = ({
           stroke="hsl(var(--muted))"
           strokeWidth={strokeWidth}
         />
-        
+
         {/* Progress circle */}
         <motion.circle
           cx={size / 2}
@@ -65,9 +69,13 @@ export const ProgressRing = ({
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={animated ? { strokeDashoffset: circumference } : { strokeDashoffset }}
+          initial={
+            animated
+              ? { strokeDashoffset: circumference }
+              : { strokeDashoffset }
+          }
           animate={{ strokeDashoffset }}
-          transition={{ duration: 1, ease: 'easeOut' }}
+          transition={{ duration: 1, ease: "easeOut" }}
         />
       </svg>
 
@@ -99,11 +107,14 @@ export const MultiProgressRing = ({
 }: MultiProgressRingProps) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  
+
   let currentOffset = 0;
 
   return (
-    <div className={cn('relative', className)} style={{ width: size, height: size }}>
+    <div
+      className={cn("relative", className)}
+      style={{ width: size, height: size }}
+    >
       <svg className="transform -rotate-90" width={size} height={size}>
         {/* Background circle */}
         <circle
@@ -114,13 +125,13 @@ export const MultiProgressRing = ({
           stroke="hsl(var(--muted))"
           strokeWidth={strokeWidth}
         />
-        
+
         {/* Segments */}
         {segments.map((segment, index) => {
           const segmentLength = (segment.value / 100) * circumference;
           const offset = currentOffset;
           currentOffset += segmentLength;
-          
+
           return (
             <motion.circle
               key={index}

@@ -10,11 +10,11 @@
  *  - Snapshots are persisted to localStorage so warm reloads are instant.
  */
 
-import type { EliteAnomalyReport } from './anomalyElite';
-import type { MerchantReport } from './merchantElite';
+import type { EliteAnomalyReport } from "./anomalyElite";
+import type { MerchantReport } from "./merchantElite";
 
 export const INCREMENTAL_THRESHOLD = 25;
-const STORAGE_PREFIX = 'lov:intel:v2:';
+const STORAGE_PREFIX = "lov:intel:v2:";
 const MAX_AGE_MS = 1000 * 60 * 60 * 24; // 1 day
 
 export interface TxFingerprint {
@@ -41,7 +41,7 @@ export interface DiffSummary {
 }
 
 export function fingerprintTx(t: any): string {
-  return `${Number(t.amount).toFixed(2)}|${t.updated_at || t.created_at || ''}|${(t.payee || '').slice(0, 32)}`;
+  return `${Number(t.amount).toFixed(2)}|${t.updated_at || t.created_at || ""}|${(t.payee || "").slice(0, 32)}`;
 }
 
 export function buildFingerprintMap(txs: any[]): Record<string, string> {
@@ -52,7 +52,7 @@ export function buildFingerprintMap(txs: any[]): Record<string, string> {
 
 export function diffTransactions(
   current: any[],
-  prior: Record<string, string> | null
+  prior: Record<string, string> | null,
 ): DiffSummary {
   if (!prior) {
     return { added: current, removed: [], changed: [], unchanged: 0, ratio: 1 };
@@ -122,5 +122,7 @@ export function saveCache(userId: string, report: CachedReport) {
 
 export function clearCache(userId: string) {
   mem.delete(userId);
-  try { localStorage.removeItem(storageKey(userId)); } catch {}
+  try {
+    localStorage.removeItem(storageKey(userId));
+  } catch {}
 }

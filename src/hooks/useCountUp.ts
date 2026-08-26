@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface UseCountUpOptions {
   end: number;
@@ -13,8 +13,8 @@ export function useCountUp({
   end,
   duration = 1200,
   decimals = 0,
-  prefix = '',
-  suffix = '',
+  prefix = "",
+  suffix = "",
   startOnView = true,
 }: UseCountUpOptions) {
   const [value, setValue] = useState(0);
@@ -34,7 +34,7 @@ export function useCountUp({
           observer.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -69,33 +69,36 @@ export function useCountUp({
   }, [end, hasStarted, duration]);
 
   const formatted = `${prefix}${value.toFixed(decimals)}${suffix}`;
-  
+
   return { ref, value, formatted, hasStarted };
 }
 
 // Parse a formatted currency string to extract the numeric value
-export function parseCurrencyValue(formatted: string): { prefix: string; number: number; suffix: string } {
+export function parseCurrencyValue(formatted: string): {
+  prefix: string;
+  number: number;
+  suffix: string;
+} {
   // Match patterns like "$1,234.56", "€1.234,56", "1,234.56 USD", etc.
   const match = formatted.match(/^([^\d-]*)([-]?\d[\d,. ]*\d|\d)(.*)$/);
-  if (!match) return { prefix: '', number: 0, suffix: '' };
-  
+  if (!match) return { prefix: "", number: 0, suffix: "" };
+
   const prefix = match[1];
   const suffix = match[3];
   // Remove thousands separators — keep only last dot/comma as decimal
-  let numStr = match[2].replace(/\s/g, '');
-  
+  let numStr = match[2].replace(/\s/g, "");
+
   // Detect if comma is decimal separator (e.g., 1.234,56)
-  const lastComma = numStr.lastIndexOf(',');
-  const lastDot = numStr.lastIndexOf('.');
-  
+  const lastComma = numStr.lastIndexOf(",");
+  const lastDot = numStr.lastIndexOf(".");
+
   if (lastComma > lastDot) {
     // Comma is decimal separator
-    numStr = numStr.replace(/\./g, '').replace(',', '.');
+    numStr = numStr.replace(/\./g, "").replace(",", ".");
   } else {
     // Dot is decimal separator
-    numStr = numStr.replace(/,/g, '');
+    numStr = numStr.replace(/,/g, "");
   }
-  
+
   return { prefix, number: parseFloat(numStr) || 0, suffix };
 }
-

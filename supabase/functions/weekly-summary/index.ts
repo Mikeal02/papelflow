@@ -1,6 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, json, escapeHtml, requireAuth } from "../_shared/security.ts";
+import {
+  corsHeaders,
+  json,
+  escapeHtml,
+  requireAuth,
+} from "../_shared/security.ts";
 import { enforceRateLimit, tooManyRequests } from "../_shared/ratelimit.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -32,7 +37,9 @@ async function generateAIInsights(summary: UserSummary): Promise<AIInsight> {
   if (!LOVABLE_API_KEY) {
     return {
       summary: `You had ${summary.transactionCount} transactions this week.`,
-      highlights: [`Spent ${summary.currency}${summary.totalExpenses.toLocaleString()}`],
+      highlights: [
+        `Spent ${summary.currency}${summary.totalExpenses.toLocaleString()}`,
+      ],
       recommendation: "Keep tracking your expenses!",
       savingsTip: "Consider setting up budget alerts.",
     };
@@ -42,7 +49,7 @@ async function generateAIInsights(summary: UserSummary): Promise<AIInsight> {
 - Total Expenses: ${summary.currency}${summary.totalExpenses.toLocaleString()}
 - Net Savings: ${summary.currency}${summary.netSavings.toLocaleString()}
 - Transactions: ${summary.transactionCount}
-- Top Categories: ${summary.topCategories.map(c => `${c.name}: ${summary.currency}${c.amount}`).join(', ')}
+- Top Categories: ${summary.topCategories.map((c) => `${c.name}: ${summary.currency}${c.amount}`).join(", ")}
 
 Return a JSON object (no markdown, no code fences) with:
 {
@@ -53,21 +60,34 @@ Return a JSON object (no markdown, no code fences) with:
 }`;
 
   try {
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: "You are a personal finance advisor. Provide concise, actionable insights." },
-          { role: "user", content: prompt },
-        ],
-      }),
-    });
+    const response = await fetch(
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a personal finance advisor. Provide concise, actionable insights.",
+            },
+            { role: "user", content: prompt },
+          ],
+        }),
+      },
+    );
     if (!response.ok) throw new Error(`AI error: ${response.status}`);
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
-    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
+    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [
+      null,
+      content,
+    ];
     return JSON.parse(jsonMatch[1].trim());
   } catch (error) {
     console.error("AI insights error:", error);
@@ -77,16 +97,23 @@ Return a JSON object (no markdown, no code fences) with:
         `Income: ${summary.currency}${summary.totalIncome.toLocaleString()}`,
         `Saved: ${summary.currency}${summary.netSavings.toLocaleString()}`,
       ],
-      recommendation: "Review your top spending categories for optimization opportunities.",
-      savingsTip: "Automating transfers to savings can help build your emergency fund.",
+      recommendation:
+        "Review your top spending categories for optimization opportunities.",
+      savingsTip:
+        "Automating transfers to savings can help build your emergency fund.",
     };
   }
 }
 
-function generateEmailHtml(summary: UserSummary, insights: AIInsight, period: string): string {
-  const savingsRate = summary.totalIncome > 0
-    ? ((summary.netSavings / summary.totalIncome) * 100).toFixed(1)
-    : "0";
+function generateEmailHtml(
+  summary: UserSummary,
+  insights: AIInsight,
+  period: string,
+): string {
+  const savingsRate =
+    summary.totalIncome > 0
+      ? ((summary.netSavings / summary.totalIncome) * 100).toFixed(1)
+      : "0";
   const cur = escapeHtml(summary.currency);
   // Every string interpolated below is passed through escapeHtml to neutralise
   // any HTML/script fragments that could arrive from AI output or DB fields.
@@ -129,17 +156,29 @@ function generateEmailHtml(summary: UserSummary, insights: AIInsight, period: st
     </div>
     <div class="highlights">
       <h3 style="margin: 0 0 16px; font-size: 16px;">Key Highlights</h3>
-      ${(insights.highlights || []).slice(0, 5).map(h => `<div class="highlight-item">${escapeHtml(h)}</div>`).join('')}
+      ${(insights.highlights || [])
+        .slice(0, 5)
+        .map((h) => `<div class="highlight-item">${escapeHtml(h)}</div>`)
+        .join("")}
     </div>
-    ${summary.topCategories.length > 0 ? `
+    ${
+      summary.topCategories.length > 0
+        ? `
     <div class="categories">
       <h3 style="margin: 0 0 16px; font-size: 16px;">Top Spending Categories</h3>
-      ${summary.topCategories.slice(0, 5).map((cat, i) => `
+      ${summary.topCategories
+        .slice(0, 5)
+        .map(
+          (cat, i) => `
         <div class="category-item">
           <span>${i + 1}. ${escapeHtml(cat.name)}</span>
           <span class="expense">${cur}${cat.amount.toLocaleString()}</span>
-        </div>`).join('')}
-    </div>` : ''}
+        </div>`,
+        )
+        .join("")}
+    </div>`
+        : ""
+    }
     <div class="tip-box">
       <div style="color: #3b82f6; font-weight: 600; margin-bottom: 8px;">${escapeHtml(insights.recommendation)}</div>
       <p style="margin: 0; color: #e5e5e5; font-size: 14px;">${escapeHtml(insights.savingsTip)}</p>
@@ -166,33 +205,47 @@ async function summariseUsers(
   onlyUserId?: string,
 ): Promise<UserSummary[]> {
   let txQuery = supabase
-    .from('transactions')
-    .select('user_id, type, amount, category_id, categories (name)')
-    .gte('date', startDate)
-    .lte('date', endDate);
-  if (onlyUserId) txQuery = txQuery.eq('user_id', onlyUserId);
+    .from("transactions")
+    .select("user_id, type, amount, category_id, categories (name)")
+    .gte("date", startDate)
+    .lte("date", endDate);
+  if (onlyUserId) txQuery = txQuery.eq("user_id", onlyUserId);
   const { data: transactions, error: txError } = await txQuery;
-  if (txError) { console.error("Error fetching transactions:", txError); return []; }
+  if (txError) {
+    console.error("Error fetching transactions:", txError);
+    return [];
+  }
 
   // Scope reads to the target user when this is a user-triggered run: never
   // pull the whole profile table / auth user list for a single-user summary.
-  let profileQuery = supabase.from('profiles').select('user_id, full_name, preferred_currency');
-  if (onlyUserId) profileQuery = profileQuery.eq('user_id', onlyUserId);
+  let profileQuery = supabase
+    .from("profiles")
+    .select("user_id, full_name, preferred_currency");
+  if (onlyUserId) profileQuery = profileQuery.eq("user_id", onlyUserId);
   const { data: profiles, error: profileError } = await profileQuery;
-  if (profileError) { console.error("Error fetching profiles:", profileError); return []; }
+  if (profileError) {
+    console.error("Error fetching profiles:", profileError);
+    return [];
+  }
 
   let users: any[] = [];
   if (onlyUserId) {
-    const { data: one, error: oneErr } = await supabase.auth.admin.getUserById(onlyUserId);
-    if (oneErr || !one?.user) { console.error("Error fetching user"); return []; }
+    const { data: one, error: oneErr } =
+      await supabase.auth.admin.getUserById(onlyUserId);
+    if (oneErr || !one?.user) {
+      console.error("Error fetching user");
+      return [];
+    }
     users = [one.user];
   } else {
-    const { data: usersResp, error: usersError } = await supabase.auth.admin.listUsers();
-    if (usersError) { console.error("Error fetching users:", usersError); return []; }
+    const { data: usersResp, error: usersError } =
+      await supabase.auth.admin.listUsers();
+    if (usersError) {
+      console.error("Error fetching users:", usersError);
+      return [];
+    }
     users = (usersResp as any)?.users ?? [];
   }
-
-
 
   const userMap = new Map<string, UserSummary>();
   for (const tx of (transactions as any[]) || []) {
@@ -201,20 +254,24 @@ async function summariseUsers(
       const authUser = users.find((u: any) => u.id === tx.user_id);
       if (!authUser?.email) continue;
       userMap.set(tx.user_id, {
-        userId: tx.user_id, email: authUser.email,
-        fullName: profile?.full_name || authUser.email.split('@')[0],
-        totalIncome: 0, totalExpenses: 0, netSavings: 0,
-        topCategories: [], transactionCount: 0,
-        currency: profile?.preferred_currency || 'USD',
+        userId: tx.user_id,
+        email: authUser.email,
+        fullName: profile?.full_name || authUser.email.split("@")[0],
+        totalIncome: 0,
+        totalExpenses: 0,
+        netSavings: 0,
+        topCategories: [],
+        transactionCount: 0,
+        currency: profile?.preferred_currency || "USD",
       });
     }
     const s = userMap.get(tx.user_id)!;
     s.transactionCount++;
-    if (tx.type === 'income') s.totalIncome += Number(tx.amount);
-    else if (tx.type === 'expense') {
+    if (tx.type === "income") s.totalIncome += Number(tx.amount);
+    else if (tx.type === "expense") {
       s.totalExpenses += Number(tx.amount);
-      const name = tx.categories?.name || 'Uncategorized';
-      const existing = s.topCategories.find(c => c.name === name);
+      const name = tx.categories?.name || "Uncategorized";
+      const existing = s.topCategories.find((c) => c.name === name);
       if (existing) existing.amount += Number(tx.amount);
       else s.topCategories.push({ name, amount: Number(tx.amount) });
     }
@@ -227,10 +284,12 @@ async function summariseUsers(
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS")
+    return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return json({ error: "server_misconfigured" }, 500);
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)
+    return json({ error: "server_misconfigured" }, 500);
 
   // Two auth modes:
   //  1. Scheduled cron: valid `x-cron-secret` header → fan out to all users.
@@ -240,12 +299,18 @@ serve(async (req) => {
   const cronHeader = req.headers.get("x-cron-secret");
   let onlyUserId: string | undefined;
   if (cronHeader) {
-    if (!CRON_SECRET || !timingSafeEqual(cronHeader, CRON_SECRET)) return json({ error: "unauthorized" }, 401);
+    if (!CRON_SECRET || !timingSafeEqual(cronHeader, CRON_SECRET))
+      return json({ error: "unauthorized" }, 401);
   } else {
     const authed = await requireAuth(req);
     if (authed instanceof Response) return authed;
 
-    const rl = await enforceRateLimit(authed.id, "weekly", { limit: 2, windowSec: 3600 }, { limit: 5, windowSec: 86400 });
+    const rl = await enforceRateLimit(
+      authed.id,
+      "weekly",
+      { limit: 2, windowSec: 3600 },
+      { limit: 5, windowSec: 86400 },
+    );
     if (!rl.allowed) return tooManyRequests(rl.retryAfter, corsHeaders);
     onlyUserId = authed.id;
   }
@@ -258,11 +323,16 @@ serve(async (req) => {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 7);
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
-    const period = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    const startStr = startDate.toISOString().split("T")[0];
+    const endStr = endDate.toISOString().split("T")[0];
+    const period = `${startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
 
-    const userSummaries = await summariseUsers(supabase, startStr, endStr, onlyUserId);
+    const userSummaries = await summariseUsers(
+      supabase,
+      startStr,
+      endStr,
+      onlyUserId,
+    );
     console.log(`Processing ${userSummaries.length} user summary/summaries`);
 
     const results: Array<Record<string, unknown>> = [];
@@ -273,7 +343,10 @@ serve(async (req) => {
         if (RESEND_API_KEY) {
           const emailRes = await fetch("https://api.resend.com/emails", {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+            },
             body: JSON.stringify({
               from: "Finflow <onboarding@resend.dev>",
               to: [summary.email],
@@ -284,20 +357,33 @@ serve(async (req) => {
           if (!emailRes.ok) {
             const errData = await emailRes.json().catch(() => ({}));
             console.error(`Email failed for user ${summary.userId}`);
-            results.push({ userId: summary.userId, status: 'failed', error: errData?.message ?? 'unknown' });
+            results.push({
+              userId: summary.userId,
+              status: "failed",
+              error: errData?.message ?? "unknown",
+            });
           } else {
-            results.push({ userId: summary.userId, status: 'sent' });
+            results.push({ userId: summary.userId, status: "sent" });
           }
         } else {
-          results.push({ userId: summary.userId, status: 'skipped', reason: 'no_api_key' });
+          results.push({
+            userId: summary.userId,
+            status: "skipped",
+            reason: "no_api_key",
+          });
         }
       } catch (error) {
         console.error(`Error processing user ${summary.userId}:`, error);
-        results.push({ userId: summary.userId, status: 'error' });
+        results.push({ userId: summary.userId, status: "error" });
       }
     }
 
-    return json({ success: true, period, processed: userSummaries.length, results });
+    return json({
+      success: true,
+      period,
+      processed: userSummaries.length,
+      results,
+    });
   } catch (error) {
     console.error("Weekly summary error:", error);
     return json({ error: "internal_error" }, 500);

@@ -7,30 +7,50 @@
     <!-- Client-side hardening. Enforced by the browser even before any hosting
          headers apply: no referrer leakage, no legacy plugin surface, locked-down connect targets.
          (frame-ancestors is intentionally omitted: it is only honoured as an HTTP header.) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://ai.gateway.lovable.dev https://ipapi.co ws://localhost:* http://localhost:* ws://127.0.0.1:* wss://*.lovable.app wss://*.lovableproject.com; upgrade-insecure-requests" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://ai.gateway.lovable.dev https://ipapi.co ws://localhost:* http://localhost:* ws://127.0.0.1:* wss://*.lovable.app wss://*.lovableproject.com; upgrade-insecure-requests"
+    />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <title>Finflow - Personal Finance Manager</title>
-    <meta name="description" content="Track your finances, manage budgets, and achieve your financial goals with Finflow" />
+    <meta
+      name="description"
+      content="Track your finances, manage budgets, and achieve your financial goals with Finflow"
+    />
     <meta name="author" content="Finflow" />
 
     <meta property="og:title" content="Finflow - Personal Finance Manager" />
-    <meta property="og:description" content="Track your finances, manage budgets, and achieve your financial goals with Finflow" />
+    <meta
+      property="og:description"
+      content="Track your finances, manage budgets, and achieve your financial goals with Finflow"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/og-image.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Finflow" />
     <meta name="twitter:image" content="/og-image.png" />
-    
+
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
 
     <!-- Elite network warm-up: shave ~100-300ms off the first Supabase call. -->
-    <link rel="preconnect" href="https://zjorcechjdwxmukfzfpe.supabase.co" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://zjorcechjdwxmukfzfpe.supabase.co"
+      crossorigin
+    />
     <link rel="dns-prefetch" href="https://zjorcechjdwxmukfzfpe.supabase.co" />
-    <link rel="preconnect" href="https://zjorcechjdwxmukfzfpe.functions.supabase.co" crossorigin />
-    <link rel="dns-prefetch" href="https://zjorcechjdwxmukfzfpe.functions.supabase.co" />
+    <link
+      rel="preconnect"
+      href="https://zjorcechjdwxmukfzfpe.functions.supabase.co"
+      crossorigin
+    />
+    <link
+      rel="dns-prefetch"
+      href="https://zjorcechjdwxmukfzfpe.functions.supabase.co"
+    />
     <link rel="preconnect" href="https://ai.gateway.lovable.dev" crossorigin />
     <link rel="dns-prefetch" href="https://ai.gateway.lovable.dev" />
   </head>

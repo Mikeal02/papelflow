@@ -2,17 +2,22 @@ import { cn } from "@/lib/utils";
 
 interface EliteSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
-  variant?: 'default' | 'text' | 'circle' | 'card' | 'stat';
+  variant?: "default" | "text" | "circle" | "card" | "stat";
 }
 
-export function EliteSkeleton({ className, variant = 'default', style, ...props }: EliteSkeletonProps) {
+export function EliteSkeleton({
+  className,
+  variant = "default",
+  style,
+  ...props
+}: EliteSkeletonProps) {
   return (
     <div
       className={cn(
         "relative overflow-hidden rounded-lg bg-muted/40 skeleton-shimmer",
-        variant === 'circle' && "rounded-full",
-        variant === 'text' && "h-4 rounded-md",
-        variant === 'card' && "rounded-xl min-h-[120px]",
+        variant === "circle" && "rounded-full",
+        variant === "text" && "h-4 rounded-md",
+        variant === "card" && "rounded-xl min-h-[120px]",
         className,
       )}
       style={style}
@@ -64,7 +69,9 @@ export function ChartSkeleton() {
           <EliteSkeleton
             key={i}
             className="flex-1 rounded-t-md"
-            style={{ height: `${30 + Math.random() * 70}%` } as React.CSSProperties}
+            style={
+              { height: `${30 + Math.random() * 70}%` } as React.CSSProperties
+            }
           />
         ))}
       </div>
@@ -124,8 +131,14 @@ export function RouteLoadingFallback() {
     <div className="min-h-[60vh] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 animate-fade-in">
         <div className="relative h-12 w-12">
-          <div className="absolute inset-0 rounded-2xl bg-primary/10 border border-primary/20 animate-spin" style={{ animationDuration: '2s' }} />
-          <div className="absolute inset-0 rounded-2xl border-2 border-primary/40 border-t-primary animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+          <div
+            className="absolute inset-0 rounded-2xl bg-primary/10 border border-primary/20 animate-spin"
+            style={{ animationDuration: "2s" }}
+          />
+          <div
+            className="absolute inset-0 rounded-2xl border-2 border-primary/40 border-t-primary animate-spin"
+            style={{ animationDuration: "1.5s", animationDirection: "reverse" }}
+          />
           <div className="absolute inset-2 rounded-lg bg-primary/20 animate-pulse" />
         </div>
         <p className="text-sm text-muted-foreground font-medium animate-pulse">

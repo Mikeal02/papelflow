@@ -1,6 +1,6 @@
-import { useLocation, Outlet } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { AppLayout } from './AppLayout';
+import { useLocation, Outlet } from "react-router-dom";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AppLayout } from "./AppLayout";
 
 export function AnimatedLayout() {
   const location = useLocation();
@@ -18,13 +18,19 @@ export function AnimatedLayout() {
           opacity: 1,
           y: 0,
           scale: 1,
-          transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+          transition: {
+            duration: 0.42,
+            ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+          },
         },
         exit: {
           opacity: 0,
           y: -8,
           scale: 0.99,
-          transition: { duration: 0.2, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
+          transition: {
+            duration: 0.2,
+            ease: [0.4, 0, 1, 1] as [number, number, number, number],
+          },
         },
       };
 

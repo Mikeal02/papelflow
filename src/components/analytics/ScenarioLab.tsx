@@ -1,24 +1,55 @@
-import { useMemo, useState, useTransition } from 'react';
-import { motion } from 'framer-motion';
-import { FlaskConical, Play, Sliders, TrendingUp, AlertTriangle, Target, Activity, Zap, Gauge, Compass, Wand2, ShieldAlert } from 'lucide-react';
+import { useMemo, useState, useTransition } from "react";
+import { motion } from "framer-motion";
 import {
-  Area, AreaChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Bar, BarChart,
-} from 'recharts';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useTransactions } from '@/hooks/useTransactions';
-import { useAccounts } from '@/hooks/useAccounts';
+  FlaskConical,
+  Play,
+  Sliders,
+  TrendingUp,
+  AlertTriangle,
+  Target,
+  Activity,
+  Zap,
+  Gauge,
+  Compass,
+  Wand2,
+  ShieldAlert,
+} from "lucide-react";
 import {
-  runScenarioLab, DEFAULT_SCENARIO_INPUTS, runSensitivityAnalysis, optimizeContribution,
-  findSafeWithdrawalRate, analyzeSequenceRisk, sampleTrajectories,
-  type ScenarioInputs, type ScenarioReport, type SensitivityReport, type OptimizerResult,
-  type WithdrawalReport, type SequenceRiskReport,
-} from '@/lib/intelligence/scenarioLab';
-import { cn } from '@/lib/utils';
-
+  Area,
+  AreaChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ReferenceLine,
+  Bar,
+  BarChart,
+} from "recharts";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useAccounts } from "@/hooks/useAccounts";
+import {
+  runScenarioLab,
+  DEFAULT_SCENARIO_INPUTS,
+  runSensitivityAnalysis,
+  optimizeContribution,
+  findSafeWithdrawalRate,
+  analyzeSequenceRisk,
+  sampleTrajectories,
+  type ScenarioInputs,
+  type ScenarioReport,
+  type SensitivityReport,
+  type OptimizerResult,
+  type WithdrawalReport,
+  type SequenceRiskReport,
+} from "@/lib/intelligence/scenarioLab";
+import { cn } from "@/lib/utils";
 
 function fmt(v: number): string {
   if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
@@ -37,13 +68,23 @@ interface SliderRowProps {
   display?: (v: number) => string;
 }
 
-function SliderRow({ label, value, min, max, step, suffix, onChange, display }: SliderRowProps) {
+function SliderRow({
+  label,
+  value,
+  min,
+  max,
+  step,
+  suffix,
+  onChange,
+  display,
+}: SliderRowProps) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">{label}</span>
         <span className="font-mono font-semibold tabular-nums">
-          {display ? display(value) : value}{suffix || ''}
+          {display ? display(value) : value}
+          {suffix || ""}
         </span>
       </div>
       <Slider
@@ -64,70 +105,115 @@ export function ScenarioLab() {
 
   // Seed defaults from real data
   const seeded = useMemo<ScenarioInputs>(() => {
-    const balance = accounts.reduce((s: number, a: any) => s + Number(a.balance || 0), 0);
-    const monthlyIncome = transactions
-      .filter((t: any) => t.type === 'income')
-      .reduce((s: number, t: any) => s + Number(t.amount), 0) / Math.max(1, Math.min(3, Math.ceil(transactions.length / 30)));
-    const monthlyExpenses = transactions
-      .filter((t: any) => t.type === 'expense')
-      .reduce((s: number, t: any) => s + Number(t.amount), 0) / Math.max(1, Math.min(3, Math.ceil(transactions.length / 30)));
+    const balance = accounts.reduce(
+      (s: number, a: any) => s + Number(a.balance || 0),
+      0,
+    );
+    const monthlyIncome =
+      transactions
+        .filter((t: any) => t.type === "income")
+        .reduce((s: number, t: any) => s + Number(t.amount), 0) /
+      Math.max(1, Math.min(3, Math.ceil(transactions.length / 30)));
+    const monthlyExpenses =
+      transactions
+        .filter((t: any) => t.type === "expense")
+        .reduce((s: number, t: any) => s + Number(t.amount), 0) /
+      Math.max(1, Math.min(3, Math.ceil(transactions.length / 30)));
 
     return {
       ...DEFAULT_SCENARIO_INPUTS,
-      startingNetWorth: balance > 0 ? balance : DEFAULT_SCENARIO_INPUTS.startingNetWorth,
-      monthlyIncome: monthlyIncome > 0 ? Math.round(monthlyIncome) : DEFAULT_SCENARIO_INPUTS.monthlyIncome,
-      monthlyExpenses: monthlyExpenses > 0 ? Math.round(monthlyExpenses) : DEFAULT_SCENARIO_INPUTS.monthlyExpenses,
+      startingNetWorth:
+        balance > 0 ? balance : DEFAULT_SCENARIO_INPUTS.startingNetWorth,
+      monthlyIncome:
+        monthlyIncome > 0
+          ? Math.round(monthlyIncome)
+          : DEFAULT_SCENARIO_INPUTS.monthlyIncome,
+      monthlyExpenses:
+        monthlyExpenses > 0
+          ? Math.round(monthlyExpenses)
+          : DEFAULT_SCENARIO_INPUTS.monthlyExpenses,
     };
   }, [accounts, transactions]);
 
   const [inputs, setInputs] = useState<ScenarioInputs>(seeded);
   const [report, setReport] = useState<ScenarioReport | null>(null);
-  const [sensitivity, setSensitivity] = useState<SensitivityReport | null>(null);
+  const [sensitivity, setSensitivity] = useState<SensitivityReport | null>(
+    null,
+  );
   const [optimizer, setOptimizer] = useState<OptimizerResult | null>(null);
   const [withdrawal, setWithdrawal] = useState<WithdrawalReport | null>(null);
   const [sequence, setSequence] = useState<SequenceRiskReport | null>(null);
-  const [savedScenarios, setSavedScenarios] = useState<{ name: string; report: ScenarioReport; inputs: ScenarioInputs }[]>([]);
+  const [savedScenarios, setSavedScenarios] = useState<
+    { name: string; report: ScenarioReport; inputs: ScenarioInputs }[]
+  >([]);
 
   const update = <K extends keyof ScenarioInputs>(k: K, v: ScenarioInputs[K]) =>
-    setInputs(prev => ({ ...prev, [k]: v }));
+    setInputs((prev) => ({ ...prev, [k]: v }));
 
   const handleRun = () => {
     startTransition(() => {
       const r = runScenarioLab(inputs);
       setReport(r);
       // Reset derived analyses on a fresh run
-      setSensitivity(null); setOptimizer(null); setWithdrawal(null); setSequence(null);
+      setSensitivity(null);
+      setOptimizer(null);
+      setWithdrawal(null);
+      setSequence(null);
     });
   };
 
-  const handleSensitivity = () => startTransition(() => setSensitivity(runSensitivityAnalysis(inputs, 500)));
-  const handleOptimize = () => startTransition(() => setOptimizer(optimizeContribution(inputs, 0.8, 500, 12)));
-  const handleWithdrawal = () => startTransition(() => {
-    if (!report) return;
-    setWithdrawal(findSafeWithdrawalRate(report.endpointP50, inputs, 30, 0.95, 700));
-  });
-  const handleSequence = () => startTransition(() => setSequence(analyzeSequenceRisk(inputs, 600)));
+  const handleSensitivity = () =>
+    startTransition(() => setSensitivity(runSensitivityAnalysis(inputs, 500)));
+  const handleOptimize = () =>
+    startTransition(() =>
+      setOptimizer(optimizeContribution(inputs, 0.8, 500, 12)),
+    );
+  const handleWithdrawal = () =>
+    startTransition(() => {
+      if (!report) return;
+      setWithdrawal(
+        findSafeWithdrawalRate(report.endpointP50, inputs, 30, 0.95, 700),
+      );
+    });
+  const handleSequence = () =>
+    startTransition(() => setSequence(analyzeSequenceRisk(inputs, 600)));
   const handleSave = () => {
     if (!report) return;
-    setSavedScenarios(prev => [...prev, { name: `Scenario ${prev.length + 1}`, report, inputs: { ...inputs } }].slice(-4));
+    setSavedScenarios((prev) =>
+      [
+        ...prev,
+        { name: `Scenario ${prev.length + 1}`, report, inputs: { ...inputs } },
+      ].slice(-4),
+    );
   };
 
-  const spaghetti = useMemo(() => report ? sampleTrajectories(inputs, 6) : [], [report, inputs]);
+  const spaghetti = useMemo(
+    () => (report ? sampleTrajectories(inputs, 6) : []),
+    [report, inputs],
+  );
 
   const chartData = useMemo(() => {
     if (!report) return [];
-    return report.bands.map(b => {
+    return report.bands.map((b) => {
       const yr = (b.month / 12).toFixed(1);
-      const row: any = { year: yr, p5: Math.round(b.p5), p25: Math.round(b.p25), p50: Math.round(b.p50), p75: Math.round(b.p75), p95: Math.round(b.p95) };
+      const row: any = {
+        year: yr,
+        p5: Math.round(b.p5),
+        p25: Math.round(b.p25),
+        p50: Math.round(b.p50),
+        p75: Math.round(b.p75),
+        p95: Math.round(b.p95),
+      };
       // Attach spaghetti paths by month
       for (let k = 0; k < 6; k++) {
-        const found = spaghetti.find(s => s.path === k && s.month === b.month);
-        if (found) row['s' + k] = found.value;
+        const found = spaghetti.find(
+          (s) => s.path === k && s.month === b.month,
+        );
+        if (found) row["s" + k] = found.value;
       }
       return row;
     });
   }, [report, spaghetti]);
-
 
   return (
     <Card className="elite-card overflow-hidden">
@@ -142,15 +228,19 @@ export function ScenarioLab() {
               </div>
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight holo-ticker">Scenario Lab</h2>
+              <h2 className="text-lg font-bold tracking-tight holo-ticker">
+                Scenario Lab
+              </h2>
               <p className="text-xs text-muted-foreground">
-                Monte Carlo wealth simulator · {inputs.iterations.toLocaleString()} trajectories · 6 stress tests
+                Monte Carlo wealth simulator ·{" "}
+                {inputs.iterations.toLocaleString()} trajectories · 6 stress
+                tests
               </p>
             </div>
           </div>
           <Button onClick={handleRun} disabled={isPending} className="gap-2">
             <Play className="h-4 w-4" />
-            {isPending ? 'Simulating...' : report ? 'Re-run' : 'Run Simulation'}
+            {isPending ? "Simulating..." : report ? "Re-run" : "Run Simulation"}
           </Button>
         </div>
       </div>
@@ -163,42 +253,143 @@ export function ScenarioLab() {
           </div>
 
           <div className="space-y-4">
-            <SliderRow label="Starting net worth" value={inputs.startingNetWorth} min={0} max={2_000_000} step={1000}
-              onChange={v => update('startingNetWorth', v)} display={fmt} />
-            <SliderRow label="Monthly income" value={inputs.monthlyIncome} min={0} max={50_000} step={100}
-              onChange={v => update('monthlyIncome', v)} display={fmt} />
-            <SliderRow label="Monthly expenses" value={inputs.monthlyExpenses} min={0} max={50_000} step={100}
-              onChange={v => update('monthlyExpenses', v)} display={fmt} />
-            <SliderRow label="Monthly contribution" value={inputs.monthlyContribution} min={0} max={20_000} step={50}
-              onChange={v => update('monthlyContribution', v)} display={fmt} />
-            <SliderRow label="Wealth target" value={inputs.wealthTarget} min={10_000} max={10_000_000} step={5000}
-              onChange={v => update('wealthTarget', v)} display={fmt} />
-            <SliderRow label="Horizon (months)" value={inputs.horizonMonths} min={12} max={480} step={6}
-              onChange={v => update('horizonMonths', v)} suffix="m" />
+            <SliderRow
+              label="Starting net worth"
+              value={inputs.startingNetWorth}
+              min={0}
+              max={2_000_000}
+              step={1000}
+              onChange={(v) => update("startingNetWorth", v)}
+              display={fmt}
+            />
+            <SliderRow
+              label="Monthly income"
+              value={inputs.monthlyIncome}
+              min={0}
+              max={50_000}
+              step={100}
+              onChange={(v) => update("monthlyIncome", v)}
+              display={fmt}
+            />
+            <SliderRow
+              label="Monthly expenses"
+              value={inputs.monthlyExpenses}
+              min={0}
+              max={50_000}
+              step={100}
+              onChange={(v) => update("monthlyExpenses", v)}
+              display={fmt}
+            />
+            <SliderRow
+              label="Monthly contribution"
+              value={inputs.monthlyContribution}
+              min={0}
+              max={20_000}
+              step={50}
+              onChange={(v) => update("monthlyContribution", v)}
+              display={fmt}
+            />
+            <SliderRow
+              label="Wealth target"
+              value={inputs.wealthTarget}
+              min={10_000}
+              max={10_000_000}
+              step={5000}
+              onChange={(v) => update("wealthTarget", v)}
+              display={fmt}
+            />
+            <SliderRow
+              label="Horizon (months)"
+              value={inputs.horizonMonths}
+              min={12}
+              max={480}
+              step={6}
+              onChange={(v) => update("horizonMonths", v)}
+              suffix="m"
+            />
           </div>
 
           <div className="pt-2 border-t border-border/30 space-y-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market</div>
-            <SliderRow label="Expected return (annual)" value={inputs.expectedReturnAnnual} min={-0.05} max={0.2} step={0.005}
-              onChange={v => update('expectedReturnAnnual', v)} display={v => `${(v * 100).toFixed(1)}%`} />
-            <SliderRow label="Return volatility" value={inputs.returnVolatilityAnnual} min={0.01} max={0.5} step={0.01}
-              onChange={v => update('returnVolatilityAnnual', v)} display={v => `${(v * 100).toFixed(0)}%`} />
-            <SliderRow label="Inflation (annual)" value={inputs.inflationAnnual} min={0} max={0.15} step={0.005}
-              onChange={v => update('inflationAnnual', v)} display={v => `${(v * 100).toFixed(1)}%`} />
-            <SliderRow label="Income growth (annual)" value={inputs.incomeGrowthAnnual} min={0} max={0.15} step={0.005}
-              onChange={v => update('incomeGrowthAnnual', v)} display={v => `${(v * 100).toFixed(1)}%`} />
-            <SliderRow label="Tax rate on returns" value={inputs.taxRateOnReturns} min={0} max={0.5} step={0.01}
-              onChange={v => update('taxRateOnReturns', v)} display={v => `${(v * 100).toFixed(0)}%`} />
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Market
+            </div>
+            <SliderRow
+              label="Expected return (annual)"
+              value={inputs.expectedReturnAnnual}
+              min={-0.05}
+              max={0.2}
+              step={0.005}
+              onChange={(v) => update("expectedReturnAnnual", v)}
+              display={(v) => `${(v * 100).toFixed(1)}%`}
+            />
+            <SliderRow
+              label="Return volatility"
+              value={inputs.returnVolatilityAnnual}
+              min={0.01}
+              max={0.5}
+              step={0.01}
+              onChange={(v) => update("returnVolatilityAnnual", v)}
+              display={(v) => `${(v * 100).toFixed(0)}%`}
+            />
+            <SliderRow
+              label="Inflation (annual)"
+              value={inputs.inflationAnnual}
+              min={0}
+              max={0.15}
+              step={0.005}
+              onChange={(v) => update("inflationAnnual", v)}
+              display={(v) => `${(v * 100).toFixed(1)}%`}
+            />
+            <SliderRow
+              label="Income growth (annual)"
+              value={inputs.incomeGrowthAnnual}
+              min={0}
+              max={0.15}
+              step={0.005}
+              onChange={(v) => update("incomeGrowthAnnual", v)}
+              display={(v) => `${(v * 100).toFixed(1)}%`}
+            />
+            <SliderRow
+              label="Tax rate on returns"
+              value={inputs.taxRateOnReturns}
+              min={0}
+              max={0.5}
+              step={0.01}
+              onChange={(v) => update("taxRateOnReturns", v)}
+              display={(v) => `${(v * 100).toFixed(0)}%`}
+            />
           </div>
 
           <div className="pt-2 border-t border-border/30 space-y-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tail Risk</div>
-            <SliderRow label="Black-swan probability/yr" value={inputs.blackSwanAnnualProb} min={0} max={0.3} step={0.01}
-              onChange={v => update('blackSwanAnnualProb', v)} display={v => `${(v * 100).toFixed(0)}%`} />
-            <SliderRow label="Black-swan magnitude" value={inputs.blackSwanMagnitude} min={0.05} max={0.6} step={0.01}
-              onChange={v => update('blackSwanMagnitude', v)} display={v => `-${(v * 100).toFixed(0)}%`} />
-            <SliderRow label="Iterations" value={inputs.iterations} min={500} max={10000} step={500}
-              onChange={v => update('iterations', v)} />
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Tail Risk
+            </div>
+            <SliderRow
+              label="Black-swan probability/yr"
+              value={inputs.blackSwanAnnualProb}
+              min={0}
+              max={0.3}
+              step={0.01}
+              onChange={(v) => update("blackSwanAnnualProb", v)}
+              display={(v) => `${(v * 100).toFixed(0)}%`}
+            />
+            <SliderRow
+              label="Black-swan magnitude"
+              value={inputs.blackSwanMagnitude}
+              min={0.05}
+              max={0.6}
+              step={0.01}
+              onChange={(v) => update("blackSwanMagnitude", v)}
+              display={(v) => `-${(v * 100).toFixed(0)}%`}
+            />
+            <SliderRow
+              label="Iterations"
+              value={inputs.iterations}
+              min={500}
+              max={10000}
+              step={500}
+              onChange={(v) => update("iterations", v)}
+            />
           </div>
         </div>
 
@@ -213,7 +404,8 @@ export function ScenarioLab() {
               </div>
               <h3 className="text-base font-semibold">Run a simulation</h3>
               <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                Adjust parameters on the left, then run {inputs.iterations.toLocaleString()} Monte Carlo trajectories
+                Adjust parameters on the left, then run{" "}
+                {inputs.iterations.toLocaleString()} Monte Carlo trajectories
                 across {(inputs.horizonMonths / 12).toFixed(0)} years.
               </p>
             </div>
@@ -227,7 +419,12 @@ export function ScenarioLab() {
                   <TabsTrigger value="optimize">Optimize</TabsTrigger>
                   <TabsTrigger value="metrics">Metrics</TabsTrigger>
                 </TabsList>
-                <Button size="sm" variant="outline" onClick={handleSave} className="gap-1.5 text-xs h-7">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSave}
+                  className="gap-1.5 text-xs h-7"
+                >
                   <Wand2 className="h-3 w-3" /> Snapshot
                 </Button>
               </div>
@@ -236,49 +433,158 @@ export function ScenarioLab() {
               <TabsContent value="forecast" className="space-y-4 m-0">
                 {/* Headline */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <HeroStat label="Median endpoint" value={fmt(report.endpointP50)} icon={<Target className="h-3.5 w-3.5" />} />
+                  <HeroStat
+                    label="Median endpoint"
+                    value={fmt(report.endpointP50)}
+                    icon={<Target className="h-3.5 w-3.5" />}
+                  />
                   <HeroStat
                     label="Success P(≥ target)"
                     value={`${(report.successProbability * 100).toFixed(0)}%`}
-                    intent={report.successProbability >= 0.7 ? 'success' : report.successProbability >= 0.4 ? 'warning' : 'danger'}
+                    intent={
+                      report.successProbability >= 0.7
+                        ? "success"
+                        : report.successProbability >= 0.4
+                          ? "warning"
+                          : "danger"
+                    }
                   />
-                  <HeroStat label="Years to target (median)" value={report.yearsToTarget !== null ? `${report.yearsToTarget.toFixed(1)}y` : '—'} />
+                  <HeroStat
+                    label="Years to target (median)"
+                    value={
+                      report.yearsToTarget !== null
+                        ? `${report.yearsToTarget.toFixed(1)}y`
+                        : "—"
+                    }
+                  />
                   <HeroStat
                     label="Ruin probability"
                     value={`${(report.ruinProbability * 100).toFixed(1)}%`}
-                    intent={report.ruinProbability < 0.05 ? 'success' : report.ruinProbability < 0.2 ? 'warning' : 'danger'}
+                    intent={
+                      report.ruinProbability < 0.05
+                        ? "success"
+                        : report.ruinProbability < 0.2
+                          ? "warning"
+                          : "danger"
+                    }
                   />
                 </div>
 
                 {/* Fan chart */}
                 <div className="h-64 -mx-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                    <AreaChart
+                      data={chartData}
+                      margin={{ top: 10, right: 12, left: 0, bottom: 0 }}
+                    >
                       <defs>
                         <linearGradient id="band95" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
+                          <stop
+                            offset="5%"
+                            stopColor="hsl(var(--primary))"
+                            stopOpacity={0.25}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="hsl(var(--primary))"
+                            stopOpacity={0.05}
+                          />
                         </linearGradient>
                         <linearGradient id="band50" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
+                          <stop
+                            offset="5%"
+                            stopColor="hsl(var(--primary))"
+                            stopOpacity={0.5}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="hsl(var(--primary))"
+                            stopOpacity={0.15}
+                          />
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="year" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                      <YAxis tickFormatter={(v) => fmt(Number(v))} tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" width={60} />
+                      <XAxis
+                        dataKey="year"
+                        tick={{ fontSize: 10 }}
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis
+                        tickFormatter={(v) => fmt(Number(v))}
+                        tick={{ fontSize: 10 }}
+                        stroke="hsl(var(--muted-foreground))"
+                        width={60}
+                      />
                       <Tooltip
-                        contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
+                        contentStyle={{
+                          background: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
                         formatter={(v: number) => fmt(v)}
                         labelFormatter={(l) => `Year ${l}`}
                       />
-                      <ReferenceLine y={inputs.wealthTarget} stroke="hsl(var(--accent))" strokeDasharray="3 3" label={{ value: 'Target', fill: 'hsl(var(--accent))', fontSize: 10, position: 'right' }} />
-                      <Area type="monotone" dataKey="p95" stroke="hsl(var(--primary))" strokeOpacity={0.3} fillOpacity={1} fill="url(#band95)" />
-                      <Area type="monotone" dataKey="p75" stroke="hsl(var(--primary))" strokeOpacity={0.5} fillOpacity={1} fill="url(#band50)" />
-                      <Area type="monotone" dataKey="p50" stroke="hsl(var(--primary))" strokeWidth={2} fill="none" />
-                      <Area type="monotone" dataKey="p25" stroke="hsl(var(--primary))" strokeOpacity={0.5} fill="none" />
-                      <Area type="monotone" dataKey="p5"  stroke="hsl(var(--primary))" strokeOpacity={0.3} fill="none" />
-                      {[0,1,2,3,4,5].map(k => (
-                        <Area key={k} type="monotone" dataKey={`s${k}`} stroke="hsl(var(--accent))" strokeOpacity={0.35} strokeWidth={1} fill="none" dot={false} isAnimationActive={false} connectNulls />
+                      <ReferenceLine
+                        y={inputs.wealthTarget}
+                        stroke="hsl(var(--accent))"
+                        strokeDasharray="3 3"
+                        label={{
+                          value: "Target",
+                          fill: "hsl(var(--accent))",
+                          fontSize: 10,
+                          position: "right",
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="p95"
+                        stroke="hsl(var(--primary))"
+                        strokeOpacity={0.3}
+                        fillOpacity={1}
+                        fill="url(#band95)"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="p75"
+                        stroke="hsl(var(--primary))"
+                        strokeOpacity={0.5}
+                        fillOpacity={1}
+                        fill="url(#band50)"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="p50"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                        fill="none"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="p25"
+                        stroke="hsl(var(--primary))"
+                        strokeOpacity={0.5}
+                        fill="none"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="p5"
+                        stroke="hsl(var(--primary))"
+                        strokeOpacity={0.3}
+                        fill="none"
+                      />
+                      {[0, 1, 2, 3, 4, 5].map((k) => (
+                        <Area
+                          key={k}
+                          type="monotone"
+                          dataKey={`s${k}`}
+                          stroke="hsl(var(--accent))"
+                          strokeOpacity={0.35}
+                          strokeWidth={1}
+                          fill="none"
+                          dot={false}
+                          isAnimationActive={false}
+                          connectNulls
+                        />
                       ))}
                     </AreaChart>
                   </ResponsiveContainer>
@@ -287,15 +593,22 @@ export function ScenarioLab() {
                 {/* Distribution table */}
                 <div className="grid grid-cols-5 gap-2 text-center">
                   {[
-                    { l: 'P5', v: report.endpointP5 },
-                    { l: 'P25', v: report.endpointP25 },
-                    { l: 'P50', v: report.endpointP50 },
-                    { l: 'P75', v: report.endpointP75 },
-                    { l: 'P95', v: report.endpointP95 },
-                  ].map(d => (
-                    <div key={d.l} className="rounded-lg border border-border/30 bg-card/50 backdrop-blur-sm p-2">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{d.l}</div>
-                      <div className="text-sm font-mono font-semibold tabular-nums mt-0.5">{fmt(d.v)}</div>
+                    { l: "P5", v: report.endpointP5 },
+                    { l: "P25", v: report.endpointP25 },
+                    { l: "P50", v: report.endpointP50 },
+                    { l: "P75", v: report.endpointP75 },
+                    { l: "P95", v: report.endpointP95 },
+                  ].map((d) => (
+                    <div
+                      key={d.l}
+                      className="rounded-lg border border-border/30 bg-card/50 backdrop-blur-sm p-2"
+                    >
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {d.l}
+                      </div>
+                      <div className="text-sm font-mono font-semibold tabular-nums mt-0.5">
+                        {fmt(d.v)}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -304,7 +617,8 @@ export function ScenarioLab() {
               {/* STRESS */}
               <TabsContent value="stress" className="space-y-3 m-0">
                 <p className="text-xs text-muted-foreground">
-                  Each stress test re-runs ~25% iterations with mutated assumptions. Delta = endpoint vs base.
+                  Each stress test re-runs ~25% iterations with mutated
+                  assumptions. Delta = endpoint vs base.
                 </p>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {report.stressTests.map((s, i) => {
@@ -316,27 +630,45 @@ export function ScenarioLab() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.04 }}
                         className={cn(
-                          'rounded-xl border p-3 bg-card/60 backdrop-blur-sm',
-                          positive ? 'border-income/30' : 'border-expense/30'
+                          "rounded-xl border p-3 bg-card/60 backdrop-blur-sm",
+                          positive ? "border-income/30" : "border-expense/30",
                         )}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-1.5">
-                            {positive ? <TrendingUp className="h-3.5 w-3.5 text-income" /> : <AlertTriangle className="h-3.5 w-3.5 text-expense" />}
-                            <span className="text-sm font-semibold">{s.name}</span>
+                            {positive ? (
+                              <TrendingUp className="h-3.5 w-3.5 text-income" />
+                            ) : (
+                              <AlertTriangle className="h-3.5 w-3.5 text-expense" />
+                            )}
+                            <span className="text-sm font-semibold">
+                              {s.name}
+                            </span>
                           </div>
-                          <Badge variant={positive ? 'default' : 'destructive'} className="text-[10px]">
-                            {positive ? '+' : ''}{fmt(s.delta)}
+                          <Badge
+                            variant={positive ? "default" : "destructive"}
+                            className="text-[10px]"
+                          >
+                            {positive ? "+" : ""}
+                            {fmt(s.delta)}
                           </Badge>
                         </div>
-                        <div className="text-[11px] text-muted-foreground leading-snug">{s.description}</div>
+                        <div className="text-[11px] text-muted-foreground leading-snug">
+                          {s.description}
+                        </div>
                         <div className="flex items-center justify-between mt-2 text-[11px]">
-                          <span className="text-muted-foreground">Endpoint P50</span>
-                          <span className="font-mono tabular-nums font-medium">{fmt(s.endpointP50)}</span>
+                          <span className="text-muted-foreground">
+                            Endpoint P50
+                          </span>
+                          <span className="font-mono tabular-nums font-medium">
+                            {fmt(s.endpointP50)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="text-muted-foreground">Success</span>
-                          <span className="font-mono tabular-nums font-medium">{(s.successProb * 100).toFixed(0)}%</span>
+                          <span className="font-mono tabular-nums font-medium">
+                            {(s.successProb * 100).toFixed(0)}%
+                          </span>
                         </div>
                       </motion.div>
                     );
@@ -348,44 +680,95 @@ export function ScenarioLab() {
               <TabsContent value="sensitivity" className="space-y-3 m-0">
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <Gauge className="h-3.5 w-3.5 text-primary" /> Tornado analysis — perturbs each parameter ±15–50% and re-runs ~500 trajectories.
+                    <Gauge className="h-3.5 w-3.5 text-primary" /> Tornado
+                    analysis — perturbs each parameter ±15–50% and re-runs ~500
+                    trajectories.
                   </div>
-                  <Button size="sm" onClick={handleSensitivity} disabled={isPending} className="gap-1.5 text-xs h-7">
-                    <Play className="h-3 w-3" /> {sensitivity ? 'Re-run' : 'Analyze'}
+                  <Button
+                    size="sm"
+                    onClick={handleSensitivity}
+                    disabled={isPending}
+                    className="gap-1.5 text-xs h-7"
+                  >
+                    <Play className="h-3 w-3" />{" "}
+                    {sensitivity ? "Re-run" : "Analyze"}
                   </Button>
                 </div>
                 {!sensitivity ? (
                   <div className="rounded-xl border border-dashed border-border/40 p-6 text-center text-xs text-muted-foreground">
-                    Run the sensitivity sweep to rank drivers of your wealth outcome by elasticity.
+                    Run the sensitivity sweep to rank drivers of your wealth
+                    outcome by elasticity.
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart layout="vertical" data={sensitivity.results.map(r => ({
-                          label: r.label,
-                          low: r.lowEndpointP50 - sensitivity.base.endpointP50,
-                          high: r.highEndpointP50 - sensitivity.base.endpointP50,
-                          elasticity: r.elasticity,
-                        }))} margin={{ top: 4, right: 20, left: 80, bottom: 4 }}>
-                          <XAxis type="number" tickFormatter={(v) => fmt(Number(v))} tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                          <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={120} stroke="hsl(var(--muted-foreground))" />
-                          <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }} formatter={(v: number) => fmt(v)} />
+                        <BarChart
+                          layout="vertical"
+                          data={sensitivity.results.map((r) => ({
+                            label: r.label,
+                            low:
+                              r.lowEndpointP50 - sensitivity.base.endpointP50,
+                            high:
+                              r.highEndpointP50 - sensitivity.base.endpointP50,
+                            elasticity: r.elasticity,
+                          }))}
+                          margin={{ top: 4, right: 20, left: 80, bottom: 4 }}
+                        >
+                          <XAxis
+                            type="number"
+                            tickFormatter={(v) => fmt(Number(v))}
+                            tick={{ fontSize: 10 }}
+                            stroke="hsl(var(--muted-foreground))"
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="label"
+                            tick={{ fontSize: 10 }}
+                            width={120}
+                            stroke="hsl(var(--muted-foreground))"
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              background: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              borderRadius: 8,
+                              fontSize: 12,
+                            }}
+                            formatter={(v: number) => fmt(v)}
+                          />
                           <ReferenceLine x={0} stroke="hsl(var(--border))" />
-                          <Bar dataKey="low" stackId="a" fill="hsl(var(--expense))" fillOpacity={0.7} />
-                          <Bar dataKey="high" stackId="a" fill="hsl(var(--income))" fillOpacity={0.7} />
+                          <Bar
+                            dataKey="low"
+                            stackId="a"
+                            fill="hsl(var(--expense))"
+                            fillOpacity={0.7}
+                          />
+                          <Bar
+                            dataKey="high"
+                            stackId="a"
+                            fill="hsl(var(--income))"
+                            fillOpacity={0.7}
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {sensitivity.results.slice(0, 6).map(r => (
-                        <div key={r.parameter} className="rounded-lg border border-border/30 bg-card/60 backdrop-blur-sm p-2.5 text-xs">
+                      {sensitivity.results.slice(0, 6).map((r) => (
+                        <div
+                          key={r.parameter}
+                          className="rounded-lg border border-border/30 bg-card/60 backdrop-blur-sm p-2.5 text-xs"
+                        >
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">{r.label}</span>
-                            <Badge variant="secondary" className="text-[10px]">ε = {r.elasticity.toFixed(2)}</Badge>
+                            <Badge variant="secondary" className="text-[10px]">
+                              ε = {r.elasticity.toFixed(2)}
+                            </Badge>
                           </div>
                           <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">
-                            Swing {fmt(r.swing)} · success {(r.lowSuccess * 100).toFixed(0)}% → {(r.highSuccess * 100).toFixed(0)}%
+                            Swing {fmt(r.swing)} · success{" "}
+                            {(r.lowSuccess * 100).toFixed(0)}% →{" "}
+                            {(r.highSuccess * 100).toFixed(0)}%
                           </div>
                         </div>
                       ))}
@@ -401,37 +784,86 @@ export function ScenarioLab() {
                   <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3.5 space-y-2.5">
                     <div className="flex items-center gap-1.5">
                       <Target className="h-3.5 w-3.5 text-primary" />
-                      <div className="text-xs font-semibold">Contribution Optimizer</div>
+                      <div className="text-xs font-semibold">
+                        Contribution Optimizer
+                      </div>
                     </div>
-                    <div className="text-[11px] text-muted-foreground">Binary search for the monthly $ needed to hit ≥80% success.</div>
-                    <Button size="sm" onClick={handleOptimize} disabled={isPending} className="w-full gap-1.5 text-xs h-7">
-                      <Play className="h-3 w-3" /> {optimizer ? 'Re-optimize' : 'Optimize'}
+                    <div className="text-[11px] text-muted-foreground">
+                      Binary search for the monthly $ needed to hit ≥80%
+                      success.
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleOptimize}
+                      disabled={isPending}
+                      className="w-full gap-1.5 text-xs h-7"
+                    >
+                      <Play className="h-3 w-3" />{" "}
+                      {optimizer ? "Re-optimize" : "Optimize"}
                     </Button>
                     {optimizer && (
                       <div className="space-y-1.5 pt-1">
                         {optimizer.contributionRequired === null ? (
-                          <div className="text-xs text-expense font-semibold">Infeasible at current parameters.</div>
+                          <div className="text-xs text-expense font-semibold">
+                            Infeasible at current parameters.
+                          </div>
                         ) : (
                           <>
                             <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Required</span>
-                              <span className="font-mono font-bold tabular-nums">{fmt(optimizer.contributionRequired)}/mo</span>
-                            </div>
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Δ vs current</span>
-                              <span className={cn('font-mono tabular-nums font-medium', optimizer.delta > 0 ? 'text-expense' : 'text-income')}>
-                                {optimizer.delta > 0 ? '+' : ''}{fmt(optimizer.delta)}
+                              <span className="text-muted-foreground">
+                                Required
+                              </span>
+                              <span className="font-mono font-bold tabular-nums">
+                                {fmt(optimizer.contributionRequired)}/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Success</span>
-                              <span className="font-mono tabular-nums font-medium">{(optimizer.successAtRequired * 100).toFixed(0)}%</span>
+                              <span className="text-muted-foreground">
+                                Δ vs current
+                              </span>
+                              <span
+                                className={cn(
+                                  "font-mono tabular-nums font-medium",
+                                  optimizer.delta > 0
+                                    ? "text-expense"
+                                    : "text-income",
+                                )}
+                              >
+                                {optimizer.delta > 0 ? "+" : ""}
+                                {fmt(optimizer.delta)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">
+                                Success
+                              </span>
+                              <span className="font-mono tabular-nums font-medium">
+                                {(optimizer.successAtRequired * 100).toFixed(0)}
+                                %
+                              </span>
                             </div>
                             <div className="h-16 mt-1">
                               <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={optimizer.searched}>
-                                  <Line type="monotone" dataKey="success" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-                                  <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 6, fontSize: 11 }} formatter={(v: number, _n, p: any) => [(v * 100).toFixed(0) + '%', `@ ${fmt(p?.payload?.contribution || 0)}`]} />
+                                  <Line
+                                    type="monotone"
+                                    dataKey="success"
+                                    stroke="hsl(var(--primary))"
+                                    strokeWidth={2}
+                                    dot={false}
+                                  />
+                                  <Tooltip
+                                    contentStyle={{
+                                      background: "hsl(var(--card))",
+                                      border: "1px solid hsl(var(--border))",
+                                      borderRadius: 6,
+                                      fontSize: 11,
+                                    }}
+                                    formatter={(v: number, _n, p: any) => [
+                                      (v * 100).toFixed(0) + "%",
+                                      `@ ${fmt(p?.payload?.contribution || 0)}`,
+                                    ]}
+                                  />
                                 </LineChart>
                               </ResponsiveContainer>
                             </div>
@@ -445,26 +877,50 @@ export function ScenarioLab() {
                   <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3.5 space-y-2.5">
                     <div className="flex items-center gap-1.5">
                       <Compass className="h-3.5 w-3.5 text-primary" />
-                      <div className="text-xs font-semibold">Safe Withdrawal Rate</div>
+                      <div className="text-xs font-semibold">
+                        Safe Withdrawal Rate
+                      </div>
                     </div>
-                    <div className="text-[11px] text-muted-foreground">30y decumulation from P50 endpoint with 95% survival.</div>
-                    <Button size="sm" onClick={handleWithdrawal} disabled={isPending} className="w-full gap-1.5 text-xs h-7">
-                      <Play className="h-3 w-3" /> {withdrawal ? 'Re-compute' : 'Compute SWR'}
+                    <div className="text-[11px] text-muted-foreground">
+                      30y decumulation from P50 endpoint with 95% survival.
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleWithdrawal}
+                      disabled={isPending}
+                      className="w-full gap-1.5 text-xs h-7"
+                    >
+                      <Play className="h-3 w-3" />{" "}
+                      {withdrawal ? "Re-compute" : "Compute SWR"}
                     </Button>
                     {withdrawal && (
                       <div className="space-y-1.5 pt-1">
-                        <div className="text-2xl font-bold tabular-nums text-center holo-ticker">{(withdrawal.swr * 100).toFixed(2)}%</div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Annual draw</span>
-                          <span className="font-mono tabular-nums">{fmt(withdrawal.annualWithdrawal)}</span>
+                        <div className="text-2xl font-bold tabular-nums text-center holo-ticker">
+                          {(withdrawal.swr * 100).toFixed(2)}%
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Survival</span>
-                          <span className="font-mono tabular-nums font-medium">{(withdrawal.successProbability * 100).toFixed(0)}%</span>
+                          <span className="text-muted-foreground">
+                            Annual draw
+                          </span>
+                          <span className="font-mono tabular-nums">
+                            {fmt(withdrawal.annualWithdrawal)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Median terminal</span>
-                          <span className="font-mono tabular-nums">{fmt(withdrawal.medianTerminalBalance)}</span>
+                          <span className="text-muted-foreground">
+                            Survival
+                          </span>
+                          <span className="font-mono tabular-nums font-medium">
+                            {(withdrawal.successProbability * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">
+                            Median terminal
+                          </span>
+                          <span className="font-mono tabular-nums">
+                            {fmt(withdrawal.medianTerminalBalance)}
+                          </span>
                         </div>
                       </div>
                     )}
@@ -474,32 +930,59 @@ export function ScenarioLab() {
                   <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3.5 space-y-2.5">
                     <div className="flex items-center gap-1.5">
                       <ShieldAlert className="h-3.5 w-3.5 text-warning" />
-                      <div className="text-xs font-semibold">Sequence-of-Returns Risk</div>
+                      <div className="text-xs font-semibold">
+                        Sequence-of-Returns Risk
+                      </div>
                     </div>
-                    <div className="text-[11px] text-muted-foreground">Compares "bad-first" vs "bad-last" return ordering.</div>
-                    <Button size="sm" onClick={handleSequence} disabled={isPending} className="w-full gap-1.5 text-xs h-7">
-                      <Play className="h-3 w-3" /> {sequence ? 'Re-run' : 'Analyze'}
+                    <div className="text-[11px] text-muted-foreground">
+                      Compares "bad-first" vs "bad-last" return ordering.
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleSequence}
+                      disabled={isPending}
+                      className="w-full gap-1.5 text-xs h-7"
+                    >
+                      <Play className="h-3 w-3" />{" "}
+                      {sequence ? "Re-run" : "Analyze"}
                     </Button>
                     {sequence && (
                       <div className="space-y-1.5 pt-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Bad early P50</span>
-                          <span className="font-mono tabular-nums">{fmt(sequence.badEarlyEndpointP50)}</span>
+                          <span className="text-muted-foreground">
+                            Bad early P50
+                          </span>
+                          <span className="font-mono tabular-nums">
+                            {fmt(sequence.badEarlyEndpointP50)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Bad late P50</span>
-                          <span className="font-mono tabular-nums">{fmt(sequence.badLateEndpointP50)}</span>
+                          <span className="text-muted-foreground">
+                            Bad late P50
+                          </span>
+                          <span className="font-mono tabular-nums">
+                            {fmt(sequence.badLateEndpointP50)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Asymmetry</span>
-                          <span className={cn('font-mono tabular-nums font-medium', sequence.asymmetry > 0.2 ? 'text-warning' : 'text-income')}>
+                          <span className="text-muted-foreground">
+                            Asymmetry
+                          </span>
+                          <span
+                            className={cn(
+                              "font-mono tabular-nums font-medium",
+                              sequence.asymmetry > 0.2
+                                ? "text-warning"
+                                : "text-income",
+                            )}
+                          >
                             {(sequence.asymmetry * 100).toFixed(1)}%
                           </span>
                         </div>
                         <div className="text-[10px] text-muted-foreground pt-1 border-t border-border/30">
                           {sequence.asymmetry > 0.2
-                            ? 'Material path-dependence — consider glide-path allocation.'
-                            : 'Outcome is largely path-independent.'}
+                            ? "Material path-dependence — consider glide-path allocation."
+                            : "Outcome is largely path-independent."}
                         </div>
                       </div>
                     )}
@@ -509,17 +992,29 @@ export function ScenarioLab() {
                 {/* Saved snapshots comparison */}
                 {savedScenarios.length > 0 && (
                   <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Snapshots</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                      Snapshots
+                    </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
                       {savedScenarios.map((s, i) => (
-                        <div key={i} className="rounded-lg border border-border/20 bg-card/50 p-2 text-xs">
+                        <div
+                          key={i}
+                          className="rounded-lg border border-border/20 bg-card/50 p-2 text-xs"
+                        >
                           <div className="flex items-center justify-between mb-1">
                             <span className="font-semibold">{s.name}</span>
-                            <Badge variant="secondary" className="text-[10px]">{(s.report.successProbability * 100).toFixed(0)}%</Badge>
+                            <Badge variant="secondary" className="text-[10px]">
+                              {(s.report.successProbability * 100).toFixed(0)}%
+                            </Badge>
                           </div>
-                          <div className="font-mono tabular-nums text-sm">{fmt(s.report.endpointP50)}</div>
+                          <div className="font-mono tabular-nums text-sm">
+                            {fmt(s.report.endpointP50)}
+                          </div>
                           <div className="text-[10px] text-muted-foreground">
-                            μ {(s.inputs.expectedReturnAnnual * 100).toFixed(1)}% · σ {(s.inputs.returnVolatilityAnnual * 100).toFixed(0)}% · contrib {fmt(s.inputs.monthlyContribution)}
+                            μ {(s.inputs.expectedReturnAnnual * 100).toFixed(1)}
+                            % · σ{" "}
+                            {(s.inputs.returnVolatilityAnnual * 100).toFixed(0)}
+                            % · contrib {fmt(s.inputs.monthlyContribution)}
                           </div>
                         </div>
                       ))}
@@ -530,21 +1025,41 @@ export function ScenarioLab() {
 
               <TabsContent value="metrics" className="space-y-3 m-0">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <Metric label="Best case (P99)" value={fmt(report.bestCase)} />
-                  <Metric label="Worst case (P1)" value={fmt(report.worstCase)} />
-                  <Metric label="Expected shortfall" value={fmt(report.expectedShortfall)} />
-                  <Metric label="Median max drawdown" value={`${(report.maxDrawdownMedian * 100).toFixed(1)}%`} />
-                  <Metric label="Sharpe proxy" value={report.sharpeProxy.toFixed(2)} />
-                  <Metric label="Compute time" value={`${report.durationMs}ms`} />
+                  <Metric
+                    label="Best case (P99)"
+                    value={fmt(report.bestCase)}
+                  />
+                  <Metric
+                    label="Worst case (P1)"
+                    value={fmt(report.worstCase)}
+                  />
+                  <Metric
+                    label="Expected shortfall"
+                    value={fmt(report.expectedShortfall)}
+                  />
+                  <Metric
+                    label="Median max drawdown"
+                    value={`${(report.maxDrawdownMedian * 100).toFixed(1)}%`}
+                  />
+                  <Metric
+                    label="Sharpe proxy"
+                    value={report.sharpeProxy.toFixed(2)}
+                  />
+                  <Metric
+                    label="Compute time"
+                    value={`${report.durationMs}ms`}
+                  />
                 </div>
                 <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3 text-xs leading-relaxed text-muted-foreground">
                   <div className="flex items-center gap-1.5 mb-1.5 text-foreground font-semibold">
                     <Zap className="h-3.5 w-3.5 text-primary" /> How this works
                   </div>
-                  Each trajectory simulates income (lognormal shocks + growth), expenses (CPI + behavioral shocks),
-                  investment returns (GBM with μ={(inputs.expectedReturnAnnual * 100).toFixed(1)}% σ={(inputs.returnVolatilityAnnual * 100).toFixed(0)}%),
-                  taxes on positive returns, and Poisson-sampled black-swan events. Stress tests mutate
-                  parameters and re-simulate.
+                  Each trajectory simulates income (lognormal shocks + growth),
+                  expenses (CPI + behavioral shocks), investment returns (GBM
+                  with μ={(inputs.expectedReturnAnnual * 100).toFixed(1)}% σ=
+                  {(inputs.returnVolatilityAnnual * 100).toFixed(0)}%), taxes on
+                  positive returns, and Poisson-sampled black-swan events.
+                  Stress tests mutate parameters and re-simulate.
                 </div>
               </TabsContent>
             </Tabs>
@@ -555,19 +1070,37 @@ export function ScenarioLab() {
   );
 }
 
-function HeroStat({ label, value, intent = 'neutral', icon }: { label: string; value: string; intent?: 'success' | 'warning' | 'danger' | 'neutral'; icon?: React.ReactNode }) {
+function HeroStat({
+  label,
+  value,
+  intent = "neutral",
+  icon,
+}: {
+  label: string;
+  value: string;
+  intent?: "success" | "warning" | "danger" | "neutral";
+  icon?: React.ReactNode;
+}) {
   const intentClass = {
-    success: 'text-income',
-    warning: 'text-warning',
-    danger: 'text-expense',
-    neutral: 'text-foreground',
+    success: "text-income",
+    warning: "text-warning",
+    danger: "text-expense",
+    neutral: "text-foreground",
   }[intent];
   return (
     <div className="rounded-xl border border-border/30 bg-card/60 backdrop-blur-sm p-3 shine-sweep">
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-        {icon}{label}
+        {icon}
+        {label}
       </div>
-      <div className={cn('mt-1 text-lg font-bold tabular-nums font-mono', intentClass)}>{value}</div>
+      <div
+        className={cn(
+          "mt-1 text-lg font-bold tabular-nums font-mono",
+          intentClass,
+        )}
+      >
+        {value}
+      </div>
     </div>
   );
 }
@@ -575,8 +1108,12 @@ function HeroStat({ label, value, intent = 'neutral', icon }: { label: string; v
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border/30 bg-card/50 backdrop-blur-sm p-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="text-sm font-mono font-semibold tabular-nums mt-1">{value}</div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+      <div className="text-sm font-mono font-semibold tabular-nums mt-1">
+        {value}
+      </div>
     </div>
   );
 }

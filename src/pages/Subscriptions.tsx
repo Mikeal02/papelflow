@@ -1,6 +1,12 @@
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format, differenceInDays, addWeeks, addMonths, addYears } from 'date-fns';
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  format,
+  differenceInDays,
+  addWeeks,
+  addMonths,
+  addYears,
+} from "date-fns";
 import {
   Plus,
   Calendar,
@@ -14,56 +20,62 @@ import {
   BarChart3,
   Filter,
   CreditCard,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSubscriptions, useUpdateSubscription, useDeleteSubscription, Subscription } from '@/hooks/useSubscriptions';
-import { useCategories } from '@/hooks/useCategories';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { cn } from '@/lib/utils';
-import { AddSubscriptionModal } from '@/components/subscriptions/AddSubscriptionModal';
-import { EditSubscriptionModal } from '@/components/subscriptions/EditSubscriptionModal';
-import { toast } from '@/hooks/use-toast';
-import { SubscriptionOptimizer } from '@/components/subscriptions/SubscriptionOptimizer';
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts';
+  useSubscriptions,
+  useUpdateSubscription,
+  useDeleteSubscription,
+  Subscription,
+} from "@/hooks/useSubscriptions";
+import { useCategories } from "@/hooks/useCategories";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { cn } from "@/lib/utils";
+import { AddSubscriptionModal } from "@/components/subscriptions/AddSubscriptionModal";
+import { EditSubscriptionModal } from "@/components/subscriptions/EditSubscriptionModal";
+import { toast } from "@/hooks/use-toast";
+import { SubscriptionOptimizer } from "@/components/subscriptions/SubscriptionOptimizer";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const COLORS = [
-  'hsl(215, 85%, 55%)', 'hsl(155, 70%, 45%)', 'hsl(170, 75%, 45%)',
-  'hsl(40, 95%, 50%)', 'hsl(0, 78%, 58%)', 'hsl(280, 70%, 55%)',
+  "hsl(215, 85%, 55%)",
+  "hsl(155, 70%, 45%)",
+  "hsl(170, 75%, 45%)",
+  "hsl(40, 95%, 50%)",
+  "hsl(0, 78%, 58%)",
+  "hsl(280, 70%, 55%)",
 ];
 
 const Subscriptions = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [frequencyFilter, setFrequencyFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptions();
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<Subscription | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [frequencyFilter, setFrequencyFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { data: subscriptions = [], isLoading: subscriptionsLoading } =
+    useSubscriptions();
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useCategories();
   const updateSubscription = useUpdateSubscription();
   const deleteSubscription = useDeleteSubscription();
   const { formatCurrency } = useCurrency();
@@ -77,66 +89,86 @@ const Subscriptions = () => {
     const currentDue = new Date(subscription.next_due);
     let nextDue: Date;
     switch (subscription.frequency) {
-      case 'weekly': nextDue = addWeeks(currentDue, 1); break;
-      case 'monthly': nextDue = addMonths(currentDue, 1); break;
-      case 'yearly': nextDue = addYears(currentDue, 1); break;
-      default: nextDue = addMonths(currentDue, 1);
+      case "weekly":
+        nextDue = addWeeks(currentDue, 1);
+        break;
+      case "monthly":
+        nextDue = addMonths(currentDue, 1);
+        break;
+      case "yearly":
+        nextDue = addYears(currentDue, 1);
+        break;
+      default:
+        nextDue = addMonths(currentDue, 1);
     }
     await updateSubscription.mutateAsync({
       id: subscription.id,
-      next_due: nextDue.toISOString().split('T')[0],
+      next_due: nextDue.toISOString().split("T")[0],
     });
     toast({
-      title: 'Marked as paid',
-      description: `Next payment due on ${format(nextDue, 'MMM d, yyyy')}`,
+      title: "Marked as paid",
+      description: `Next payment due on ${format(nextDue, "MMM d, yyyy")}`,
     });
   };
 
   const filteredSubscriptions = useMemo(() => {
-    return subscriptions.filter(s => {
-      const matchesSearch = searchQuery === '' || s.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesFrequency = frequencyFilter === 'all' || s.frequency === frequencyFilter;
-      const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? s.is_active : !s.is_active);
+    return subscriptions.filter((s) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        s.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFrequency =
+        frequencyFilter === "all" || s.frequency === frequencyFilter;
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" ? s.is_active : !s.is_active);
       return matchesSearch && matchesFrequency && matchesStatus;
     });
   }, [subscriptions, searchQuery, frequencyFilter, statusFilter]);
 
   const activeSubscriptions = subscriptions.filter((s) => s.is_active);
   const totalMonthly = activeSubscriptions.reduce((sum, s) => {
-    if (s.frequency === 'monthly') return sum + Number(s.amount);
-    if (s.frequency === 'yearly') return sum + Number(s.amount) / 12;
-    if (s.frequency === 'weekly') return sum + Number(s.amount) * 4;
+    if (s.frequency === "monthly") return sum + Number(s.amount);
+    if (s.frequency === "yearly") return sum + Number(s.amount) / 12;
+    if (s.frequency === "weekly") return sum + Number(s.amount) * 4;
     return sum;
   }, 0);
   const totalYearly = totalMonthly * 12;
   const totalDaily = totalMonthly / 30;
 
-  const nextPayment = activeSubscriptions
-    .sort((a, b) => new Date(a.next_due).getTime() - new Date(b.next_due).getTime())[0] || null;
+  const nextPayment =
+    activeSubscriptions.sort(
+      (a, b) => new Date(a.next_due).getTime() - new Date(b.next_due).getTime(),
+    )[0] || null;
 
-  const urgentCount = activeSubscriptions.filter(s => {
+  const urgentCount = activeSubscriptions.filter((s) => {
     const d = differenceInDays(new Date(s.next_due), new Date());
     return d >= 0 && d <= 3;
   }).length;
 
   const byFrequency = useMemo(() => {
     const map: Record<string, { count: number; total: number }> = {};
-    activeSubscriptions.forEach(s => {
+    activeSubscriptions.forEach((s) => {
       if (!map[s.frequency]) map[s.frequency] = { count: 0, total: 0 };
       map[s.frequency].count++;
       map[s.frequency].total += Number(s.amount);
     });
-    return Object.entries(map).map(([name, data]) => ({ name, ...data, value: data.total }));
+    return Object.entries(map).map(([name, data]) => ({
+      name,
+      ...data,
+      value: data.total,
+    }));
   }, [activeSubscriptions]);
 
   const byCategoryData = useMemo(() => {
     const map: Record<string, number> = {};
-    activeSubscriptions.forEach(s => {
-      const cat = categories.find(c => c.id === s.category_id);
-      const name = cat?.name || 'Uncategorized';
+    activeSubscriptions.forEach((s) => {
+      const cat = categories.find((c) => c.id === s.category_id);
+      const name = cat?.name || "Uncategorized";
       map[name] = (map[name] || 0) + Number(s.amount);
     });
-    return Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
   }, [activeSubscriptions, categories]);
 
   const isLoading = subscriptionsLoading || categoriesLoading;
@@ -149,7 +181,9 @@ const Subscriptions = () => {
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
             <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
           </div>
-          <p className="text-muted-foreground animate-pulse">Loading subscriptions...</p>
+          <p className="text-muted-foreground animate-pulse">
+            Loading subscriptions...
+          </p>
         </div>
       </>
     );
@@ -166,19 +200,30 @@ const Subscriptions = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Subscriptions</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Subscriptions
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {activeSubscriptions.length} active • {urgentCount > 0 && <span className="text-warning">{urgentCount} due soon</span>}
+              {activeSubscriptions.length} active •{" "}
+              {urgentCount > 0 && (
+                <span className="text-warning">{urgentCount} due soon</span>
+              )}
             </p>
           </div>
-          <Button className="gap-2 btn-premium" onClick={() => setShowAddModal(true)}>
+          <Button
+            className="gap-2 btn-premium"
+            onClick={() => setShowAddModal(true)}
+          >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Add Subscription</span>
             <span className="sm:hidden">Add</span>
           </Button>
         </motion.div>
 
-        <AddSubscriptionModal open={showAddModal} onOpenChange={setShowAddModal} />
+        <AddSubscriptionModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+        />
         <EditSubscriptionModal
           open={showEditModal}
           onOpenChange={setShowEditModal}
@@ -188,10 +233,40 @@ const Subscriptions = () => {
         {/* Summary Cards */}
         <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: CreditCard, label: 'Active', value: `${activeSubscriptions.length}`, sub: 'subscriptions', bgClass: 'bg-primary/10', iconClass: 'text-primary' },
-            { icon: DollarSign, label: 'Monthly Cost', value: formatCurrency(totalMonthly), sub: `${formatCurrency(totalDaily)}/day`, bgClass: 'bg-expense/10', iconClass: 'text-expense' },
-            { icon: BarChart3, label: 'Yearly Cost', value: formatCurrency(totalYearly), sub: `${formatCurrency(totalMonthly)}/mo`, bgClass: 'bg-warning/10', iconClass: 'text-warning' },
-            { icon: Calendar, label: 'Next Payment', value: nextPayment ? format(new Date(nextPayment.next_due), 'MMM d') : 'N/A', sub: nextPayment?.name || '', bgClass: 'bg-accent/10', iconClass: 'text-accent' },
+            {
+              icon: CreditCard,
+              label: "Active",
+              value: `${activeSubscriptions.length}`,
+              sub: "subscriptions",
+              bgClass: "bg-primary/10",
+              iconClass: "text-primary",
+            },
+            {
+              icon: DollarSign,
+              label: "Monthly Cost",
+              value: formatCurrency(totalMonthly),
+              sub: `${formatCurrency(totalDaily)}/day`,
+              bgClass: "bg-expense/10",
+              iconClass: "text-expense",
+            },
+            {
+              icon: BarChart3,
+              label: "Yearly Cost",
+              value: formatCurrency(totalYearly),
+              sub: `${formatCurrency(totalMonthly)}/mo`,
+              bgClass: "bg-warning/10",
+              iconClass: "text-warning",
+            },
+            {
+              icon: Calendar,
+              label: "Next Payment",
+              value: nextPayment
+                ? format(new Date(nextPayment.next_due), "MMM d")
+                : "N/A",
+              sub: nextPayment?.name || "",
+              bgClass: "bg-accent/10",
+              iconClass: "text-accent",
+            },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -201,13 +276,27 @@ const Subscriptions = () => {
               className="stat-card p-3 md:p-4"
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg shrink-0', item.bgClass)}>
-                  <item.icon className={cn('h-4 w-4', item.iconClass)} />
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg shrink-0",
+                    item.bgClass,
+                  )}
+                >
+                  <item.icon className={cn("h-4 w-4", item.iconClass)} />
                 </div>
-                <span className="text-[10px] md:text-xs text-muted-foreground font-medium truncate">{item.label}</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground font-medium truncate">
+                  {item.label}
+                </span>
               </div>
-              <p className="text-base md:text-lg font-bold truncate" title={item.value}>{item.value}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{item.sub}</p>
+              <p
+                className="text-base md:text-lg font-bold truncate"
+                title={item.value}
+              >
+                {item.value}
+              </p>
+              <p className="text-[10px] text-muted-foreground truncate">
+                {item.sub}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -227,8 +316,19 @@ const Subscriptions = () => {
                   <div className="w-[120px] h-[120px] shrink-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie data={byCategoryData} cx="50%" cy="50%" innerRadius={30} outerRadius={50} paddingAngle={3} dataKey="value" strokeWidth={0}>
-                          {byCategoryData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        <Pie
+                          data={byCategoryData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={30}
+                          outerRadius={50}
+                          paddingAngle={3}
+                          dataKey="value"
+                          strokeWidth={0}
+                        >
+                          {byCategoryData.map((_, i) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                          ))}
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
@@ -236,15 +336,24 @@ const Subscriptions = () => {
                   <div className="flex-1 space-y-1.5 min-w-0">
                     {byCategoryData.slice(0, 4).map((item, i) => (
                       <div key={item.name} className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                        <span className="text-xs truncate flex-1">{item.name}</span>
-                        <span className="text-xs font-bold shrink-0">{formatCurrency(item.value)}</span>
+                        <div
+                          className="h-2 w-2 rounded-full shrink-0"
+                          style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                        />
+                        <span className="text-xs truncate flex-1">
+                          {item.name}
+                        </span>
+                        <span className="text-xs font-bold shrink-0">
+                          {formatCurrency(item.value)}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground py-6 text-center">No data</p>
+                <p className="text-xs text-muted-foreground py-6 text-center">
+                  No data
+                </p>
               )}
             </motion.div>
 
@@ -257,15 +366,31 @@ const Subscriptions = () => {
               <h3 className="font-semibold text-sm mb-3">By Frequency</h3>
               <div className="space-y-3">
                 {byFrequency.map((item, i) => (
-                  <div key={item.name} className="flex items-center justify-between">
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-[10px] capitalize">{item.name}</Badge>
-                      <span className="text-xs text-muted-foreground">{item.count} subs</span>
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] capitalize"
+                      >
+                        {item.name}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {item.count} subs
+                      </span>
                     </div>
-                    <span className="text-sm font-bold">{formatCurrency(item.total)}</span>
+                    <span className="text-sm font-bold">
+                      {formatCurrency(item.total)}
+                    </span>
                   </div>
                 ))}
-                {byFrequency.length === 0 && <p className="text-xs text-muted-foreground py-6 text-center">No data</p>}
+                {byFrequency.length === 0 && (
+                  <p className="text-xs text-muted-foreground py-6 text-center">
+                    No data
+                  </p>
+                )}
               </div>
             </motion.div>
           </div>
@@ -321,7 +446,9 @@ const Subscriptions = () => {
           className="stat-card"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold">{filteredSubscriptions.length} Subscriptions</h3>
+            <h3 className="text-base font-semibold">
+              {filteredSubscriptions.length} Subscriptions
+            </h3>
             {urgentCount > 0 && (
               <div className="flex items-center gap-1.5 text-warning text-xs">
                 <Bell className="h-3.5 w-3.5" />
@@ -340,10 +467,15 @@ const Subscriptions = () => {
               </div>
               <h3 className="text-xl font-bold mb-2">No subscriptions found</h3>
               <p className="text-muted-foreground text-center max-w-md mb-6 text-sm">
-                {searchQuery ? 'Try adjusting your search' : 'Add your recurring payments to track them'}
+                {searchQuery
+                  ? "Try adjusting your search"
+                  : "Add your recurring payments to track them"}
               </p>
               {!searchQuery && (
-                <Button className="gap-2 btn-premium" onClick={() => setShowAddModal(true)}>
+                <Button
+                  className="gap-2 btn-premium"
+                  onClick={() => setShowAddModal(true)}
+                >
                   <Plus className="h-4 w-4" />
                   Add Subscription
                 </Button>
@@ -353,8 +485,13 @@ const Subscriptions = () => {
             <div className="space-y-2">
               <AnimatePresence mode="popLayout">
                 {filteredSubscriptions.map((subscription, index) => {
-                  const category = categories.find(c => c.id === subscription.category_id);
-                  const daysUntil = differenceInDays(new Date(subscription.next_due), new Date());
+                  const category = categories.find(
+                    (c) => c.id === subscription.category_id,
+                  );
+                  const daysUntil = differenceInDays(
+                    new Date(subscription.next_due),
+                    new Date(),
+                  );
                   const isUrgent = daysUntil <= 3 && daysUntil >= 0;
                   const isPast = daysUntil < 0;
 
@@ -366,40 +503,75 @@ const Subscriptions = () => {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.03 }}
                       className={cn(
-                        'flex items-center gap-3 md:gap-4 rounded-2xl p-3.5 md:p-4 border backdrop-blur-sm transition-all duration-200 group hover:shadow-md',
+                        "flex items-center gap-3 md:gap-4 rounded-2xl p-3.5 md:p-4 border backdrop-blur-sm transition-all duration-200 group hover:shadow-md",
                         subscription.is_active
-                          ? 'bg-card/60 border-border/40 hover:border-border/70 hover:bg-card/80'
-                          : 'bg-muted/20 border-border/20 opacity-60',
-                        isUrgent && 'border-warning/30 bg-warning/5',
-                        isPast && 'border-expense/30 bg-expense/5'
+                          ? "bg-card/60 border-border/40 hover:border-border/70 hover:bg-card/80"
+                          : "bg-muted/20 border-border/20 opacity-60",
+                        isUrgent && "border-warning/30 bg-warning/5",
+                        isPast && "border-expense/30 bg-expense/5",
                       )}
                     >
                       <div
                         className={cn(
-                          'flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-xl text-lg shrink-0',
-                          isUrgent ? 'bg-warning/10' : isPast ? 'bg-expense/10' : 'bg-muted'
+                          "flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-xl text-lg shrink-0",
+                          isUrgent
+                            ? "bg-warning/10"
+                            : isPast
+                              ? "bg-expense/10"
+                              : "bg-muted",
                         )}
                       >
-                        {isUrgent ? <AlertCircle className="h-5 w-5 text-warning" /> : '📺'}
+                        {isUrgent ? (
+                          <AlertCircle className="h-5 w-5 text-warning" />
+                        ) : (
+                          "📺"
+                        )}
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="font-semibold text-sm truncate max-w-[100px] sm:max-w-[200px]" title={subscription.name}>{subscription.name}</h4>
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 capitalize shrink-0">{subscription.frequency}</Badge>
-                          {isPast && <Badge variant="destructive" className="text-[9px] px-1.5 py-0 shrink-0">Overdue</Badge>}
+                          <h4
+                            className="font-semibold text-sm truncate max-w-[100px] sm:max-w-[200px]"
+                            title={subscription.name}
+                          >
+                            {subscription.name}
+                          </h4>
+                          <Badge
+                            variant="outline"
+                            className="text-[9px] px-1.5 py-0 capitalize shrink-0"
+                          >
+                            {subscription.frequency}
+                          </Badge>
+                          {isPast && (
+                            <Badge
+                              variant="destructive"
+                              className="text-[9px] px-1.5 py-0 shrink-0"
+                            >
+                              Overdue
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {category?.name || 'Uncategorized'} • {isPast ? `${Math.abs(daysUntil)}d overdue` : daysUntil === 0 ? 'Due today' : daysUntil === 1 ? 'Tomorrow' : `in ${daysUntil}d`}
+                          {category?.name || "Uncategorized"} •{" "}
+                          {isPast
+                            ? `${Math.abs(daysUntil)}d overdue`
+                            : daysUntil === 0
+                              ? "Due today"
+                              : daysUntil === 1
+                                ? "Tomorrow"
+                                : `in ${daysUntil}d`}
                         </p>
                       </div>
 
                       <div className="text-right shrink-0">
-                        <p className="font-bold tabular-nums text-sm" title={formatCurrency(Number(subscription.amount))}>
+                        <p
+                          className="font-bold tabular-nums text-sm"
+                          title={formatCurrency(Number(subscription.amount))}
+                        >
                           {formatCurrency(Number(subscription.amount))}
                         </p>
                         <p className="text-[10px] text-muted-foreground">
-                          {format(new Date(subscription.next_due), 'MMM d')}
+                          {format(new Date(subscription.next_due), "MMM d")}
                         </p>
                       </div>
 
@@ -407,20 +579,42 @@ const Subscriptions = () => {
                         <Switch
                           checked={subscription.is_active || false}
                           onCheckedChange={(checked) =>
-                            updateSubscription.mutate({ id: subscription.id, is_active: checked })
+                            updateSubscription.mutate({
+                              id: subscription.id,
+                              is_active: checked,
+                            })
                           }
                           className="data-[state=checked]:bg-primary scale-90 sm:scale-100"
                         />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                            >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(subscription)}>Edit</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleMarkAsPaid(subscription)}>Mark as paid</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive" onClick={() => deleteSubscription.mutate(subscription.id)}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleEdit(subscription)}
+                            >
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleMarkAsPaid(subscription)}
+                            >
+                              Mark as paid
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() =>
+                                deleteSubscription.mutate(subscription.id)
+                              }
+                            >
+                              Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

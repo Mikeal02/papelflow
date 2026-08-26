@@ -1,13 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { qk, invalidateDomains } from '@/lib/queryKeys';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { qk, invalidateDomains } from "@/lib/queryKeys";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/integrations/supabase/types";
 
-export type Goal = Tables<'goals'>;
-export type GoalInsert = TablesInsert<'goals'>;
-export type GoalUpdate = TablesUpdate<'goals'>;
+export type Goal = Tables<"goals">;
+export type GoalInsert = TablesInsert<"goals">;
+export type GoalUpdate = TablesUpdate<"goals">;
 
 export function useGoals() {
   const { user } = useAuth();
@@ -16,9 +20,9 @@ export function useGoals() {
     queryKey: qk.goals(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .order('created_at', { ascending: true });
+        .from("goals")
+        .select("*")
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
       return data as Goal[];
@@ -32,11 +36,11 @@ export function useCreateGoal() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (goal: Omit<GoalInsert, 'user_id'>) => {
-      if (!user) throw new Error('Not authenticated');
+    mutationFn: async (goal: Omit<GoalInsert, "user_id">) => {
+      if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from('goals')
+        .from("goals")
         .insert({ ...goal, user_id: user.id })
         .select()
         .single();
@@ -45,11 +49,15 @@ export function useCreateGoal() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'goals');
-      toast({ title: 'Goal created successfully' });
+      invalidateDomains(queryClient, "goals");
+      toast({ title: "Goal created successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to create goal', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to create goal",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -59,11 +67,11 @@ export function useUpdateGoal() {
 
   return useMutation({
     mutationFn: async ({ id, ...goal }: GoalUpdate & { id: string }) => {
-      if (!id) throw new Error('Goal ID is required');
+      if (!id) throw new Error("Goal ID is required");
       const { data, error } = await supabase
-        .from('goals')
+        .from("goals")
         .update(goal)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -71,11 +79,15 @@ export function useUpdateGoal() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'goals');
-      toast({ title: 'Goal updated successfully' });
+      invalidateDomains(queryClient, "goals");
+      toast({ title: "Goal updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to update goal', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to update goal",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -85,15 +97,19 @@ export function useDeleteGoal() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('goals').delete().eq('id', id);
+      const { error } = await supabase.from("goals").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'goals');
-      toast({ title: 'Goal deleted successfully' });
+      invalidateDomains(queryClient, "goals");
+      toast({ title: "Goal deleted successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to delete goal', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to delete goal",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }

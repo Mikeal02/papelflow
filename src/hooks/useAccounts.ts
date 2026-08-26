@@ -1,13 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { qk, invalidateDomains } from '@/lib/queryKeys';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { qk, invalidateDomains } from "@/lib/queryKeys";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/integrations/supabase/types";
 
-export type Account = Tables<'accounts'>;
-export type AccountInsert = TablesInsert<'accounts'>;
-export type AccountUpdate = TablesUpdate<'accounts'>;
+export type Account = Tables<"accounts">;
+export type AccountInsert = TablesInsert<"accounts">;
+export type AccountUpdate = TablesUpdate<"accounts">;
 
 export function useAccounts() {
   const { user } = useAuth();
@@ -16,9 +20,9 @@ export function useAccounts() {
     queryKey: qk.accounts(user?.id),
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('accounts')
-        .select('*')
-        .order('created_at', { ascending: true });
+        .from("accounts")
+        .select("*")
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
       return data as Account[];
@@ -32,11 +36,11 @@ export function useCreateAccount() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (account: Omit<AccountInsert, 'user_id'>) => {
-      if (!user) throw new Error('Not authenticated');
+    mutationFn: async (account: Omit<AccountInsert, "user_id">) => {
+      if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from('accounts')
+        .from("accounts")
         .insert({ ...account, user_id: user.id })
         .select()
         .single();
@@ -45,11 +49,15 @@ export function useCreateAccount() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'accounts');
-      toast({ title: 'Account created successfully' });
+      invalidateDomains(queryClient, "accounts");
+      toast({ title: "Account created successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to create account', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to create account",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -60,9 +68,9 @@ export function useUpdateAccount() {
   return useMutation({
     mutationFn: async ({ id, ...account }: AccountUpdate & { id: string }) => {
       const { data, error } = await supabase
-        .from('accounts')
+        .from("accounts")
         .update(account)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
@@ -70,11 +78,15 @@ export function useUpdateAccount() {
       return data;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'accounts');
-      toast({ title: 'Account updated successfully' });
+      invalidateDomains(queryClient, "accounts");
+      toast({ title: "Account updated successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to update account', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to update account",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }
@@ -84,15 +96,19 @@ export function useDeleteAccount() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('accounts').delete().eq('id', id);
+      const { error } = await supabase.from("accounts").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      invalidateDomains(queryClient, 'accounts');
-      toast({ title: 'Account deleted successfully' });
+      invalidateDomains(queryClient, "accounts");
+      toast({ title: "Account deleted successfully" });
     },
     onError: (error: Error) => {
-      toast({ title: 'Failed to delete account', description: error.message, variant: 'destructive' });
+      toast({
+        title: "Failed to delete account",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 }

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -54,19 +54,20 @@ const queryClient = new QueryClient({
       refetchOnReconnect: true,
       retry: (failureCount, err: unknown) => {
         // Do not retry auth/permission errors — they will never recover.
-        const status = (err as { status?: number; statusCode?: number } | null)?.status
-          ?? (err as { statusCode?: number } | null)?.statusCode;
+        const status =
+          (err as { status?: number; statusCode?: number } | null)?.status ??
+          (err as { statusCode?: number } | null)?.statusCode;
         if (status && [400, 401, 403, 404, 422].includes(status)) return false;
         return failureCount < 2;
       },
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
       structuralSharing: true,
-      networkMode: 'online',
+      networkMode: "online",
     },
     mutations: {
       retry: 1,
       retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 2000),
-      networkMode: 'online',
+      networkMode: "online",
     },
   },
 });
@@ -77,34 +78,159 @@ const App = () => (
       <AuthProvider>
         <CurrencyProvider>
           <ActionCenterProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
-                <Route element={<ProtectedRoute><AnimatedLayout /></ProtectedRoute>}>
-                  <Route path="/" element={<Suspense fallback={<RouteLoadingFallback />}><Index /></Suspense>} />
-                  <Route path="/transactions" element={<Suspense fallback={<RouteLoadingFallback />}><Transactions /></Suspense>} />
-                  <Route path="/accounts" element={<Suspense fallback={<RouteLoadingFallback />}><Accounts /></Suspense>} />
-                  <Route path="/budgets" element={<Suspense fallback={<RouteLoadingFallback />}><Budgets /></Suspense>} />
-                  <Route path="/reports" element={<Suspense fallback={<RouteLoadingFallback />}><Reports /></Suspense>} />
-                  <Route path="/subscriptions" element={<Suspense fallback={<RouteLoadingFallback />}><Subscriptions /></Suspense>} />
-                  <Route path="/goals" element={<Suspense fallback={<RouteLoadingFallback />}><Goals /></Suspense>} />
-                  <Route path="/net-worth" element={<Suspense fallback={<RouteLoadingFallback />}><NetWorth /></Suspense>} />
-                  <Route path="/categories" element={<Suspense fallback={<RouteLoadingFallback />}><Categories /></Suspense>} />
-                  <Route path="/debt" element={<Suspense fallback={<RouteLoadingFallback />}><DebtTracker /></Suspense>} />
-                  <Route path="/recurring" element={<Suspense fallback={<RouteLoadingFallback />}><RecurringPayments /></Suspense>} />
-                  <Route path="/tax" element={<Suspense fallback={<RouteLoadingFallback />}><TaxEstimator /></Suspense>} />
-                  <Route path="/investments" element={<Suspense fallback={<RouteLoadingFallback />}><Investments /></Suspense>} />
-                  <Route path="/challenges" element={<Suspense fallback={<RouteLoadingFallback />}><Challenges /></Suspense>} />
-                  <Route path="/analytics" element={<Suspense fallback={<RouteLoadingFallback />}><Analytics /></Suspense>} />
-                  <Route path="/settings" element={<Suspense fallback={<RouteLoadingFallback />}><Settings /></Suspense>} />
-                </Route>
-                <Route path="*" element={<Suspense fallback={<RouteLoadingFallback />}><NotFound /></Suspense>} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <AnimatedLayout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route
+                      path="/"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Index />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/transactions"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Transactions />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/accounts"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Accounts />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/budgets"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Budgets />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/reports"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Reports />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/subscriptions"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Subscriptions />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/goals"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Goals />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/net-worth"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <NetWorth />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/categories"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Categories />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/debt"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <DebtTracker />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/recurring"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <RecurringPayments />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/tax"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <TaxEstimator />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/investments"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Investments />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/challenges"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Challenges />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/analytics"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Analytics />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <Settings />
+                        </Suspense>
+                      }
+                    />
+                  </Route>
+                  <Route
+                    path="*"
+                    element={
+                      <Suspense fallback={<RouteLoadingFallback />}>
+                        <NotFound />
+                      </Suspense>
+                    }
+                  />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
           </ActionCenterProvider>
         </CurrencyProvider>
       </AuthProvider>

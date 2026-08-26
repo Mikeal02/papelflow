@@ -1,20 +1,20 @@
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useRef, ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface EliteCardProps {
   children: ReactNode;
   className?: string;
-  glowColor?: 'primary' | 'income' | 'expense' | 'accent';
-  intensity?: 'low' | 'medium' | 'high';
+  glowColor?: "primary" | "income" | "expense" | "accent";
+  intensity?: "low" | "medium" | "high";
   enableReflection?: boolean;
 }
 
 export function EliteCard({
   children,
   className,
-  glowColor = 'primary',
-  intensity = 'medium',
+  glowColor = "primary",
+  intensity = "medium",
   enableReflection = true,
 }: EliteCardProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -22,11 +22,23 @@ export function EliteCard({
   const mouseY = useMotionValue(0);
 
   const springConfig = { damping: 25, stiffness: 200 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), springConfig);
+  const rotateX = useSpring(
+    useTransform(mouseY, [-0.5, 0.5], [8, -8]),
+    springConfig,
+  );
+  const rotateY = useSpring(
+    useTransform(mouseX, [-0.5, 0.5], [-8, 8]),
+    springConfig,
+  );
 
-  const glareX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), springConfig);
-  const glareY = useSpring(useTransform(mouseY, [-0.5, 0.5], [0, 100]), springConfig);
+  const glareX = useSpring(
+    useTransform(mouseX, [-0.5, 0.5], [0, 100]),
+    springConfig,
+  );
+  const glareY = useSpring(
+    useTransform(mouseY, [-0.5, 0.5], [0, 100]),
+    springConfig,
+  );
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return;
@@ -43,10 +55,10 @@ export function EliteCard({
   };
 
   const colorMap = {
-    primary: 'var(--primary)',
-    income: 'var(--income)',
-    expense: 'var(--expense)',
-    accent: 'var(--accent)',
+    primary: "var(--primary)",
+    income: "var(--income)",
+    expense: "var(--expense)",
+    accent: "var(--accent)",
   };
 
   const intensityMap = {
@@ -65,14 +77,14 @@ export function EliteCard({
       style={{
         rotateX,
         rotateY,
-        transformStyle: 'preserve-3d',
+        transformStyle: "preserve-3d",
         perspective: 1000,
       }}
       className={cn(
-        'relative rounded-2xl overflow-hidden',
-        'bg-card border border-border/30',
-        'transition-shadow duration-300',
-        className
+        "relative rounded-2xl overflow-hidden",
+        "bg-card border border-border/30",
+        "transition-shadow duration-300",
+        className,
       )}
       whileHover={{
         boxShadow: `0 25px 50px -12px hsl(${colorMap[glowColor]} / ${shadow}), 0 12px 24px -8px hsl(var(--foreground) / 0.05)`,
@@ -80,7 +92,7 @@ export function EliteCard({
     >
       {/* Multi-layer background */}
       <div className="absolute inset-0 bg-gradient-to-br from-card via-card to-muted/20" />
-      
+
       {/* Animated border gradient */}
       <motion.div
         className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500"
@@ -92,9 +104,10 @@ export function EliteCard({
             transparent 80%, 
             hsl(${colorMap[glowColor]} / ${glow}))`,
           padding: 1,
-          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-          WebkitMaskComposite: 'xor',
-          maskComposite: 'exclude',
+          WebkitMask:
+            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
         }}
       />
 
@@ -109,15 +122,16 @@ export function EliteCard({
       )}
 
       {/* Inner content with 3D depth */}
-      <div style={{ transform: 'translateZ(20px)' }} className="relative z-10">
+      <div style={{ transform: "translateZ(20px)" }} className="relative z-10">
         {children}
       </div>
 
       {/* Bottom reflection */}
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none"
         style={{
-          background: 'linear-gradient(to top, hsl(var(--card) / 0.8), transparent)',
+          background:
+            "linear-gradient(to top, hsl(var(--card) / 0.8), transparent)",
         }}
       />
     </motion.div>
@@ -127,26 +141,31 @@ export function EliteCard({
 // Floating badge with glow
 interface GlowBadgeProps {
   children: ReactNode;
-  variant?: 'primary' | 'income' | 'expense' | 'warning';
+  variant?: "primary" | "income" | "expense" | "warning";
   pulse?: boolean;
   className?: string;
 }
 
-export function GlowBadge({ children, variant = 'primary', pulse = false, className }: GlowBadgeProps) {
+export function GlowBadge({
+  children,
+  variant = "primary",
+  pulse = false,
+  className,
+}: GlowBadgeProps) {
   const variantStyles = {
-    primary: 'bg-primary/15 text-primary border-primary/20',
-    income: 'bg-income/15 text-income border-income/20',
-    expense: 'bg-expense/15 text-expense border-expense/20',
-    warning: 'bg-warning/15 text-warning border-warning/20',
+    primary: "bg-primary/15 text-primary border-primary/20",
+    income: "bg-income/15 text-income border-income/20",
+    expense: "bg-expense/15 text-expense border-expense/20",
+    warning: "bg-warning/15 text-warning border-warning/20",
   };
 
   return (
     <motion.span
       className={cn(
-        'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border',
+        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border",
         variantStyles[variant],
-        pulse && 'animate-pulse',
-        className
+        pulse && "animate-pulse",
+        className,
       )}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -164,17 +183,24 @@ interface MorphNumberProps {
   className?: string;
 }
 
-export function MorphNumber({ value, prefix = '', suffix = '', className }: MorphNumberProps) {
+export function MorphNumber({
+  value,
+  prefix = "",
+  suffix = "",
+  className,
+}: MorphNumberProps) {
   return (
     <motion.span
       key={value}
-      initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+      initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
       transition={{ duration: 0.3 }}
       className={className}
     >
-      {prefix}{value.toLocaleString()}{suffix}
+      {prefix}
+      {value.toLocaleString()}
+      {suffix}
     </motion.span>
   );
 }

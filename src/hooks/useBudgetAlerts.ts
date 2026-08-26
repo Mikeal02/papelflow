@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { sendBudgetAlert } from '@/lib/email-service';
-import { toast } from '@/hooks/use-toast';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useEffect, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { sendBudgetAlert } from "@/lib/email-service";
+import { toast } from "@/hooks/use-toast";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface BudgetWithSpending {
   id: string;
@@ -18,28 +18,29 @@ interface BudgetWithSpending {
 export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
   const { user } = useAuth();
   const { currency } = useCurrency();
-  const { sendBudgetAlert: sendPushAlert, isSubscribed } = usePushNotifications();
+  const { sendBudgetAlert: sendPushAlert, isSubscribed } =
+    usePushNotifications();
   const alertedBudgets = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user?.email || budgets.length === 0) return;
 
     budgets.forEach(async (budget) => {
-      const alertKey = `${budget.id}-${budget.percentage >= 100 ? '100' : '80'}`;
-      
+      const alertKey = `${budget.id}-${budget.percentage >= 100 ? "100" : "80"}`;
+
       // Skip if already alerted for this threshold
       if (alertedBudgets.current.has(alertKey)) return;
 
       // Check if budget exceeds 80% or 100%
       if (budget.percentage >= 80) {
         const isOverBudget = budget.percentage >= 100;
-        const categoryName = budget.category?.name || 'Budget';
-        
+        const categoryName = budget.category?.name || "Budget";
+
         // Show toast notification
         toast({
-          title: isOverBudget ? '🚨 Budget Exceeded!' : '⚠️ Budget Warning',
+          title: isOverBudget ? "🚨 Budget Exceeded!" : "⚠️ Budget Warning",
           description: `${categoryName}: ${budget.percentage.toFixed(0)}% spent`,
-          variant: isOverBudget ? 'destructive' : 'default',
+          variant: isOverBudget ? "destructive" : "default",
         });
 
         // Send push notification if enabled
@@ -54,18 +55,20 @@ export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
         try {
           await sendBudgetAlert(
             user.email,
-            user.user_metadata?.full_name || user.email.split('@')[0],
+            user.user_metadata?.full_name || user.email.split("@")[0],
             {
               budgetName: categoryName,
               spent: budget.spent,
               limit: budget.amount,
               percentage: budget.percentage,
               currency: currency,
-            }
+            },
           );
         } catch (error) {
           // Email sending may fail if domain not verified - that's okay
-          console.log('Budget alert email not sent (domain may not be verified)');
+          console.log(
+            "Budget alert email not sent (domain may not be verified)",
+          );
         }
       }
     });
@@ -78,4 +81,3 @@ export function useBudgetAlerts(budgets: BudgetWithSpending[]) {
 
   return { resetAlerts };
 }
-

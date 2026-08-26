@@ -1,6 +1,13 @@
-import { useState, useMemo, useEffect, useDeferredValue } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format, subDays, startOfMonth, endOfMonth, subMonths, isWithinInterval } from 'date-fns';
+import { useState, useMemo, useEffect, useDeferredValue } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  format,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  isWithinInterval,
+} from "date-fns";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -17,76 +24,88 @@ import {
   CheckSquare,
   Trash2,
   Tag,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ReceiptScanner } from '@/components/transactions/ReceiptScanner';
-import { CSVImportModal } from '@/components/transactions/CSVImportModal';
-import { Upload } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ReceiptScanner } from "@/components/transactions/ReceiptScanner";
+import { CSVImportModal } from "@/components/transactions/CSVImportModal";
+import { Upload } from "lucide-react";
 import {
   useTransactions,
   useDeleteTransaction,
   useDeleteTransactions,
   HISTORY_TX_LIMIT,
   type Transaction,
-} from '@/hooks/useTransactions';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useCategories } from '@/hooks/useCategories';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { exportTransactionsToCSV } from '@/lib/export-utils';
-import { cn } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
-import { EditTransactionModal } from '@/components/transactions/EditTransactionModal';
-import { useCreateTransaction } from '@/hooks/useTransactions';
-import { DuplicateWarningDialog } from '@/components/transactions/DuplicateWarningDialog';
-import { findDuplicates, type DuplicateMatch } from '@/lib/duplicate-detection';
+} from "@/hooks/useTransactions";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useCategories } from "@/hooks/useCategories";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { exportTransactionsToCSV } from "@/lib/export-utils";
+import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { EditTransactionModal } from "@/components/transactions/EditTransactionModal";
+import { useCreateTransaction } from "@/hooks/useTransactions";
+import { DuplicateWarningDialog } from "@/components/transactions/DuplicateWarningDialog";
+import { findDuplicates, type DuplicateMatch } from "@/lib/duplicate-detection";
 
 const PAGE_SIZE = 25;
 
 const DATE_RANGES = [
-  { label: 'All Time', value: 'all' },
-  { label: 'Today', value: 'today' },
-  { label: 'Last 7 days', value: '7d' },
-  { label: 'Last 30 days', value: '30d' },
-  { label: 'This Month', value: 'this-month' },
-  { label: 'Last Month', value: 'last-month' },
-  { label: 'Last 3 Months', value: '3m' },
-  { label: 'Last 6 Months', value: '6m' },
+  { label: "All Time", value: "all" },
+  { label: "Today", value: "today" },
+  { label: "Last 7 days", value: "7d" },
+  { label: "Last 30 days", value: "30d" },
+  { label: "This Month", value: "this-month" },
+  { label: "Last Month", value: "last-month" },
+  { label: "Last 3 Months", value: "3m" },
+  { label: "Last 6 Months", value: "6m" },
 ];
 
 const Transactions = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [accountFilter, setAccountFilter] = useState<string>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [accountFilter, setAccountFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [pendingDuplicate, setPendingDuplicate] = useState<Transaction | null>(null);
-  const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>([]);
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
+  const [pendingDuplicate, setPendingDuplicate] = useState<Transaction | null>(
+    null,
+  );
+  const [duplicateMatches, setDuplicateMatches] = useState<DuplicateMatch[]>(
+    [],
+  );
 
   // This page pages and filters over history, so it needs a wider window than
   // the dashboard widgets. The limit is part of the cache key, so both windows
   // coexist instead of evicting each other.
-  const { data: transactions = [], isLoading } = useTransactions(HISTORY_TX_LIMIT);
+  const { data: transactions = [], isLoading } =
+    useTransactions(HISTORY_TX_LIMIT);
   const { data: accounts = [] } = useAccounts();
   const { data: categories = [] } = useCategories();
   const deleteTransaction = useDeleteTransaction();
@@ -98,7 +117,7 @@ const Transactions = () => {
     await createTransaction.mutateAsync({
       type: t.type,
       amount: Number(t.amount),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       account_id: t.account_id,
       category_id: t.category_id,
       to_account_id: t.to_account_id,
@@ -112,12 +131,12 @@ const Transactions = () => {
       {
         type: t.type,
         amount: Number(t.amount),
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split("T")[0],
         account_id: t.account_id,
         category_id: t.category_id,
         payee: t.payee,
       },
-      transactions as any
+      transactions as any,
     );
 
     if (matches.length > 0) {
@@ -131,14 +150,25 @@ const Transactions = () => {
   const dateInterval = useMemo(() => {
     const now = new Date();
     switch (dateRange) {
-      case 'today': return { start: new Date(now.toDateString()), end: now };
-      case '7d': return { start: subDays(now, 7), end: now };
-      case '30d': return { start: subDays(now, 30), end: now };
-      case 'this-month': return { start: startOfMonth(now), end: endOfMonth(now) };
-      case 'last-month': return { start: startOfMonth(subMonths(now, 1)), end: endOfMonth(subMonths(now, 1)) };
-      case '3m': return { start: subMonths(now, 3), end: now };
-      case '6m': return { start: subMonths(now, 6), end: now };
-      default: return null;
+      case "today":
+        return { start: new Date(now.toDateString()), end: now };
+      case "7d":
+        return { start: subDays(now, 7), end: now };
+      case "30d":
+        return { start: subDays(now, 30), end: now };
+      case "this-month":
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      case "last-month":
+        return {
+          start: startOfMonth(subMonths(now, 1)),
+          end: endOfMonth(subMonths(now, 1)),
+        };
+      case "3m":
+        return { start: subMonths(now, 3), end: now };
+      case "6m":
+        return { start: subMonths(now, 6), end: now };
+      default:
+        return null;
     }
   }, [dateRange]);
 
@@ -154,21 +184,37 @@ const Transactions = () => {
 
     return transactions.filter((transaction) => {
       if (needle) {
-        const haystack = `${transaction.payee ?? ''} ${transaction.notes ?? ''}`.toLowerCase();
+        const haystack =
+          `${transaction.payee ?? ""} ${transaction.notes ?? ""}`.toLowerCase();
         if (!haystack.includes(needle)) return false;
       }
-      if (typeFilter !== 'all' && transaction.type !== typeFilter) return false;
-      if (accountFilter !== 'all' && transaction.account_id !== accountFilter) return false;
-      if (categoryFilter !== 'all' && transaction.category_id !== categoryFilter) return false;
+      if (typeFilter !== "all" && transaction.type !== typeFilter) return false;
+      if (accountFilter !== "all" && transaction.account_id !== accountFilter)
+        return false;
+      if (
+        categoryFilter !== "all" &&
+        transaction.category_id !== categoryFilter
+      )
+        return false;
       if (from !== null && to !== null) {
         const ts = new Date(transaction.date).getTime();
         if (ts < from || ts > to) return false;
       }
       return true;
     });
-  }, [transactions, deferredSearch, typeFilter, accountFilter, categoryFilter, dateInterval]);
+  }, [
+    transactions,
+    deferredSearch,
+    typeFilter,
+    accountFilter,
+    categoryFilter,
+    dateInterval,
+  ]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredTransactions.length / PAGE_SIZE),
+  );
 
   // Narrowing the filters used to leave the user stranded on a page index that
   // no longer exists, rendering an empty list with no way back.
@@ -177,7 +223,11 @@ const Transactions = () => {
   }, [currentPage, totalPages]);
 
   const paginatedTransactions = useMemo(
-    () => filteredTransactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    () =>
+      filteredTransactions.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE,
+      ),
     [filteredTransactions, currentPage],
   );
 
@@ -186,10 +236,15 @@ const Transactions = () => {
     let income = 0;
     let expenses = 0;
     for (const t of filteredTransactions) {
-      if (t.type === 'income') income += Number(t.amount);
-      else if (t.type === 'expense') expenses += Number(t.amount);
+      if (t.type === "income") income += Number(t.amount);
+      else if (t.type === "expense") expenses += Number(t.amount);
     }
-    return { income, expenses, net: income - expenses, count: filteredTransactions.length };
+    return {
+      income,
+      expenses,
+      net: income - expenses,
+      count: filteredTransactions.length,
+    };
   }, [filteredTransactions]);
 
   const { groupedTransactions, sortedDates } = useMemo(() => {
@@ -199,13 +254,17 @@ const Transactions = () => {
     }
     // Dates are ISO `YYYY-MM-DD`, so lexicographic sort is correct and avoids
     // constructing two Date objects per comparison.
-    return { groupedTransactions: groups, sortedDates: Object.keys(groups).sort().reverse() };
+    return {
+      groupedTransactions: groups,
+      sortedDates: Object.keys(groups).sort().reverse(),
+    };
   }, [paginatedTransactions]);
 
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -214,7 +273,7 @@ const Transactions = () => {
     if (selectedIds.size === paginatedTransactions.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(paginatedTransactions.map(t => t.id)));
+      setSelectedIds(new Set(paginatedTransactions.map((t) => t.id)));
     }
   };
 
@@ -226,11 +285,14 @@ const Transactions = () => {
 
   const handleExport = () => {
     if (filteredTransactions.length === 0) {
-      toast({ title: 'No transactions to export', variant: 'destructive' });
+      toast({ title: "No transactions to export", variant: "destructive" });
       return;
     }
     exportTransactionsToCSV(filteredTransactions, formatCurrency);
-    toast({ title: 'Export successful!', description: `Exported ${filteredTransactions.length} transactions` });
+    toast({
+      title: "Export successful!",
+      description: `Exported ${filteredTransactions.length} transactions`,
+    });
   };
 
   if (isLoading) {
@@ -241,7 +303,9 @@ const Transactions = () => {
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
             <Loader2 className="h-12 w-12 animate-spin text-primary relative" />
           </div>
-          <p className="text-muted-foreground animate-pulse">Loading transactions...</p>
+          <p className="text-muted-foreground animate-pulse">
+            Loading transactions...
+          </p>
         </div>
       </>
     );
@@ -251,17 +315,37 @@ const Transactions = () => {
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-sm font-semibold">Date Range</label>
-        <Select value={dateRange} onValueChange={v => { setDateRange(v); setCurrentPage(1); }}>
-          <SelectTrigger className="w-full bg-muted/30"><SelectValue /></SelectTrigger>
+        <Select
+          value={dateRange}
+          onValueChange={(v) => {
+            setDateRange(v);
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="w-full bg-muted/30">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
-            {DATE_RANGES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+            {DATE_RANGES.map((r) => (
+              <SelectItem key={r.value} value={r.value}>
+                {r.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-2">
         <label className="text-sm font-semibold">Type</label>
-        <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setCurrentPage(1); }}>
-          <SelectTrigger className="w-full bg-muted/30"><SelectValue /></SelectTrigger>
+        <Select
+          value={typeFilter}
+          onValueChange={(v) => {
+            setTypeFilter(v);
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="w-full bg-muted/30">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="expense">Expenses</SelectItem>
@@ -272,21 +356,45 @@ const Transactions = () => {
       </div>
       <div className="space-y-2">
         <label className="text-sm font-semibold">Account</label>
-        <Select value={accountFilter} onValueChange={v => { setAccountFilter(v); setCurrentPage(1); }}>
-          <SelectTrigger className="w-full bg-muted/30"><SelectValue /></SelectTrigger>
+        <Select
+          value={accountFilter}
+          onValueChange={(v) => {
+            setAccountFilter(v);
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="w-full bg-muted/30">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Accounts</SelectItem>
-            {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+            {accounts.map((a) => (
+              <SelectItem key={a.id} value={a.id}>
+                {a.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-2">
         <label className="text-sm font-semibold">Category</label>
-        <Select value={categoryFilter} onValueChange={v => { setCategoryFilter(v); setCurrentPage(1); }}>
-          <SelectTrigger className="w-full bg-muted/30"><SelectValue /></SelectTrigger>
+        <Select
+          value={categoryFilter}
+          onValueChange={(v) => {
+            setCategoryFilter(v);
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="w-full bg-muted/30">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            {categories.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -304,18 +412,28 @@ const Transactions = () => {
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Transactions</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Transactions
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               {filteredStats.count} transactions found
             </p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <ReceiptScanner />
-            <Button variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={() => setIsImportOpen(true)}>
+            <Button
+              variant="outline"
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={() => setIsImportOpen(true)}
+            >
               <Upload className="h-4 w-4" />
               <span className="hidden sm:inline">Import</span>
             </Button>
-            <Button variant="outline" className="gap-2 flex-1 sm:flex-none" onClick={handleExport}>
+            <Button
+              variant="outline"
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={handleExport}
+            >
               <Download className="h-4 w-4" />
               <span className="hidden sm:inline">Export</span>
             </Button>
@@ -330,16 +448,31 @@ const Transactions = () => {
           className="grid grid-cols-3 gap-2 sm:gap-4"
         >
           <div className="stat-card p-2.5 sm:p-4 text-center">
-            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</p>
-            <p className="text-xs sm:text-base font-bold text-income mt-1 truncate">{formatCurrency(filteredStats.income)}</p>
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+              Income
+            </p>
+            <p className="text-xs sm:text-base font-bold text-income mt-1 truncate">
+              {formatCurrency(filteredStats.income)}
+            </p>
           </div>
           <div className="stat-card p-2.5 sm:p-4 text-center">
-            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Expenses</p>
-            <p className="text-xs sm:text-base font-bold text-expense mt-1 truncate">{formatCurrency(filteredStats.expenses)}</p>
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+              Expenses
+            </p>
+            <p className="text-xs sm:text-base font-bold text-expense mt-1 truncate">
+              {formatCurrency(filteredStats.expenses)}
+            </p>
           </div>
           <div className="stat-card p-2.5 sm:p-4 text-center">
-            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Net</p>
-            <p className={cn('text-xs sm:text-base font-bold mt-1 truncate', filteredStats.net >= 0 ? 'text-income' : 'text-expense')}>
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+              Net
+            </p>
+            <p
+              className={cn(
+                "text-xs sm:text-base font-bold mt-1 truncate",
+                filteredStats.net >= 0 ? "text-income" : "text-expense",
+              )}
+            >
               {formatCurrency(filteredStats.net)}
             </p>
           </div>
@@ -357,23 +490,44 @@ const Transactions = () => {
             <Input
               placeholder="Search transactions..."
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="pl-10 bg-muted/30 border-border/50"
             />
           </div>
-          
+
           <div className="hidden lg:flex gap-2">
-            <Select value={dateRange} onValueChange={v => { setDateRange(v); setCurrentPage(1); }}>
+            <Select
+              value={dateRange}
+              onValueChange={(v) => {
+                setDateRange(v);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-[130px] bg-muted/30 border-border/50">
                 <Calendar className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {DATE_RANGES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                {DATE_RANGES.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    {r.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setCurrentPage(1); }}>
-              <SelectTrigger className="w-[120px] bg-muted/30 border-border/50"><SelectValue /></SelectTrigger>
+            <Select
+              value={typeFilter}
+              onValueChange={(v) => {
+                setTypeFilter(v);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[120px] bg-muted/30 border-border/50">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="expense">Expenses</SelectItem>
@@ -381,34 +535,64 @@ const Transactions = () => {
                 <SelectItem value="transfer">Transfers</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={categoryFilter} onValueChange={v => { setCategoryFilter(v); setCurrentPage(1); }}>
+            <Select
+              value={categoryFilter}
+              onValueChange={(v) => {
+                setCategoryFilter(v);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-[130px] bg-muted/30 border-border/50">
                 <Tag className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <Select value={accountFilter} onValueChange={v => { setAccountFilter(v); setCurrentPage(1); }}>
-              <SelectTrigger className="w-[140px] bg-muted/30 border-border/50"><SelectValue /></SelectTrigger>
+            <Select
+              value={accountFilter}
+              onValueChange={(v) => {
+                setAccountFilter(v);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[140px] bg-muted/30 border-border/50">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Accounts</SelectItem>
-                {accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                {accounts.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden shrink-0 border-border/50">
+              <Button
+                variant="outline"
+                size="icon"
+                className="lg:hidden shrink-0 border-border/50"
+              >
                 <Filter className="h-4 w-4" />
               </Button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-auto rounded-t-2xl">
-              <SheetHeader><SheetTitle>Filters</SheetTitle></SheetHeader>
-              <div className="mt-4 pb-4"><FilterContent /></div>
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4 pb-4">
+                <FilterContent />
+              </div>
             </SheetContent>
           </Sheet>
         </motion.div>
@@ -417,16 +601,29 @@ const Transactions = () => {
         {selectedIds.size > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20"
           >
             <CheckSquare className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">{selectedIds.size} selected</span>
-            <Button variant="destructive" size="sm" className="ml-auto gap-1.5" onClick={handleBulkDelete}>
+            <span className="text-sm font-medium">
+              {selectedIds.size} selected
+            </span>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="ml-auto gap-1.5"
+              onClick={handleBulkDelete}
+            >
               <Trash2 className="h-3.5 w-3.5" />
               Delete
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>Cancel</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              Cancel
+            </Button>
           </motion.div>
         )}
 
@@ -446,33 +643,49 @@ const Transactions = () => {
               </div>
               <h3 className="text-xl font-bold mb-2">No transactions found</h3>
               <p className="text-sm text-muted-foreground max-w-sm">
-                {searchQuery || typeFilter !== 'all' || dateRange !== 'all' ? 'Try adjusting your filters' : 'Add your first transaction to start tracking'}
+                {searchQuery || typeFilter !== "all" || dateRange !== "all"
+                  ? "Try adjusting your filters"
+                  : "Add your first transaction to start tracking"}
               </p>
             </motion.div>
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-5"
+            >
               {/* Select All */}
               <div className="flex items-center gap-2 px-1">
                 <Checkbox
-                  checked={selectedIds.size === paginatedTransactions.length && paginatedTransactions.length > 0}
+                  checked={
+                    selectedIds.size === paginatedTransactions.length &&
+                    paginatedTransactions.length > 0
+                  }
                   onCheckedChange={selectAll}
                 />
-                <span className="text-xs text-muted-foreground">Select all on page</span>
+                <span className="text-xs text-muted-foreground">
+                  Select all on page
+                </span>
               </div>
 
               {sortedDates.map((date, dateIndex) => (
-                <motion.div 
+                <motion.div
                   key={date}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + dateIndex * 0.03 }}
                 >
                   <h3 className="text-xs font-semibold text-muted-foreground mb-3 sticky top-16 md:top-0 bg-background/90 backdrop-blur-sm py-2 z-10 border-b border-border/30">
-                    {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                    {format(new Date(date), "EEEE, MMMM d, yyyy")}
                   </h3>
                   <div className="space-y-2">
                     {groupedTransactions[date].map((transaction, index) => {
-                      const Icon = transaction.type === 'income' ? ArrowUpRight : transaction.type === 'transfer' ? ArrowLeftRight : ArrowDownLeft;
+                      const Icon =
+                        transaction.type === "income"
+                          ? ArrowUpRight
+                          : transaction.type === "transfer"
+                            ? ArrowLeftRight
+                            : ArrowDownLeft;
                       const isSelected = selectedIds.has(transaction.id);
 
                       return (
@@ -480,11 +693,14 @@ const Transactions = () => {
                           key={transaction.id}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: dateIndex * 0.02 + index * 0.02 }}
+                          transition={{
+                            delay: dateIndex * 0.02 + index * 0.02,
+                          }}
                           className={cn(
-                            'flex items-center gap-3 md:gap-4 rounded-2xl bg-card/60 backdrop-blur-sm p-3.5 md:p-4 border border-border/20 hover:border-primary/25 hover:bg-card/90 transition-all duration-300 group cursor-default',
-                            'hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.15)]',
-                            isSelected && 'border-primary/40 bg-primary/5 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]'
+                            "flex items-center gap-3 md:gap-4 rounded-2xl bg-card/60 backdrop-blur-sm p-3.5 md:p-4 border border-border/20 hover:border-primary/25 hover:bg-card/90 transition-all duration-300 group cursor-default",
+                            "hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.15)]",
+                            isSelected &&
+                              "border-primary/40 bg-primary/5 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]",
                           )}
                         >
                           <Checkbox
@@ -494,74 +710,107 @@ const Transactions = () => {
                           />
                           <div
                             className={cn(
-                              'flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-xl transition-all',
-                              transaction.type === 'income' && 'bg-gradient-to-br from-income/20 to-income/10',
-                              transaction.type === 'expense' && 'bg-gradient-to-br from-expense/20 to-expense/10',
-                              transaction.type === 'transfer' && 'bg-gradient-to-br from-transfer/20 to-transfer/10'
+                              "flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-xl transition-all",
+                              transaction.type === "income" &&
+                                "bg-gradient-to-br from-income/20 to-income/10",
+                              transaction.type === "expense" &&
+                                "bg-gradient-to-br from-expense/20 to-expense/10",
+                              transaction.type === "transfer" &&
+                                "bg-gradient-to-br from-transfer/20 to-transfer/10",
                             )}
                           >
-                            <Icon className={cn(
-                              'h-5 w-5',
-                              transaction.type === 'income' && 'text-income',
-                              transaction.type === 'expense' && 'text-expense',
-                              transaction.type === 'transfer' && 'text-transfer'
-                            )} />
+                            <Icon
+                              className={cn(
+                                "h-5 w-5",
+                                transaction.type === "income" && "text-income",
+                                transaction.type === "expense" &&
+                                  "text-expense",
+                                transaction.type === "transfer" &&
+                                  "text-transfer",
+                              )}
+                            />
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="font-semibold text-sm truncate">
                                 {transaction.payee ||
-                                  (transaction.type === 'transfer'
-                                    ? 'Transfer'
-                                    : (transaction.category as any)?.name || 'Uncategorized')}
+                                  (transaction.type === "transfer"
+                                    ? "Transfer"
+                                    : (transaction.category as any)?.name ||
+                                      "Uncategorized")}
                               </p>
                               {transaction.is_recurring && (
                                 <Repeat className="h-3 w-3 text-muted-foreground shrink-0" />
                               )}
-                              {transaction.tags && transaction.tags.length > 0 && (
-                                <span className="text-[10px] bg-muted/50 px-1.5 py-0.5 rounded text-muted-foreground hidden sm:inline">
-                                  {transaction.tags[0]}
-                                </span>
-                              )}
+                              {transaction.tags &&
+                                transaction.tags.length > 0 && (
+                                  <span className="text-[10px] bg-muted/50 px-1.5 py-0.5 rounded text-muted-foreground hidden sm:inline">
+                                    {transaction.tags[0]}
+                                  </span>
+                                )}
                             </div>
                             <p className="text-xs text-muted-foreground truncate mt-0.5">
                               {(transaction.account as any)?.name}
-                              {(transaction.category as any)?.name && <> • {(transaction.category as any).name}</>}
+                              {(transaction.category as any)?.name && (
+                                <> • {(transaction.category as any).name}</>
+                              )}
                               {transaction.notes && <> • {transaction.notes}</>}
                             </p>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className={cn(
-                              'text-sm md:text-base font-bold tabular-nums',
-                              transaction.type === 'income' && 'amount-positive',
-                              transaction.type === 'expense' && 'amount-negative',
-                              transaction.type === 'transfer' && 'amount-neutral'
-                            )}>
-                             {formatCurrency(
-  transaction.type === 'expense'
-    ? -Math.abs(Number(transaction.amount))
-    : Number(transaction.amount),
-  transaction.type === 'income' || transaction.type === 'expense'
-)}
+                            <span
+                              className={cn(
+                                "text-sm md:text-base font-bold tabular-nums",
+                                transaction.type === "income" &&
+                                  "amount-positive",
+                                transaction.type === "expense" &&
+                                  "amount-negative",
+                                transaction.type === "transfer" &&
+                                  "amount-neutral",
+                              )}
+                            >
+                              {formatCurrency(
+                                transaction.type === "expense"
+                                  ? -Math.abs(Number(transaction.amount))
+                                  : Number(transaction.amount),
+                                transaction.type === "income" ||
+                                  transaction.type === "expense",
+                              )}
                             </span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                                >
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-40">
-                                <DropdownMenuItem onClick={() => setEditingTransaction(transaction as Transaction)}>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    setEditingTransaction(
+                                      transaction as Transaction,
+                                    )
+                                  }
+                                >
                                   Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDuplicate(transaction as Transaction)}>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleDuplicate(transaction as Transaction)
+                                  }
+                                >
                                   Duplicate
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   className="text-destructive focus:text-destructive"
-                                  onClick={() => deleteTransaction.mutate(transaction.id)}
+                                  onClick={() =>
+                                    deleteTransaction.mutate(transaction.id)
+                                  }
                                 >
                                   Delete
                                 </DropdownMenuItem>
@@ -583,7 +832,8 @@ const Transactions = () => {
                   className="flex items-center justify-between pt-6 border-t border-border/20"
                 >
                   <p className="text-xs text-muted-foreground font-medium">
-                    Page {currentPage} of {totalPages} • {filteredTransactions.length} total
+                    Page {currentPage} of {totalPages} •{" "}
+                    {filteredTransactions.length} total
                   </p>
                   <div className="flex items-center gap-1.5">
                     <Button
@@ -591,23 +841,24 @@ const Transactions = () => {
                       size="icon"
                       className="h-9 w-9 rounded-xl border-border/30"
                       disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(p => p - 1)}
+                      onClick={() => setCurrentPage((p) => p - 1)}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                     {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                      const page = currentPage <= 3 ? i + 1 : currentPage - 2 + i;
+                      const page =
+                        currentPage <= 3 ? i + 1 : currentPage - 2 + i;
                       if (page > totalPages || page < 1) return null;
                       return (
                         <Button
                           key={page}
-                          variant={page === currentPage ? 'default' : 'outline'}
+                          variant={page === currentPage ? "default" : "outline"}
                           size="icon"
                           className={cn(
                             "h-9 w-9 rounded-xl",
-                            page === currentPage 
-                              ? "bg-primary shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.4)]" 
-                              : "border-border/30"
+                            page === currentPage
+                              ? "bg-primary shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.4)]"
+                              : "border-border/30",
                           )}
                           onClick={() => setCurrentPage(page)}
                         >
@@ -620,7 +871,7 @@ const Transactions = () => {
                       size="icon"
                       className="h-9 w-9 rounded-xl border-border/30"
                       disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage(p => p + 1)}
+                      onClick={() => setCurrentPage((p) => p + 1)}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>

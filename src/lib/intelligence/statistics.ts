@@ -10,8 +10,15 @@ export function mean(xs: number[]): number {
 }
 
 /** Welford's online algorithm — variance without overflow. */
-export function welford(xs: number[]): { mean: number; variance: number; stdev: number; n: number } {
-  let n = 0, m = 0, m2 = 0;
+export function welford(xs: number[]): {
+  mean: number;
+  variance: number;
+  stdev: number;
+  n: number;
+} {
+  let n = 0,
+    m = 0,
+    m2 = 0;
   for (const x of xs) {
     n++;
     const d = x - m;
@@ -32,7 +39,7 @@ export function median(xs: number[]): number {
 /** Median Absolute Deviation — robust to outliers. */
 export function mad(xs: number[]): { median: number; mad: number } {
   const med = median(xs);
-  const dev = xs.map(x => Math.abs(x - med));
+  const dev = xs.map((x) => Math.abs(x - med));
   return { median: med, mad: median(dev) };
 }
 
@@ -40,14 +47,15 @@ export function mad(xs: number[]): { median: number; mad: number } {
 export function modifiedZScore(xs: number[]): number[] {
   const { median: med, mad: m } = mad(xs);
   const denom = m === 0 ? 1e-9 : 1.4826 * m;
-  return xs.map(x => (x - med) / denom);
+  return xs.map((x) => (x - med) / denom);
 }
 
 export function percentile(xs: number[], p: number): number {
   if (!xs.length) return 0;
   const s = [...xs].sort((a, b) => a - b);
   const idx = (s.length - 1) * p;
-  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  const lo = Math.floor(idx),
+    hi = Math.ceil(idx);
   return lo === hi ? s[lo] : s[lo] + (s[hi] - s[lo]) * (idx - lo);
 }
 
@@ -55,7 +63,8 @@ export function percentile(xs: number[], p: number): number {
 export function ema(xs: number[], alpha = 0.3): number[] {
   if (!xs.length) return [];
   const out = [xs[0]];
-  for (let i = 1; i < xs.length; i++) out.push(alpha * xs[i] + (1 - alpha) * out[i - 1]);
+  for (let i = 1; i < xs.length; i++)
+    out.push(alpha * xs[i] + (1 - alpha) * out[i - 1]);
   return out;
 }
 
@@ -63,11 +72,17 @@ export function ema(xs: number[], alpha = 0.3): number[] {
 export function pearson(xs: number[], ys: number[]): number {
   const n = Math.min(xs.length, ys.length);
   if (n < 2) return 0;
-  const mx = mean(xs.slice(0, n)), my = mean(ys.slice(0, n));
-  let num = 0, dx = 0, dy = 0;
+  const mx = mean(xs.slice(0, n)),
+    my = mean(ys.slice(0, n));
+  let num = 0,
+    dx = 0,
+    dy = 0;
   for (let i = 0; i < n; i++) {
-    const a = xs[i] - mx, b = ys[i] - my;
-    num += a * b; dx += a * a; dy += b * b;
+    const a = xs[i] - mx,
+      b = ys[i] - my;
+    num += a * b;
+    dx += a * a;
+    dy += b * b;
   }
   const den = Math.sqrt(dx * dy);
   return den === 0 ? 0 : num / den;
@@ -80,17 +95,31 @@ export function autocorrelation(xs: number[], lag: number): number {
 }
 
 /** Linear regression (least squares). Returns slope, intercept, r². */
-export function linearRegression(ys: number[]): { slope: number; intercept: number; r2: number } {
+export function linearRegression(ys: number[]): {
+  slope: number;
+  intercept: number;
+  r2: number;
+} {
   const n = ys.length;
   if (n < 2) return { slope: 0, intercept: ys[0] ?? 0, r2: 0 };
   const xs = ys.map((_, i) => i);
-  const mx = (n - 1) / 2, my = mean(ys);
-  let num = 0, den = 0, ssTot = 0;
-  for (let i = 0; i < n; i++) { num += (xs[i] - mx) * (ys[i] - my); den += (xs[i] - mx) ** 2; ssTot += (ys[i] - my) ** 2; }
+  const mx = (n - 1) / 2,
+    my = mean(ys);
+  let num = 0,
+    den = 0,
+    ssTot = 0;
+  for (let i = 0; i < n; i++) {
+    num += (xs[i] - mx) * (ys[i] - my);
+    den += (xs[i] - mx) ** 2;
+    ssTot += (ys[i] - my) ** 2;
+  }
   const slope = den === 0 ? 0 : num / den;
   const intercept = my - slope * mx;
   let ssRes = 0;
-  for (let i = 0; i < n; i++) { const f = slope * xs[i] + intercept; ssRes += (ys[i] - f) ** 2; }
+  for (let i = 0; i < n; i++) {
+    const f = slope * xs[i] + intercept;
+    ssRes += (ys[i] - f) ** 2;
+  }
   const r2 = ssTot === 0 ? 0 : 1 - ssRes / ssTot;
   return { slope, intercept, r2 };
 }
@@ -100,7 +129,8 @@ export function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
   if (!a.length) return b.length;
   if (!b.length) return a.length;
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   let prev = new Array(n + 1).fill(0).map((_, j) => j);
   let curr = new Array(n + 1).fill(0);
   for (let i = 1; i <= m; i++) {
@@ -124,7 +154,11 @@ export function similarity(a: string, b: string): number {
  * median with the median itself. Used to clean training series before regression.
  * Returns { cleaned, outlierIndices }.
  */
-export function hampelFilter(xs: number[], window = 7, nSigmas = 3): { cleaned: number[]; outlierIndices: number[] } {
+export function hampelFilter(
+  xs: number[],
+  window = 7,
+  nSigmas = 3,
+): { cleaned: number[]; outlierIndices: number[] } {
   const cleaned = [...xs];
   const outliers: number[] = [];
   const k = 1.4826;
@@ -146,7 +180,11 @@ export function hampelFilter(xs: number[], window = 7, nSigmas = 3): { cleaned: 
  * Holt-Winters double exponential smoothing (no seasonality).
  * Returns level + trend at the last step; useful for forward extrapolation.
  */
-export function holtLinear(xs: number[], alpha = 0.4, beta = 0.2): { level: number; trend: number; fitted: number[] } {
+export function holtLinear(
+  xs: number[],
+  alpha = 0.4,
+  beta = 0.2,
+): { level: number; trend: number; fitted: number[] } {
   if (!xs.length) return { level: 0, trend: 0, fitted: [] };
   let level = xs[0];
   let trend = xs.length > 1 ? xs[1] - xs[0] : 0;
@@ -161,7 +199,11 @@ export function holtLinear(xs: number[], alpha = 0.4, beta = 0.2): { level: numb
 }
 
 /** Find dominant period by autocorrelation peak in [minLag, maxLag]. */
-export function dominantPeriod(xs: number[], minLag = 2, maxLag = 60): { lag: number; strength: number } {
+export function dominantPeriod(
+  xs: number[],
+  minLag = 2,
+  maxLag = 60,
+): { lag: number; strength: number } {
   let best = { lag: 0, strength: -Infinity };
   const cap = Math.min(maxLag, Math.floor(xs.length / 2));
   for (let lag = minLag; lag <= cap; lag++) {
@@ -183,4 +225,3 @@ export function entropy(counts: number[]): number {
   }
   return h;
 }
-
