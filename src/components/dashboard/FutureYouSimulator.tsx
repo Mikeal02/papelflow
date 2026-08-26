@@ -122,20 +122,74 @@ export const FutureYouSimulator = () => {
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-muted/50 p-2.5 text-center">
-            <p className="text-[10px] text-muted-foreground">Current Path</p>
-            <p className="text-sm font-bold">{formatCurrency(finalCurrent)}</p>
-          </div>
-          <div className="rounded-xl bg-income/5 border border-income/20 p-2.5 text-center">
-            <p className="text-[10px] text-muted-foreground">Optimized</p>
-            <p className="text-sm font-bold text-income">{formatCurrency(finalOptimized)}</p>
-          </div>
-          <div className="rounded-xl bg-primary/5 border border-primary/20 p-2.5 text-center">
-            <p className="text-[10px] text-muted-foreground">Difference</p>
-            <p className="text-sm font-bold text-primary">+{formatCurrency(difference)}</p>
-          </div>
-        </div>
+      {/* Summary */}
+<div className="grid grid-cols-3 gap-2">
+  {/* Current Path */}
+  <motion.div
+    whileHover={{ scale: 1.06, y: -3 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    className="relative min-w-0 rounded-xl bg-muted/50 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
+  >
+    <p className="text-[10px] text-muted-foreground truncate">
+      Current Path
+    </p>
+
+    <p className="text-sm font-bold truncate whitespace-nowrap">
+      {formatCurrency(finalCurrent)}
+    </p>
+
+    {/* Full number on hover */}
+    <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
+      <div className="whitespace-nowrap rounded-lg border border-border/50 bg-background px-3 py-2 text-xs font-bold shadow-xl">
+        {formatCurrency(finalCurrent)}
+      </div>
+    </div>
+  </motion.div>
+
+  {/* Optimized */}
+  <motion.div
+    whileHover={{ scale: 1.06, y: -3 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    className="relative min-w-0 rounded-xl bg-income/5 border border-income/20 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
+  >
+    <p className="text-[10px] text-muted-foreground truncate">
+      Optimized
+    </p>
+
+    <p className="text-sm font-bold text-income truncate whitespace-nowrap">
+      {formatCurrency(finalOptimized)}
+    </p>
+
+    {/* Full number on hover */}
+    <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
+      <div className="whitespace-nowrap rounded-lg border border-income/20 bg-background px-3 py-2 text-xs font-bold text-income shadow-xl">
+        {formatCurrency(finalOptimized)}
+      </div>
+    </div>
+  </motion.div>
+
+  {/* Difference */}
+  <motion.div
+    whileHover={{ scale: 1.06, y: -3 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    className="relative min-w-0 rounded-xl bg-primary/5 border border-primary/20 p-2.5 text-center cursor-pointer group z-0 hover:z-10"
+  >
+    <p className="text-[10px] text-muted-foreground truncate">
+      Difference
+    </p>
+
+    <p className="text-sm font-bold text-primary truncate whitespace-nowrap">
+      +{formatCurrency(difference)}
+    </p>
+
+    {/* Full number on hover */}
+    <div className="pointer-events-none absolute left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50">
+      <div className="whitespace-nowrap rounded-lg border border-primary/20 bg-background px-3 py-2 text-xs font-bold text-primary shadow-xl">
+        +{formatCurrency(difference)}
+      </div>
+    </div>
+  </motion.div>
+</div>
       </CardContent>
     </Card>
   );

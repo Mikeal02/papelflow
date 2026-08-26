@@ -94,30 +94,45 @@ export const StatCard = memo(function StatCard({ title, value, change, icon: Ico
   const ref = useRef<HTMLDivElement>(null);
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="elite-card group relative flex h-full flex-col overflow-hidden"
-    >
-      {/* Accent hairline along the top edge — reads as a label, not a stripe */}
-      <div
-        aria-hidden
-        className="h-[2px] w-full opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-        style={{
-          background: `linear-gradient(90deg, hsl(var(${accentVar}) / 0.9), hsl(var(${accentVar}) / 0.12))`,
-        }}
-      />
+  <motion.div
+  ref={ref}
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  whileHover={{
+    scale: 1.04,
+    y: -4,
+  }}
+  transition={{
+    delay,
+    duration: 0.35,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="elite-card group relative z-0 flex h-full min-w-0 flex-col hover:z-20"
+>
+  {/* Accent */}
+  <div
+    aria-hidden
+    className="h-[2px] w-full opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+    style={{
+      background: `linear-gradient(90deg, hsl(var(${accentVar}) / 0.9), hsl(var(${accentVar}) / 0.12))`,
+    }}
+  />
 
       <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-1.5 overflow-hidden">
+          <div className="relative min-w-0 flex-1 space-y-1.5 ">
             <p className="text-eyebrow truncate">{title}</p>
             <CountUpValue
-              value={value}
-              className="block truncate text-[1.375rem] font-semibold leading-tight tracking-[-0.03em] text-numeric sm:text-[1.5rem] lg:text-[1.75rem]"
-            />
+  value={value}
+  className="block min-w-0 truncate whitespace-nowrap text-[1.375rem] font-semibold leading-tight tracking-[-0.03em] text-numeric sm:text-[1.5rem] lg:text-[1.75rem]"
+/>
+
+{/* Full value on hover */}
+  <div className="pointer-events-none absolute left-1/2 top-0 z-50 -translate-x-1/2 -translate-y-[calc(100%+10px)] opacity-0 scale-95 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
+    <div className="whitespace-nowrap rounded-lg border border-border/50 bg-background px-3 py-2 text-xs font-bold text-numeric shadow-xl">
+      {value}
+    </div>
+  </div>
           </div>
 
           <div

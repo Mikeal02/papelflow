@@ -10,7 +10,6 @@ import { formatDistanceToNow, format, startOfDay, subDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -26,6 +25,7 @@ import { toast } from '@/hooks/use-toast';
 import {
   loadAlertSettings, saveAlertSettings, type AlertSettings, DEFAULT_SETTINGS,
 } from '@/lib/intelligence/alertSettings';
+
 
 // ───────────────────────────────────────────────────────────────────────────
 // Meta tables
@@ -601,31 +601,55 @@ export const IntelligenceAlerts = () => {
               className=" h-8 pl-8 text-xs" />
           </div>
 
-          {/* Tabs + view toggle */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-2">
-            <Tabs value={filter} onValueChange={v => setFilter(v as Filter)} className="flex-1 min-w-0">
-            <TabsList className="grid w-full grid-cols-5 sm:h-auto sm:grid-cols-5 gap-1 p-1">
-                <TabsTrigger value="open" className="  flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">Open</TabsTrigger>
-                <TabsTrigger value="scheduled" className="  flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1 ">Scheduled</TabsTrigger>
-                <TabsTrigger value="snoozed" className=" flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">Snoozed</TabsTrigger>
-                <TabsTrigger value="acknowledged" className=" flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">Acked</TabsTrigger>
-                <TabsTrigger value="all" className="  flex flex-col sm:flex-col items-center justify-center gap-0.5 text-[11px] px-2 py-1">All</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <div className="flex items-center gap-0.5 rounded-md border border-border/40 p-0.5">
-              {([
-                ['list', Inbox], ['timeline', History], ['heatmap', LayoutGrid],
-              ] as const).map(([v, Icon]) => (
-                <button key={v} onClick={() => setView(v as ViewMode)}
-                  className={cn(
-                    'h-6 w-7 rounded flex items-center justify-center transition-colors',
-                    view === v ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-muted/40'
-                  )}>
-                  <Icon className="h-3 w-3" />
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Filter + view toggle */}
+<div className="flex items-center justify-between gap-3">
+  {/* Filter dropdown */}
+  <Select
+  value={filter}
+  onValueChange={(value) => setFilter(value as Filter)}
+>
+  <SelectTrigger
+    className={cn(
+      'h-9 w-[150px]',
+      'rounded-lg border-border/40 bg-muted/30',
+      'text-xs font-medium',
+      'focus:ring-2 focus:ring-primary/20'
+    )}
+  >
+    <SelectValue placeholder="Select filter" />
+  </SelectTrigger>
+
+  <SelectContent>
+    <SelectItem value="open">Open</SelectItem>
+    <SelectItem value="scheduled">Scheduled</SelectItem>
+    <SelectItem value="snoozed">Snoozed</SelectItem>
+    <SelectItem value="acknowledged">Acknowledged</SelectItem>
+    <SelectItem value="all">All</SelectItem>
+  </SelectContent>
+</Select>
+
+  {/* View toggle */}
+  <div className="flex shrink-0 items-center gap-0.5 rounded-lg border border-border/40 bg-muted/20 p-1">
+    {([
+      ['list', Inbox],
+      ['timeline', History],
+      ['heatmap', LayoutGrid],
+    ] as const).map(([v, Icon]) => (
+      <button
+        key={v}
+        onClick={() => setView(v as ViewMode)}
+        className={cn(
+          'h-7 w-8 rounded-md flex items-center justify-center transition-all',
+          view === v
+            ? 'bg-primary/15 text-primary shadow-sm'
+            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+        )}
+      >
+        <Icon className="h-3.5 w-3.5" />
+      </button>
+    ))}
+  </div>
+</div>
 
           {/* Bulk action bar */}
           <AnimatePresence>

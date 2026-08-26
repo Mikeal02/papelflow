@@ -539,7 +539,12 @@ const Transactions = () => {
                               transaction.type === 'expense' && 'amount-negative',
                               transaction.type === 'transfer' && 'amount-neutral'
                             )}>
-                              {formatCurrency(Number(transaction.amount), transaction.type === 'income' || transaction.type === 'expense')}
+                             {formatCurrency(
+  transaction.type === 'expense'
+    ? -Math.abs(Number(transaction.amount))
+    : Number(transaction.amount),
+  transaction.type === 'income' || transaction.type === 'expense'
+)}
                             </span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

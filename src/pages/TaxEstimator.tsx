@@ -20,9 +20,17 @@ import { generateTaxDocumentPDF } from '@/lib/pdf-generator';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Cell, AreaChart, Area, PieChart as RechartsPie, Pie,
-  RadialBarChart, RadialBar, Legend
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+  PieChart as RechartsPie,
+  Pie,
+  Legend,
 } from 'recharts';
 import { startOfYear, endOfYear, format, startOfQuarter, endOfQuarter, addQuarters, subYears } from 'date-fns';
 
@@ -284,19 +292,66 @@ export default function TaxEstimator() {
                     <CardDescription>How your projected income breaks down</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-[280px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPie>
-                          <Pie data={taxBreakdownPie} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} stroke="none">
-                            {taxBreakdownPie.map((entry, i) => (
-                              <Cell key={i} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                          <Tooltip formatter={(v: number) => formatCurrency(v)} contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} />
-                          <Legend />
-                        </RechartsPie>
-                      </ResponsiveContainer>
-                    </div>
+                  <div className="h-[340px] w-full">
+
+  <ResponsiveContainer width="100%" height="100%">
+    <RechartsPie
+      margin={{
+        top: 10,
+        right: 10,
+        bottom: 10,
+        left: 10,
+      }}
+    >
+      <Pie
+        data={taxBreakdownPie}
+        dataKey="value"
+        nameKey="name"
+        cx="50%"
+        cy="44%"
+        innerRadius={55}
+        outerRadius={82}
+        paddingAngle={3}
+        stroke="none"
+      >
+        {taxBreakdownPie.map((entry, i) => (
+          <Cell
+            key={`income-pie-${i}`}
+            fill={entry.fill}
+          />
+        ))}
+      </Pie>
+      
+      <Tooltip
+  formatter={(value: number) => formatCurrency(value)}
+  contentStyle={{
+    background: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
+    fontSize: '12px',
+    color: 'hsl(var(--foreground))',
+  }}
+  labelStyle={{
+    color: 'hsl(var(--foreground))',
+    fontWeight: 600,
+  }}
+  itemStyle={{
+    color: 'hsl(var(--foreground))',
+  }}
+/>
+
+      <Legend
+        verticalAlign="bottom"
+        align="center"
+        layout="horizontal"
+        wrapperStyle={{
+          paddingTop: '12px',
+          fontSize: '12px',
+        }}
+      />
+    </RechartsPie>
+  </ResponsiveContainer>
+</div>
                   </CardContent>
                 </Card>
 
