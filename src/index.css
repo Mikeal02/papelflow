@@ -1990,3 +1990,84 @@ html {
     color: #000 !important;
   }
 }
+
+/* ============================================================
+   ELITE ELEGANCE LAYER — hero surfaces & metric rails
+   ============================================================ */
+
+/* Editorial hero surface: hairline frame + top edge lighting */
+.hero-surface {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background:
+    radial-gradient(
+      130% 70% at 0% 0%,
+      hsl(var(--primary) / 0.06),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--card) / 0.92) 100%
+    );
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.hero-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--foreground) / 0.09) 22%,
+    hsl(var(--foreground) / 0.09) 78%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Metric rail: hairline-separated cells that collapse gracefully */
+.metric-rail {
+  display: grid;
+  border-top: 1px solid hsl(var(--border) / 0.55);
+}
+.metric-rail > * {
+  position: relative;
+  min-width: 0;
+  padding: 0.875rem 1.25rem;
+}
+.metric-rail > * + *::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 1px;
+  background: hsl(var(--border) / 0.55);
+}
+@media (max-width: 1023px) {
+  .metric-rail > * + *::before {
+    display: none;
+  }
+  .metric-rail > * {
+    border-top: 1px solid hsl(var(--border) / 0.4);
+  }
+}
+
+/* Quiet pill for hero-side status chips */
+.pill-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--border) / 0.6);
+  background: hsl(var(--background) / 0.5);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: hsl(var(--muted-foreground));
+}
