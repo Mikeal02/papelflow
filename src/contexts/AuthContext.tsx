@@ -21,6 +21,25 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+/**
+ * Fire-and-forget login telemetry. The access token is passed explicitly so the
+ * call always carries a valid Authorization header (the client's cached session
+ * may already be cleared, which previously produced a 401 "unauthorized").
+ */
+function logLoginEvent(
+  event_type: "sign_in" | "sign_out" | "password_change" | "token_refresh",
+  accessToken: string,
+  session_id?: string,
+) {
+  if (!accessToken) return;
+  supabase.functions
+    .invoke("log-login", {
+      body: { event_type, session_id },
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    .catch(() => {});
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -102,6 +121,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    // Log while the token is still valid; after signOut it is revoked.
+    const token = (await supabase.auth.getSession()).data.session?.access_token;
+    if (token) logLoginEvent("sign_out", token, token.slice(-16));
     await supabase.auth.signOut();
   };
 
