@@ -29,16 +29,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const logEvent = (
-      event_type: "sign_in" | "sign_out" | "password_change" | "token_refresh",
-      session_id?: string,
-    ) => {
-      // Fire-and-forget; never block auth on telemetry.
-      supabase.functions
-        .invoke("log-login", { body: { event_type, session_id } })
-        .catch(() => {});
-    };
-
     // Set up auth state listener FIRST
     const {
       data: { subscription },
@@ -51,23 +41,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // fingerprint of the token is persisted — never the JWT itself.
       const token = session?.access_token;
       const fingerprint = token ? token.slice(-16) : null;
-      if (event === "SIGNED_IN" && fingerprint) {
+      if (event === "SIGNED_IN" && token && fingerprint) {
         const key = "flow.lastLoggedToken";
         if (
           typeof window !== "undefined" &&
           window.localStorage.getItem(key) !== fingerprint
         ) {
           window.localStorage.setItem(key, fingerprint);
-          setTimeout(() => logEvent("sign_in", fingerprint), 0);
+          setTimeout(() => logLoginEvent("sign_in", token, fingerprint), 0);
         }
       } else if (event === "SIGNED_OUT") {
+        // The token is already revoked here, so the event is logged in signOut()
+        // while the session is still valid.
         if (typeof window !== "undefined")
           window.localStorage.removeItem("flow.lastLoggedToken");
-        setTimeout(() => logEvent("sign_out"), 0);
-      } else if (event === "PASSWORD_RECOVERY" || event === "USER_UPDATED") {
-        setTimeout(() => logEvent("password_change", token?.slice(-16)), 0);
+      } else if (
+        (event === "PASSWORD_RECOVERY" || event === "USER_UPDATED") &&
+        token
+      ) {
+        setTimeout(
+          () => logLoginEvent("password_change", token, token.slice(-16)),
+          0,
+        );
       }
     });
+
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
