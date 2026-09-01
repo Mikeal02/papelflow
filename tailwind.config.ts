@@ -19,8 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "IBM Plex Sans", "system-ui", "sans-serif"],
-        display: ["Inter", "IBM Plex Sans", "system-ui", "sans-serif"],
+        sans: ["DM Sans", "IBM Plex Sans", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "DM Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
