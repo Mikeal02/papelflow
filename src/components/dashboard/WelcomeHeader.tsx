@@ -129,28 +129,31 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
+    <motion.section
+      initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.4,
+        duration: 0.45,
         ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
       }}
-      className="relative overflow-hidden rounded-2xl border border-border/60 mesh-bg shadow-[var(--shadow-sm)]"
+      className="hero-surface"
     >
-      <div className="relative p-5 sm:p-7">
-        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0 space-y-2">
+      <div className="p-5 sm:p-7 lg:p-8">
+        <div className="flex min-w-0 flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 space-y-2.5">
             <p className="eyebrow-bar text-eyebrow">
               <span aria-hidden>{emoji}</span>
               <span>{currentDate}</span>
             </p>
-            <h1 className="text-display overflow-hidden text-ellipsis">
-              {greeting}, <span className="text-primary">{firstName}</span>
+            <h1 className="text-display text-balance">
+              {greeting},{" "}
+              <span className="bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
+                {firstName}
+              </span>
             </h1>
-            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Your financial cockpit is calibrated. Markets, budgets, and goals
-              — synchronised in real time.
+            <p className="max-w-md text-[13.5px] leading-relaxed text-muted-foreground">
+              Everything in one place — accounts, budgets and goals,
+              reconciled in real time.
             </p>
           </div>
 
@@ -174,44 +177,42 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
               </div>
             )}
             {streakLabel && savingsRate >= 20 && (
-              <div className="hidden items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground sm:flex">
+              <span className="pill-quiet hidden sm:inline-flex">
                 <Sparkles className="h-3 w-3" />
                 {streakLabel}
-              </div>
+              </span>
             )}
           </div>
         </div>
-
-        {/* Key metrics strip */}
-        <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/60 bg-border/60 sm:grid-cols-3 lg:grid-cols-5">
-          {tickerItems.map((it, i) => {
-            const toneCls =
-              it.tone === "income"
-                ? "text-income"
-                : it.tone === "expense"
-                  ? "text-expense"
-                  : it.tone === "accent"
-                    ? "text-accent"
-                    : it.tone === "warning"
-                      ? "text-warning"
-                      : "text-primary";
-            return (
-              <div
-                key={i}
-                className="flex min-w-0 flex-col gap-1 bg-card px-4 py-3"
-              >
-                <dt className="flex items-center gap-1.5 text-eyebrow truncate">
-                  <it.icon className={cn("h-3.5 w-3.5 shrink-0", toneCls)} />
-                  <span className="truncate">{it.label}</span>
-                </dt>
-                <dd className="truncate text-sm font-semibold text-numeric text-foreground">
-                  {it.value}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
       </div>
-    </motion.div>
+
+      {/* Key metrics rail */}
+      <dl className="metric-rail grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+        {tickerItems.map((it, i) => {
+          const toneCls =
+            it.tone === "income"
+              ? "text-income"
+              : it.tone === "expense"
+                ? "text-expense"
+                : it.tone === "accent"
+                  ? "text-accent"
+                  : it.tone === "warning"
+                    ? "text-warning"
+                    : "text-primary";
+          return (
+            <div key={i} className="group flex flex-col gap-1.5">
+              <dt className="flex items-center gap-1.5 text-eyebrow truncate">
+                <it.icon className={cn("h-3.5 w-3.5 shrink-0", toneCls)} />
+                <span className="truncate">{it.label}</span>
+              </dt>
+              <dd className="truncate text-[15px] font-semibold tracking-[-0.02em] text-numeric text-foreground">
+                {it.value}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </motion.section>
   );
 });
+
