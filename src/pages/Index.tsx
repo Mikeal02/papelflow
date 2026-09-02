@@ -232,20 +232,28 @@ const Dashboard = () => {
               <SectionHeader title="Wealth Overview" />
               <Suspense
                 fallback={
-                  <div className="grid gap-5 lg:grid-cols-2">
-                    <WidgetFallback />
-                    <WidgetFallback />
+                  <div className="bento">
+                    <div className="bento-8">
+                      <WidgetFallback />
+                    </div>
+                    <div className="bento-4">
+                      <WidgetFallback />
+                    </div>
                   </div>
                 }
               >
-                <div className="grid gap-5 lg:grid-cols-2">
-                  <NetWorthMini />
+                <div className="bento">
+                  <div className="bento-8">
+                    <NetWorthMini />
+                  </div>
                   {transactions.length > 0 && (
-                    <SmartInsights
-                      transactions={transactions}
-                      categories={categories}
-                      formatCurrency={formatCurrency}
-                    />
+                    <div className="bento-4">
+                      <SmartInsights
+                        transactions={transactions}
+                        categories={categories}
+                        formatCurrency={formatCurrency}
+                      />
+                    </div>
                   )}
                 </div>
               </Suspense>
