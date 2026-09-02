@@ -5,7 +5,7 @@ import { AddTransactionModal } from "@/components/transactions/AddTransactionMod
 import { FloatingActionMenu } from "@/components/ui/floating-action-menu";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ActionCenter } from "@/components/action-center/ActionCenter";
-import { DataPipelineIndicator } from "@/components/data/DataPipelineIndicator";
+import { TopBar } from "./TopBar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppLayoutProps {
