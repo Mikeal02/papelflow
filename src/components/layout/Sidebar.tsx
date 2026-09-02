@@ -132,7 +132,7 @@ const NavItem = memo(function NavItem({
             className={cn(
               "h-3.5 w-3.5 shrink-0 -translate-x-1 text-muted-foreground/40 opacity-0 transition-all duration-150",
               "group-hover:translate-x-0 group-hover:opacity-100",
-              isActive && "translate-x-0 text-primary/50 opacity-100",
+              isActive && "hidden",
             )}
           />
         )}
