@@ -96,16 +96,16 @@ const NavItem = memo(function NavItem({
     >
       <div
         className={cn(
-          "group relative flex items-center gap-2.5 rounded-[10px] py-[7px] pl-2.5 pr-2 text-[13px] font-medium transition-colors duration-150",
+          "group relative flex items-center gap-2.5 overflow-hidden rounded-[10px] py-[7px] pl-2.5 pr-3 text-[13px] font-medium transition-colors duration-150",
           isActive
-            ? "text-foreground bg-primary/[0.07]"
+            ? "bg-gradient-to-r from-primary/[0.12] via-primary/[0.05] to-transparent text-foreground"
             : "text-muted-foreground hover:text-foreground hover:bg-muted/45",
         )}
       >
         {isActive && (
           <motion.div
             layoutId="sidebar-indicator"
-            className="absolute -left-1 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+            className="absolute right-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.45)]"
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
           />
         )}
@@ -132,7 +132,7 @@ const NavItem = memo(function NavItem({
             className={cn(
               "h-3.5 w-3.5 shrink-0 -translate-x-1 text-muted-foreground/40 opacity-0 transition-all duration-150",
               "group-hover:translate-x-0 group-hover:opacity-100",
-              isActive && "translate-x-0 text-primary/50 opacity-100",
+              isActive && "hidden",
             )}
           />
         )}

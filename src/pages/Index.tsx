@@ -148,7 +148,7 @@ const SectionHeader = memo(
           </p>
         )}
       </div>
-      <span aria-hidden className="h-px flex-1 bg-border/50" />
+      <span aria-hidden className="section-rule" />
     </div>
   ),
 );
@@ -306,28 +306,32 @@ const Dashboard = () => {
             <div className="space-y-5 min-w-0">
               <SectionHeader title="Intelligence" />
 
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <Deferred fallback={<WidgetFallback />} eager>
+              <div className="bento">
+                <Deferred
+                  fallback={<WidgetFallback />}
+                  className="bento-5"
+                  eager
+                >
                   <FinancialHealthScore />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-7">
                   <AISpendingInsights />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-7">
                   <SpendingHeatmapCalendar />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-5">
                   <WhatIfScenario />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-6">
                   <FutureYouSimulator />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-6">
                   <GoalsMini />
                 </Deferred>
               </div>
@@ -336,23 +340,23 @@ const Dashboard = () => {
             {/* Full-width bottom widgets */}
             <div>
               <SectionHeader title="Tracking & Accounts" />
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <Deferred fallback={<WidgetFallback />}>
+              <div className="bento">
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <DailySpendingTracker />
                 </Deferred>
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <SpendingByTimeOfDay />
                 </Deferred>
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <AccountsOverview />
                 </Deferred>
               </div>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Deferred fallback={<WidgetFallback />}>
+            <div className="bento">
+              <Deferred fallback={<WidgetFallback />} className="bento-4">
                 <CurrencyConverter />
               </Deferred>
-              <Deferred fallback={<WidgetFallback />}>
+              <Deferred fallback={<WidgetFallback />} className="bento-8">
                 <UpcomingBills />
               </Deferred>
             </div>

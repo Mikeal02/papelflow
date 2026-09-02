@@ -2121,3 +2121,47 @@ html {
 .bento > * {
   min-width: 0;
 }
+
+/* Extra bento spans + medium-viewport rhythm */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .bento-3 {
+    grid-column: span 3 / span 3;
+  }
+  .bento-5 {
+    grid-column: span 5 / span 5;
+  }
+  .bento-7 {
+    grid-column: span 7 / span 7;
+  }
+  .bento-9 {
+    grid-column: span 9 / span 9;
+  }
+}
+.bento > * > * {
+  height: 100%;
+}
+
+/* Section headers: quieter, wider tracking with an inset rule */
+.section-rule {
+  height: 1px;
+  flex: 1 1 0%;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--border) / 0.7),
+    hsl(var(--border) / 0.15) 65%,
+    transparent
+  );
+}
+
+/* Elegant numeric emphasis for hero-scale figures */
+.figure-xl {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
