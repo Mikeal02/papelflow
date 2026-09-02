@@ -232,20 +232,28 @@ const Dashboard = () => {
               <SectionHeader title="Wealth Overview" />
               <Suspense
                 fallback={
-                  <div className="grid gap-5 lg:grid-cols-2">
-                    <WidgetFallback />
-                    <WidgetFallback />
+                  <div className="bento">
+                    <div className="bento-8">
+                      <WidgetFallback />
+                    </div>
+                    <div className="bento-4">
+                      <WidgetFallback />
+                    </div>
                   </div>
                 }
               >
-                <div className="grid gap-5 lg:grid-cols-2">
-                  <NetWorthMini />
+                <div className="bento">
+                  <div className="bento-8">
+                    <NetWorthMini />
+                  </div>
                   {transactions.length > 0 && (
-                    <SmartInsights
-                      transactions={transactions}
-                      categories={categories}
-                      formatCurrency={formatCurrency}
-                    />
+                    <div className="bento-4">
+                      <SmartInsights
+                        transactions={transactions}
+                        categories={categories}
+                        formatCurrency={formatCurrency}
+                      />
+                    </div>
                   )}
                 </div>
               </Suspense>
@@ -267,32 +275,28 @@ const Dashboard = () => {
                 <MoneyFlowSankey />
               </Deferred>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Deferred fallback={<WidgetFallback />}>
+              <div className="bento">
+                <Deferred fallback={<WidgetFallback />} className="bento-8">
                   <CashFlowChart />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <SavingsRateGauge />
                 </Deferred>
-              </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-6">
                   <BudgetOverview />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-6">
                   <TopCategories />
                 </Deferred>
-              </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <FinancialCalendar />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-8">
                   <SpendingForecast />
                 </Deferred>
               </div>
