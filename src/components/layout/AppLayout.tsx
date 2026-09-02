@@ -36,6 +36,9 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
         relative transition-all duration-300 ease-out
       `}
       >
+        {!isMobile && (
+          <TopBar onAddTransaction={() => setIsAddModalOpen(true)} />
+        )}
         <div className="page-shell min-h-dvh px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
           {children}
         </div>
