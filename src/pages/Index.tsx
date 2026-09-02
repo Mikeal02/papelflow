@@ -275,32 +275,28 @@ const Dashboard = () => {
                 <MoneyFlowSankey />
               </Deferred>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Deferred fallback={<WidgetFallback />}>
+              <div className="bento">
+                <Deferred fallback={<WidgetFallback />} className="bento-8">
                   <CashFlowChart />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <SavingsRateGauge />
                 </Deferred>
-              </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-6">
                   <BudgetOverview />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-6">
                   <TopCategories />
                 </Deferred>
-              </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <FinancialCalendar />
                 </Deferred>
 
-                <Deferred fallback={<WidgetFallback />}>
+                <Deferred fallback={<WidgetFallback />} className="bento-8">
                   <SpendingForecast />
                 </Deferred>
               </div>
