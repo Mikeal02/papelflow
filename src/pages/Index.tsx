@@ -148,7 +148,7 @@ const SectionHeader = memo(
           </p>
         )}
       </div>
-      <span aria-hidden className="h-px flex-1 bg-border/50" />
+      <span aria-hidden className="section-rule" />
     </div>
   ),
 );
