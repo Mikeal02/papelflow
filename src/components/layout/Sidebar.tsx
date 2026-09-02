@@ -105,7 +105,7 @@ const NavItem = memo(function NavItem({
         {isActive && (
           <motion.div
             layoutId="sidebar-indicator"
-            className="absolute -left-1 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+            className="absolute right-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.45)]"
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
           />
         )}
