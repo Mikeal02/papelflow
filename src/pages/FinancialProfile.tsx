@@ -10,6 +10,10 @@ import {
   PiggyBank,
   Percent,
   TrendingUp,
+  Sparkles,
+  Trophy,
+  Flame,
+  Activity,
 } from "lucide-react";
 import {
   Area,
@@ -136,6 +140,19 @@ const FinancialProfile = () => {
     const goalTarget = goalRows.reduce((s, g) => s + g.target, 0);
     const goalSaved = goalRows.reduce((s, g) => s + g.saved, 0);
 
+    // Insight strip: derived highlights from the observed window.
+    const active = series.filter((s) => s.income > 0 || s.expense > 0);
+    const bestMonth = active.length
+      ? active.reduce((a, b) => (b.net > a.net ? b : a))
+      : null;
+    const heaviestMonth = active.length
+      ? active.reduce((a, b) => (b.expense > a.expense ? b : a))
+      : null;
+    const netTrend =
+      active.length >= 2
+        ? active[active.length - 1].net - active[active.length - 2].net
+        : 0;
+
     return {
       series,
       current,
@@ -151,6 +168,9 @@ const FinancialProfile = () => {
       goalTarget,
       goalSaved,
       txCount: transactions.length,
+      bestMonth,
+      heaviestMonth,
+      netTrend,
     };
   }, [transactions, accounts, goals]);
 
@@ -225,6 +245,50 @@ const FinancialProfile = () => {
           </Button>
         </div>
       </header>
+
+      {model.bestMonth && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid gap-3 sm:grid-cols-3"
+        >
+          {[
+            {
+              icon: Trophy,
+              tone: "text-income",
+              label: "Best month",
+              value: `${model.bestMonth.label} · ${model.bestMonth.net >= 0 ? "+" : "−"}${formatCurrency(Math.abs(model.bestMonth.net))}`,
+            },
+            {
+              icon: Flame,
+              tone: "text-expense",
+              label: "Heaviest spend",
+              value: `${model.heaviestMonth?.label} · ${formatCurrency(model.heaviestMonth?.expense ?? 0)}`,
+            },
+            {
+              icon: Activity,
+              tone: model.netTrend >= 0 ? "text-income" : "text-expense",
+              label: "Net trend",
+              value: `${model.netTrend >= 0 ? "Improving" : "Declining"} · ${model.netTrend >= 0 ? "+" : "−"}${formatCurrency(Math.abs(model.netTrend))} MoM`,
+            },
+          ].map((ins) => (
+            <div key={ins.label} className="stat-card flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40">
+                <ins.icon className={cn("h-4 w-4", ins.tone)} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {ins.label}
+                </p>
+                <p className="text-sm font-semibold tabular-nums truncate">
+                  {ins.value}
+                </p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      )}
 
       <section className="space-y-4">
         <SectionHeader
