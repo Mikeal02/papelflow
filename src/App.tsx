@@ -31,6 +31,7 @@ const Investments = lazy(() => import("./pages/Investments"));
 const RecurringPayments = lazy(() => import("./pages/RecurringPayments"));
 const Challenges = lazy(() => import("./pages/Challenges"));
 const Analytics = lazy(() => import("./pages/Analytics"));
+const FinancialProfile = lazy(() => import("./pages/FinancialProfile"));
 
 /**
  * Elite React Query defaults.
@@ -208,6 +209,14 @@ const App = () => (
                       element={
                         <Suspense fallback={<RouteLoadingFallback />}>
                           <Analytics />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/profile"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <FinancialProfile />
                         </Suspense>
                       }
                     />

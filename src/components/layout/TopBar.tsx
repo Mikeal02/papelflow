@@ -8,6 +8,7 @@ const ROUTE_META: Record<string, { title: string; sub?: string }> = {
   "/": { title: "Dashboard", sub: "Portfolio Overview" },
   "/analytics": { title: "Analytics", sub: "Intelligence" },
   "/reports": { title: "Reports", sub: "Statements" },
+  "/profile": { title: "Financial Profile", sub: "Full picture" },
   "/transactions": { title: "Transactions", sub: "Ledger" },
   "/accounts": { title: "Accounts", sub: "Balances" },
   "/budgets": { title: "Budgets", sub: "Allocation" },

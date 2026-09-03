@@ -42,6 +42,7 @@ const navGroups = [
       { icon: LayoutDashboard, label: "Dashboard", path: "/" },
       { icon: Brain, label: "Analytics", path: "/analytics", badge: "NEW" },
       { icon: BarChart3, label: "Reports", path: "/reports" },
+      { icon: Target, label: "Financial Profile", path: "/profile" },
     ],
   },
   {
