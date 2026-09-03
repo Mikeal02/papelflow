@@ -10,6 +10,10 @@ import {
   PiggyBank,
   Percent,
   TrendingUp,
+  Sparkles,
+  Trophy,
+  Flame,
+  Activity,
 } from "lucide-react";
 import {
   Area,
