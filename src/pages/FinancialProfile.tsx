@@ -140,6 +140,19 @@ const FinancialProfile = () => {
     const goalTarget = goalRows.reduce((s, g) => s + g.target, 0);
     const goalSaved = goalRows.reduce((s, g) => s + g.saved, 0);
 
+    // Insight strip: derived highlights from the observed window.
+    const active = series.filter((s) => s.income > 0 || s.expense > 0);
+    const bestMonth = active.length
+      ? active.reduce((a, b) => (b.net > a.net ? b : a))
+      : null;
+    const heaviestMonth = active.length
+      ? active.reduce((a, b) => (b.expense > a.expense ? b : a))
+      : null;
+    const netTrend =
+      active.length >= 2
+        ? active[active.length - 1].net - active[active.length - 2].net
+        : 0;
+
     return {
       series,
       current,
@@ -155,6 +168,9 @@ const FinancialProfile = () => {
       goalTarget,
       goalSaved,
       txCount: transactions.length,
+      bestMonth,
+      heaviestMonth,
+      netTrend,
     };
   }, [transactions, accounts, goals]);
 
