@@ -88,6 +88,12 @@ const pages = [
   },
   { icon: Target, label: "Goals", path: "/goals", keywords: "savings targets" },
   {
+    icon: Target,
+    label: "Financial Profile",
+    path: "/profile",
+    keywords: "income expenses net worth goals overview",
+  },
+  {
     icon: TrendingUp,
     label: "Net Worth",
     path: "/net-worth",
