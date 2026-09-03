@@ -213,6 +213,14 @@ const App = () => (
                       }
                     />
                     <Route
+                      path="/profile"
+                      element={
+                        <Suspense fallback={<RouteLoadingFallback />}>
+                          <FinancialProfile />
+                        </Suspense>
+                      }
+                    />
+                    <Route
                       path="/settings"
                       element={
                         <Suspense fallback={<RouteLoadingFallback />}>
