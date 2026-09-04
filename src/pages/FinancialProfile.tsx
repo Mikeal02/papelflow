@@ -10,10 +10,10 @@ import {
   PiggyBank,
   Percent,
   TrendingUp,
-  Sparkles,
   Trophy,
   Flame,
   Activity,
+  ArrowRight,
 } from "lucide-react";
 import {
   Area,
@@ -26,7 +26,6 @@ import {
 } from "recharts";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useTransactions, HISTORY_TX_LIMIT } from "@/hooks/useTransactions";
 import { useAccounts } from "@/hooks/useAccounts";
@@ -45,18 +44,27 @@ function monthLabel(key: string) {
   return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short" });
 }
 
+const fadeUp = (i = 0) => ({
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] as const },
+});
+
 const SectionHeader = ({
   title,
   sub,
+  action,
 }: {
   title: string;
   sub?: string;
+  action?: React.ReactNode;
 }) => (
   <div className="section-rule flex items-end justify-between gap-4 pb-3">
     <div>
       <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
       {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
     </div>
+    {action}
   </div>
 );
 
@@ -108,7 +116,6 @@ const FinancialProfile = () => {
       ? observed.reduce((s, m) => s + m.expense, 0) / observed.length
       : 0;
 
-    // Net worth from account balances: assets minus liabilities.
     let assets = 0;
     let liabilities = 0;
     for (const a of accounts) {
@@ -132,7 +139,6 @@ const FinancialProfile = () => {
           target,
           saved,
           pct: target > 0 ? Math.min((saved / target) * 100, 100) : 0,
-          deadline: (g as any).target_date ?? (g as any).deadline ?? null,
         };
       })
       .sort((a, b) => b.pct - a.pct);
@@ -140,7 +146,6 @@ const FinancialProfile = () => {
     const goalTarget = goalRows.reduce((s, g) => s + g.target, 0);
     const goalSaved = goalRows.reduce((s, g) => s + g.saved, 0);
 
-    // Insight strip: derived highlights from the observed window.
     const active = series.filter((s) => s.income > 0 || s.expense > 0);
     const bestMonth = active.length
       ? active.reduce((a, b) => (b.net > a.net ? b : a))
@@ -219,40 +224,94 @@ const FinancialProfile = () => {
   ];
 
   return (
-    <div className="space-y-8">
-      <header className="hero-surface p-6 sm:p-8">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          Financial Profile
-        </p>
-        <h1 className="text-display text-2xl sm:text-3xl mt-2">
-          Your complete money picture
-        </h1>
-        <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-          Built live from {model.txCount} transactions, {accounts.length}{" "}
-          accounts and {goals.length} goals.
-        </p>
-        <div className="flex flex-wrap items-center gap-2 mt-5">
-          <Badge variant="secondary" className="gap-1.5">
-            <Percent className="h-3 w-3" />
-            Savings rate {model.savingsRate.toFixed(0)}%
-          </Badge>
-          <Badge variant="secondary" className="gap-1.5">
-            <PiggyBank className="h-3 w-3" />
-            Runway {model.runwayMonths.toFixed(1)} mo
-          </Badge>
-          <Button asChild size="sm" variant="outline" className="ml-auto">
-            <Link to="/budgets">Manage budgets</Link>
+    <div className="space-y-10">
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <motion.header
+        {...fadeUp(0)}
+        className="hero-surface relative overflow-hidden p-6 sm:p-10"
+      >
+        <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-xl">
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+              Financial Profile
+            </p>
+            <h1 className="text-display text-3xl sm:text-4xl mt-3">
+              Your complete money picture
+            </h1>
+            <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+              Built live from{" "}
+              <span className="text-foreground font-medium tabular-nums">
+                {model.txCount}
+              </span>{" "}
+              transactions,{" "}
+              <span className="text-foreground font-medium tabular-nums">
+                {accounts.length}
+              </span>{" "}
+              accounts and{" "}
+              <span className="text-foreground font-medium tabular-nums">
+                {goals.length}
+              </span>{" "}
+              goals.
+            </p>
+          </div>
+
+          {/* Hero metric rail */}
+          <div className="metric-rail grid grid-cols-2 sm:grid-cols-3 lg:min-w-[420px]">
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+                <Percent className="h-3 w-3" /> Savings rate
+              </div>
+              <p
+                className={cn(
+                  "figure-xl mt-2",
+                  model.savingsRate >= 0 ? "text-income" : "text-expense",
+                )}
+              >
+                {model.savingsRate.toFixed(0)}%
+              </p>
+            </div>
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+                <PiggyBank className="h-3 w-3" /> Runway
+              </div>
+              <p className="figure-xl mt-2">
+                {model.runwayMonths.toFixed(1)}
+                <span className="text-sm font-normal text-muted-foreground ml-1">
+                  mo
+                </span>
+              </p>
+            </div>
+            <div className="px-5 py-4 col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+                <Landmark className="h-3 w-3" /> Net worth
+              </div>
+              <p
+                className={cn(
+                  "figure-xl mt-2 truncate",
+                  model.netWorth >= 0 ? "text-primary" : "text-expense",
+                )}
+              >
+                {formatCurrency(model.netWorth)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-8 flex flex-wrap items-center gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link to="/budgets">
+              Manage budgets <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            </Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost">
+            <Link to="/goals">View goals</Link>
           </Button>
         </div>
-      </header>
+      </motion.header>
 
+      {/* ── Insights strip ───────────────────────────────────── */}
       {model.bestMonth && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="grid gap-3 sm:grid-cols-3"
-        >
+        <div className="grid gap-3 sm:grid-cols-3">
           {[
             {
               icon: Trophy,
@@ -272,24 +331,29 @@ const FinancialProfile = () => {
               label: "Net trend",
               value: `${model.netTrend >= 0 ? "Improving" : "Declining"} · ${model.netTrend >= 0 ? "+" : "−"}${formatCurrency(Math.abs(model.netTrend))} MoM`,
             },
-          ].map((ins) => (
-            <div key={ins.label} className="stat-card flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40">
+          ].map((ins, i) => (
+            <motion.div
+              key={ins.label}
+              {...fadeUp(i + 1)}
+              className="stat-card flex items-center gap-3.5"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/40">
                 <ins.icon className={cn("h-4 w-4", ins.tone)} />
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
                   {ins.label}
                 </p>
-                <p className="text-sm font-semibold tabular-nums truncate">
+                <p className="text-sm font-semibold tabular-nums truncate mt-0.5">
                   {ins.value}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </motion.div>
+        </div>
       )}
 
+      {/* ── Core metrics ─────────────────────────────────────── */}
       <section className="space-y-4">
         <SectionHeader
           title="Core metrics"
@@ -297,25 +361,24 @@ const FinancialProfile = () => {
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.3 }}
-              className="stat-card"
-            >
+            <motion.div key={s.label} {...fadeUp(i)} className="stat-card">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-xs text-muted-foreground">{s.label}</p>
-                <s.icon className={cn("h-4 w-4 shrink-0", s.tone)} />
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/60 bg-muted/30">
+                  <s.icon className={cn("h-3.5 w-3.5", s.tone)} />
+                </div>
               </div>
-              <p className="figure-xl mt-3 truncate" title={String(s.value)}>
+              <p
+                className="figure-xl mt-4 truncate"
+                title={String(s.value)}
+              >
                 {formatCurrency(s.value)}
               </p>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-2.5">
                 {s.delta !== null && (
                   <span
                     className={cn(
-                      "text-[11px] font-medium tabular-nums",
+                      "inline-flex items-center rounded-full border border-border/60 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
                       (s.invertDelta ? -s.delta : s.delta) >= 0
                         ? "text-income"
                         : "text-expense",
@@ -334,12 +397,21 @@ const FinancialProfile = () => {
         </div>
       </section>
 
+      {/* ── Cashflow chart ───────────────────────────────────── */}
       <section className="space-y-4">
         <SectionHeader
           title="Income versus expenses"
           sub={`Last ${MONTHS_BACK} months, derived from your transactions`}
         />
-        <div className="stat-card">
+        <motion.div {...fadeUp(0)} className="stat-card">
+          <div className="flex items-center gap-4 mb-5">
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-income" /> Income
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-expense" /> Expenses
+            </span>
+          </div>
           {txLoading ? (
             <div className="h-[300px] flex items-center justify-center text-sm text-muted-foreground">
               Loading your history…
@@ -424,19 +496,25 @@ const FinancialProfile = () => {
               </AreaChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </motion.div>
       </section>
 
+      {/* ── Balance sheet & goals ────────────────────────────── */}
       <section className="space-y-4">
         <SectionHeader
           title="Balance sheet & goals"
           sub="Accounts drive net worth; goals track progress"
         />
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="stat-card">
-            <div className="flex items-center gap-2 mb-4">
-              <Wallet className="h-4 w-4 text-primary" />
-              <h3 className="text-base font-semibold">Accounts</h3>
+          <motion.div {...fadeUp(0)} className="stat-card">
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-primary" />
+                <h3 className="text-base font-semibold">Accounts</h3>
+              </div>
+              <span className="text-[11px] text-muted-foreground tabular-nums">
+                {accounts.length} linked
+              </span>
             </div>
             {accounts.length === 0 ? (
               <p className="text-sm text-muted-foreground py-8 text-center">
@@ -469,19 +547,24 @@ const FinancialProfile = () => {
                     </div>
                   );
                 })}
-                <div className="flex items-center justify-between gap-3 pt-3">
+                <div className="flex items-center justify-between gap-3 pt-3.5">
                   <span className="text-xs uppercase tracking-wide text-muted-foreground">
                     Net worth
                   </span>
-                  <span className="text-base font-bold tabular-nums">
+                  <span
+                    className={cn(
+                      "text-base font-bold tabular-nums",
+                      model.netWorth >= 0 ? "text-primary" : "text-expense",
+                    )}
+                  >
                     {formatCurrency(model.netWorth)}
                   </span>
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
 
-          <div className="stat-card">
+          <motion.div {...fadeUp(1)} className="stat-card">
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <Target className="h-4 w-4 text-accent" />
@@ -507,45 +590,74 @@ const FinancialProfile = () => {
                         {formatCurrency(g.saved)} / {formatCurrency(g.target)}
                       </span>
                     </div>
-                    <Progress value={g.pct} className="h-2" />
+                    <div className="flex items-center gap-2.5">
+                      <Progress value={g.pct} className="h-1.5 flex-1" />
+                      <span className="text-[10px] font-semibold tabular-nums text-muted-foreground w-8 text-right">
+                        {g.pct.toFixed(0)}%
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </section>
 
+      {/* ── Cashflow rhythm ──────────────────────────────────── */}
       <section className="space-y-4">
         <SectionHeader
           title="Cashflow rhythm"
           sub="Monthly surplus or deficit after every expense"
         />
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {model.series.map((m) => (
-            <div key={m.key} className="stat-card">
+          {model.series.map((m, i) => (
+            <motion.div key={m.key} {...fadeUp(i)} className="stat-card">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{m.label}</span>
                 <TrendingUp
                   className={cn(
                     "h-4 w-4",
-                    m.net >= 0 ? "text-income" : "text-expense",
+                    m.net >= 0 ? "text-income" : "text-expense rotate-180",
                   )}
                 />
               </div>
               <p
                 className={cn(
-                  "text-xl font-bold tabular-nums mt-2",
+                  "text-xl font-bold tabular-nums mt-3",
                   m.net >= 0 ? "text-income" : "text-expense",
                 )}
               >
                 {m.net >= 0 ? "+" : "−"}
                 {formatCurrency(Math.abs(m.net))}
               </p>
-              <p className="text-[11px] text-muted-foreground mt-1 truncate">
+              <p className="text-[11px] text-muted-foreground mt-1.5 truncate">
                 {formatCurrency(m.income)} in · {formatCurrency(m.expense)} out
               </p>
-            </div>
+              {/* mini in/out bar */}
+              <div className="mt-3 h-1 rounded-full bg-muted overflow-hidden flex">
+                <div
+                  className="h-full bg-income/70"
+                  style={{
+                    width: `${
+                      m.income + m.expense > 0
+                        ? (m.income / (m.income + m.expense)) * 100
+                        : 50
+                    }%`,
+                  }}
+                />
+                <div
+                  className="h-full bg-expense/70"
+                  style={{
+                    width: `${
+                      m.income + m.expense > 0
+                        ? (m.expense / (m.income + m.expense)) * 100
+                        : 50
+                    }%`,
+                  }}
+                />
+              </div>
+            </motion.div>
           ))}
         </div>
       </section>
