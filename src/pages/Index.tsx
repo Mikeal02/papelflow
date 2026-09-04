@@ -309,7 +309,7 @@ const Dashboard = () => {
                   )}
                 </div>
               </Suspense>
-            </div>
+            </FadeSection>
 
             {/*
               Everything below the fold is gated on visibility. Mounting all 20+
@@ -318,8 +318,12 @@ const Dashboard = () => {
               thread during first paint.
             */}
             {/* Activity */}
-            <div className="space-y-6 min-w-0">
-              <SectionHeader title="Activity" />
+            <FadeSection className="space-y-6">
+              <SectionHeader
+                index="02"
+                title="Activity"
+                description="Cash movement, flow composition, and forecasts"
+              />
 
               <RecentTransactions />
 
