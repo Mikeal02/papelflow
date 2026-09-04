@@ -356,11 +356,15 @@ const Dashboard = () => {
                   <SpendingForecast />
                 </Deferred>
               </div>
-            </div>
+            </FadeSection>
 
             {/* Intelligence */}
-            <div className="space-y-5 min-w-0">
-              <SectionHeader title="Intelligence" />
+            <FadeSection className="space-y-5">
+              <SectionHeader
+                index="03"
+                title="Intelligence"
+                description="Health score, AI insights, and simulations"
+              />
 
               <div className="bento">
                 <Deferred
@@ -391,11 +395,15 @@ const Dashboard = () => {
                   <GoalsMini />
                 </Deferred>
               </div>
-            </div>
+            </FadeSection>
 
             {/* Full-width bottom widgets */}
-            <div>
-              <SectionHeader title="Tracking & Accounts" />
+            <FadeSection>
+              <SectionHeader
+                index="04"
+                title="Tracking & Accounts"
+                description="Daily rhythms, account mix, and upcoming obligations"
+              />
               <div className="bento">
                 <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <DailySpendingTracker />
@@ -406,16 +414,14 @@ const Dashboard = () => {
                 <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <AccountsOverview />
                 </Deferred>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
+                  <CurrencyConverter />
+                </Deferred>
+                <Deferred fallback={<WidgetFallback />} className="bento-8">
+                  <UpcomingBills />
+                </Deferred>
               </div>
-            </div>
-            <div className="bento">
-              <Deferred fallback={<WidgetFallback />} className="bento-4">
-                <CurrencyConverter />
-              </Deferred>
-              <Deferred fallback={<WidgetFallback />} className="bento-8">
-                <UpcomingBills />
-              </Deferred>
-            </div>
+            </FadeSection>
           </div>
         </PageTransition>
       )}
