@@ -1,4 +1,5 @@
 import { lazy, Suspense, memo, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Wallet, TrendingUp, TrendingDown, Scale } from "lucide-react";
 
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -136,10 +137,28 @@ const WidgetFallback = memo(() => <WidgetPlaceholder />);
 WidgetFallback.displayName = "WidgetFallback";
 
 const SectionHeader = memo(
-  ({ title, description }: { title: string; description?: string }) => (
-    <div className="mb-4 flex items-baseline gap-3">
+  ({
+    index,
+    title,
+    description,
+  }: {
+    index: string;
+    title: string;
+    description?: string;
+  }) => (
+    <div className="mb-4 flex items-center gap-3">
+      <span
+        aria-hidden
+        className="text-[10px] font-medium tabular-nums tracking-[0.2em] text-muted-foreground/40"
+      >
+        {index}
+      </span>
+      <span
+        aria-hidden
+        className="h-px w-4 shrink-0 bg-border"
+      />
       <div className="min-w-0">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
           {title}
         </h2>
         {description && (
@@ -154,6 +173,33 @@ const SectionHeader = memo(
 );
 
 SectionHeader.displayName = "SectionHeader";
+
+/** Staggered editorial entrance for each dashboard section. Pure transform +
+ * opacity so it stays at 60fps and respects reduced-motion via the global
+ * motion config. */
+const FadeSection = memo(
+  ({
+    children,
+    delay = 0,
+    className = "",
+  }: {
+    children: React.ReactNode;
+    delay?: number;
+    className?: string;
+  }) => (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={`min-w-0 ${className}`}
+    >
+      {children}
+    </motion.section>
+  ),
+);
+
+FadeSection.displayName = "FadeSection";
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useMonthlyStats();
@@ -225,11 +271,17 @@ const Dashboard = () => {
               <SmartNudges />
             </Suspense>
 
-            <QuickStats />
+            <FadeSection delay={0.08}>
+              <QuickStats />
+            </FadeSection>
 
             {/* Insights & Net Worth — first fold, load eagerly */}
-            <div>
-              <SectionHeader title="Wealth Overview" />
+            <FadeSection delay={0.12}>
+              <SectionHeader
+                index="01"
+                title="Wealth Overview"
+                description="Net worth trajectory and what's driving it"
+              />
               <Suspense
                 fallback={
                   <div className="bento">
@@ -257,7 +309,7 @@ const Dashboard = () => {
                   )}
                 </div>
               </Suspense>
-            </div>
+            </FadeSection>
 
             {/*
               Everything below the fold is gated on visibility. Mounting all 20+
@@ -266,8 +318,12 @@ const Dashboard = () => {
               thread during first paint.
             */}
             {/* Activity */}
-            <div className="space-y-6 min-w-0">
-              <SectionHeader title="Activity" />
+            <FadeSection className="space-y-6">
+              <SectionHeader
+                index="02"
+                title="Activity"
+                description="Cash movement, flow composition, and forecasts"
+              />
 
               <RecentTransactions />
 
@@ -300,11 +356,15 @@ const Dashboard = () => {
                   <SpendingForecast />
                 </Deferred>
               </div>
-            </div>
+            </FadeSection>
 
             {/* Intelligence */}
-            <div className="space-y-5 min-w-0">
-              <SectionHeader title="Intelligence" />
+            <FadeSection className="space-y-5">
+              <SectionHeader
+                index="03"
+                title="Intelligence"
+                description="Health score, AI insights, and simulations"
+              />
 
               <div className="bento">
                 <Deferred
@@ -335,11 +395,15 @@ const Dashboard = () => {
                   <GoalsMini />
                 </Deferred>
               </div>
-            </div>
+            </FadeSection>
 
             {/* Full-width bottom widgets */}
-            <div>
-              <SectionHeader title="Tracking & Accounts" />
+            <FadeSection>
+              <SectionHeader
+                index="04"
+                title="Tracking & Accounts"
+                description="Daily rhythms, account mix, and upcoming obligations"
+              />
               <div className="bento">
                 <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <DailySpendingTracker />
@@ -350,16 +414,14 @@ const Dashboard = () => {
                 <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <AccountsOverview />
                 </Deferred>
+                <Deferred fallback={<WidgetFallback />} className="bento-4">
+                  <CurrencyConverter />
+                </Deferred>
+                <Deferred fallback={<WidgetFallback />} className="bento-8">
+                  <UpcomingBills />
+                </Deferred>
               </div>
-            </div>
-            <div className="bento">
-              <Deferred fallback={<WidgetFallback />} className="bento-4">
-                <CurrencyConverter />
-              </Deferred>
-              <Deferred fallback={<WidgetFallback />} className="bento-8">
-                <UpcomingBills />
-              </Deferred>
-            </div>
+            </FadeSection>
           </div>
         </PageTransition>
       )}
