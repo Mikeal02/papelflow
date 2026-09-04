@@ -271,11 +271,17 @@ const Dashboard = () => {
               <SmartNudges />
             </Suspense>
 
-            <QuickStats />
+            <FadeSection delay={0.08}>
+              <QuickStats />
+            </FadeSection>
 
             {/* Insights & Net Worth — first fold, load eagerly */}
-            <div>
-              <SectionHeader title="Wealth Overview" />
+            <FadeSection delay={0.12}>
+              <SectionHeader
+                index="01"
+                title="Wealth Overview"
+                description="Net worth trajectory and what's driving it"
+              />
               <Suspense
                 fallback={
                   <div className="bento">
