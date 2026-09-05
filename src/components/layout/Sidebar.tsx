@@ -97,7 +97,7 @@ const NavItem = memo(function NavItem({
     >
       <div
         className={cn(
-          "group relative flex items-center gap-2.5 overflow-hidden rounded-[10px] py-[7px] pl-2.5 pr-3 text-[13px] font-medium transition-colors duration-150",
+          "group relative flex items-center gap-2.5 overflow-hidden rounded-[10px] py-[7px] pl-2.5 pr-3 text-[13px] font-medium transition-[color,background-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-[2px] active:translate-x-0 active:scale-[0.99]",
           isActive
             ? "bg-gradient-to-r from-primary/[0.12] via-primary/[0.05] to-transparent text-foreground"
             : "text-muted-foreground hover:text-foreground hover:bg-muted/45",
