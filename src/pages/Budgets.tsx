@@ -397,7 +397,7 @@ const Budgets = () => {
 
         {/* Stats Row */}
         {monthBudgets.length > 0 && (
-          <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
+          <div className="stagger-kinetic grid gap-5 grid-cols-2 lg:grid-cols-4">
             {[
               {
                 label: "Total Budget",
@@ -529,7 +529,7 @@ const Budgets = () => {
             transition={{ delay: 0.2 }}
           >
             <Tabs defaultValue="breakdown" className="stat-card">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="stagger-kinetic grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="breakdown" className="text-xs gap-1.5">
                   <PieChartIcon className="h-3 w-3" />
                   Breakdown

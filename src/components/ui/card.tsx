@@ -13,7 +13,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       ref={ref}
       className={cn(
         "elite-card text-card-foreground",
-        interactive && "card-interactive",
+        interactive && "card-interactive lift",
         className,
       )}
       {...props}

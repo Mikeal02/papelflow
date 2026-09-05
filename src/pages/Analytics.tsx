@@ -131,10 +131,10 @@ const Analytics = () => {
         </Deferred>
 
         {/* Main Analytics Grid */}
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="stagger-kinetic grid gap-5 lg:grid-cols-3">
           {/* Left Column - Key Metrics */}
           <div className="lg:col-span-2 space-y-5">
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="stagger-kinetic grid gap-5 md:grid-cols-2">
               <Deferred fallback={<WidgetPlaceholder height="h-64" />}>
                 <FinancialPulse />
               </Deferred>

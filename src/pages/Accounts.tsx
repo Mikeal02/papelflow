@@ -325,7 +325,7 @@ const Accounts = () => {
         <PlaidLinkModal open={isPlaidOpen} onOpenChange={setIsPlaidOpen} />
 
         {/* Summary + Distribution */}
-        <div className="grid gap-4 lg:grid-cols-4">
+        <div className="stagger-kinetic grid gap-4 lg:grid-cols-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -486,7 +486,7 @@ const Accounts = () => {
                     {assets.length}
                   </Badge>
                 </div>
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="stagger-kinetic grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {assets.map((a, i) => renderAccountCard(a, i, "asset"))}
                 </div>
               </div>

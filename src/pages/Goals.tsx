@@ -280,7 +280,7 @@ const Goals = () => {
 
         {/* Summary Stats */}
         {goals.length > 0 && (
-          <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
+          <div className="stagger-kinetic grid gap-5 grid-cols-2 lg:grid-cols-4">
             {[
               {
                 label: "Total Saved",
@@ -401,7 +401,7 @@ const Goals = () => {
             transition={{ delay: 0.2 }}
           >
             <Tabs defaultValue="distribution" className="stat-card">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="stagger-kinetic grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="distribution" className="text-xs gap-1.5">
                   <PieChartIcon className="h-3 w-3" />
                   Distribution

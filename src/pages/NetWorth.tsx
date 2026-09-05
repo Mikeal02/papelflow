@@ -243,7 +243,7 @@ const NetWorth = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-4 md:gap-6">
+            <div className="stagger-kinetic grid grid-cols-3 gap-4 md:gap-6">
               <div className="text-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-income/10 mx-auto mb-1.5">
                   <TrendingUp className="h-5 w-5 text-income" />
@@ -276,7 +276,7 @@ const NetWorth = () => {
         </motion.div>
 
         {/* Chart + Allocation */}
-        <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
+        <div className="stagger-kinetic grid gap-4 md:gap-5 lg:grid-cols-3">
           {/* Net Worth Chart */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

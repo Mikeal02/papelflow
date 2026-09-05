@@ -167,7 +167,7 @@ const SectionHeader = memo(
           </p>
         )}
       </div>
-      <span aria-hidden className="section-rule" />
+      <span aria-hidden className="section-rule anim-sweep" />
     </div>
   ),
 );
@@ -238,7 +238,7 @@ const Dashboard = () => {
                 title="Key Metrics"
                 description="Month-to-date performance at a glance"
               />
-              <div className="grid gap-2.5 sm:gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
+              <div className="stagger-kinetic grid gap-2.5 sm:gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
                 <StatCard
                   title="Total Income"
                   value={formatCurrency(stats?.income || 0)}
@@ -294,7 +294,7 @@ const Dashboard = () => {
               />
               <Suspense
                 fallback={
-                  <div className="bento">
+                  <div className="bento stagger-kinetic">
                     <div className="bento-8">
                       <WidgetFallback />
                     </div>
@@ -304,7 +304,7 @@ const Dashboard = () => {
                   </div>
                 }
               >
-                <div className="bento">
+                <div className="bento stagger-kinetic">
                   <div className="bento-8">
                     <NetWorthMini />
                   </div>
@@ -341,7 +341,7 @@ const Dashboard = () => {
                 <MoneyFlowSankey />
               </Deferred>
 
-              <div className="bento">
+              <div className="bento stagger-kinetic">
                 <Deferred fallback={<WidgetFallback />} className="bento-8">
                   <CashFlowChart />
                 </Deferred>
@@ -376,7 +376,7 @@ const Dashboard = () => {
                 description="Health score, AI insights, and simulations"
               />
 
-              <div className="bento">
+              <div className="bento stagger-kinetic">
                 <Deferred
                   fallback={<WidgetFallback />}
                   className="bento-5"
@@ -414,7 +414,7 @@ const Dashboard = () => {
                 title="Tracking & Accounts"
                 description="Daily rhythms, account mix, and upcoming obligations"
               />
-              <div className="bento">
+              <div className="bento stagger-kinetic">
                 <Deferred fallback={<WidgetFallback />} className="bento-4">
                   <DailySpendingTracker />
                 </Deferred>
