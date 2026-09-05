@@ -112,7 +112,7 @@ const NavItem = memo(function NavItem({
         )}
         <span
           className={cn(
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] transition-colors duration-150",
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] transition-[color,background-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.08]",
             isActive
               ? "bg-primary/12 text-primary"
               : "text-muted-foreground/80 group-hover:bg-foreground/[0.05] group-hover:text-foreground",
