@@ -277,13 +277,18 @@ const Dashboard = () => {
             </Suspense>
 
             <FadeSection delay={0.08}>
+              <SectionHeader
+                index="01"
+                title="Snapshot"
+                description="Today's pace against your usual rhythm"
+              />
               <QuickStats />
             </FadeSection>
 
             {/* Insights & Net Worth — first fold, load eagerly */}
             <FadeSection delay={0.12}>
               <SectionHeader
-                index="01"
+                index="02"
                 title="Wealth Overview"
                 description="Net worth trajectory and what's driving it"
               />
