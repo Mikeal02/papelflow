@@ -410,7 +410,7 @@ const Dashboard = () => {
             {/* Full-width bottom widgets */}
             <FadeSection>
               <SectionHeader
-                index="04"
+                index="05"
                 title="Tracking & Accounts"
                 description="Daily rhythms, account mix, and upcoming obligations"
               />
