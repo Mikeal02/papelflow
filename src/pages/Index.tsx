@@ -271,7 +271,7 @@ const Dashboard = () => {
                   delay={0.2}
                 />
               </div>
-            </div>
+            </FadeSection>
             <Suspense fallback={null}>
               <SmartNudges />
             </Suspense>
