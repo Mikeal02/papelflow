@@ -197,7 +197,10 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
                     ? "text-warning"
                     : "text-primary";
           return (
-            <div key={i} className="group flex flex-col gap-1.5">
+            <div
+              key={i}
+              className="group flex cursor-default flex-col gap-1.5 transition-colors duration-150 hover:bg-muted/25"
+            >
               <dt className="flex items-center gap-1.5 text-eyebrow truncate">
                 <it.icon className={cn("h-3.5 w-3.5 shrink-0", toneCls)} />
                 <span className="truncate">{it.label}</span>

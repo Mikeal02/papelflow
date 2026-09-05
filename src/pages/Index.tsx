@@ -277,13 +277,18 @@ const Dashboard = () => {
             </Suspense>
 
             <FadeSection delay={0.08}>
+              <SectionHeader
+                index="01"
+                title="Snapshot"
+                description="Today's pace against your usual rhythm"
+              />
               <QuickStats />
             </FadeSection>
 
             {/* Insights & Net Worth — first fold, load eagerly */}
             <FadeSection delay={0.12}>
               <SectionHeader
-                index="01"
+                index="02"
                 title="Wealth Overview"
                 description="Net worth trajectory and what's driving it"
               />
@@ -325,7 +330,7 @@ const Dashboard = () => {
             {/* Activity */}
             <FadeSection className="space-y-6">
               <SectionHeader
-                index="02"
+                index="03"
                 title="Activity"
                 description="Cash movement, flow composition, and forecasts"
               />
@@ -366,7 +371,7 @@ const Dashboard = () => {
             {/* Intelligence */}
             <FadeSection className="space-y-5">
               <SectionHeader
-                index="03"
+                index="04"
                 title="Intelligence"
                 description="Health score, AI insights, and simulations"
               />
@@ -405,7 +410,7 @@ const Dashboard = () => {
             {/* Full-width bottom widgets */}
             <FadeSection>
               <SectionHeader
-                index="04"
+                index="05"
                 title="Tracking & Accounts"
                 description="Daily rhythms, account mix, and upcoming obligations"
               />
