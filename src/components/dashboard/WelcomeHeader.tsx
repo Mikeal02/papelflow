@@ -146,10 +146,7 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
               <span>{currentDate}</span>
             </p>
             <h1 className="text-display text-balance">
-              {greeting},{" "}
-              <span className="bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
-                {firstName}
-              </span>
+              {greeting}, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="max-w-md text-[13.5px] leading-relaxed text-muted-foreground">
               Everything in one place — accounts, budgets and goals,

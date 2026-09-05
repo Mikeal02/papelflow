@@ -232,7 +232,12 @@ const Dashboard = () => {
             <WelcomeHeader />
 
             {/* Key Metrics */}
-            <div>
+            <FadeSection delay={0.04}>
+              <SectionHeader
+                index="00"
+                title="Key Metrics"
+                description="Month-to-date performance at a glance"
+              />
               <div className="grid gap-2.5 sm:gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
                 <StatCard
                   title="Total Income"
@@ -266,7 +271,7 @@ const Dashboard = () => {
                   delay={0.2}
                 />
               </div>
-            </div>
+            </FadeSection>
             <Suspense fallback={null}>
               <SmartNudges />
             </Suspense>
