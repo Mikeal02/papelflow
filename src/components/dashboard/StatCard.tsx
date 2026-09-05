@@ -143,8 +143,8 @@ export const StatCard = memo(function StatCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{
-        scale: 1.04,
-        y: -4,
+        scale: 1.015,
+        y: -2,
       }}
       transition={{
         delay,
