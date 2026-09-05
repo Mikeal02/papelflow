@@ -311,7 +311,7 @@ const FinancialProfile = () => {
 
       {/* ── Insights strip ───────────────────────────────────── */}
       {model.bestMonth && (
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="stagger-kinetic grid gap-3 sm:grid-cols-3">
           {[
             {
               icon: Trophy,
@@ -359,7 +359,7 @@ const FinancialProfile = () => {
           title="Core metrics"
           sub="Current month versus your rolling average"
         />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="stagger-kinetic grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((s, i) => (
             <motion.div key={s.label} {...fadeUp(i)} className="stat-card">
               <div className="flex items-start justify-between gap-2">
