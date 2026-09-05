@@ -330,7 +330,7 @@ const Dashboard = () => {
             {/* Activity */}
             <FadeSection className="space-y-6">
               <SectionHeader
-                index="02"
+                index="03"
                 title="Activity"
                 description="Cash movement, flow composition, and forecasts"
               />
@@ -371,7 +371,7 @@ const Dashboard = () => {
             {/* Intelligence */}
             <FadeSection className="space-y-5">
               <SectionHeader
-                index="03"
+                index="04"
                 title="Intelligence"
                 description="Health score, AI insights, and simulations"
               />
