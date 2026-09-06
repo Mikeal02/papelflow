@@ -17,7 +17,7 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="command-workspace min-h-dvh bg-background">
       {/* Command Palette */}
       <CommandPalette onAddTransaction={() => setIsAddModalOpen(true)} />
 
@@ -39,7 +39,7 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
         {!isMobile && (
           <TopBar onAddTransaction={() => setIsAddModalOpen(true)} />
         )}
-        <div className="page-shell min-h-dvh px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
+        <div className="page-shell min-h-dvh px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-9">
           {children}
         </div>
       </main>
