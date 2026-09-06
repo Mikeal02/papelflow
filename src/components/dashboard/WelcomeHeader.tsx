@@ -27,7 +27,6 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
 
   const {
     greeting,
-    emoji,
     currentDate,
     savingsRate,
     streakLabel,
@@ -72,7 +71,6 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
           : isEvening
             ? "Good evening"
             : "Good night",
-      emoji: isMorning ? "☀️" : isAfternoon ? "🌤️" : isEvening ? "🌅" : "🌙",
       currentDate: format(new Date(), "EEEE, MMMM d"),
       savingsRate: sr,
       streakLabel:
@@ -141,16 +139,15 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
       <div className="p-5 sm:p-7 lg:p-8">
         <div className="flex min-w-0 flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0 space-y-2.5">
-            <p className="eyebrow-bar text-eyebrow">
-              <span aria-hidden>{emoji}</span>
+             <p className="eyebrow-bar text-eyebrow">
+               <span aria-hidden className="status-dot" />
               <span>{currentDate}</span>
             </p>
             <h1 className="text-display text-balance">
               {greeting}, <span className="text-primary">{firstName}</span>
             </h1>
             <p className="max-w-md text-[13.5px] leading-relaxed text-muted-foreground">
-              Everything in one place — accounts, budgets and goals,
-              reconciled in real time.
+               Your accounts, budgets and goals, reconciled in real time.
             </p>
           </div>
 
@@ -199,13 +196,13 @@ export const WelcomeHeader = memo(function WelcomeHeader() {
           return (
             <div
               key={i}
-              className="group flex cursor-default flex-col gap-1.5 transition-colors duration-150 hover:bg-muted/25"
+               className="metric-rail-cell group flex cursor-default flex-col gap-1.5"
             >
               <dt className="flex items-center gap-1.5 text-eyebrow truncate">
                 <it.icon className={cn("h-3.5 w-3.5 shrink-0", toneCls)} />
                 <span className="truncate">{it.label}</span>
               </dt>
-              <dd className="truncate text-[15px] font-semibold tracking-[-0.02em] text-numeric text-foreground">
+               <dd className="truncate text-[15px] font-semibold text-numeric text-foreground">
                 {it.value}
               </dd>
             </div>

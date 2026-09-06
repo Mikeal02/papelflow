@@ -126,14 +126,14 @@ export const StatCard = memo(function StatCard({
 
   const isPositive = computedChange !== undefined && computedChange > 0;
   const isNegative = computedChange !== undefined && computedChange < 0;
-  const accentVar =
+  const accentTone =
     autoCompare === "income"
-      ? "--income"
+      ? "metric-accent-income"
       : autoCompare === "expense"
-        ? "--expense"
+        ? "metric-accent-expense"
         : autoCompare === "net"
-          ? "--primary"
-          : "--accent";
+          ? "metric-accent-primary"
+          : "metric-accent-accent";
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -151,16 +151,10 @@ export const StatCard = memo(function StatCard({
         duration: 0.35,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="elite-card group relative z-0 flex h-full min-w-0 flex-col hover:z-20"
+      className="elite-card metric-card group relative z-0 flex h-full min-w-0 flex-col hover:z-20"
     >
       {/* Accent */}
-      <div
-        aria-hidden
-        className="h-[2px] w-full opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-        style={{
-          background: `linear-gradient(90deg, hsl(var(${accentVar}) / 0.9), hsl(var(${accentVar}) / 0.12))`,
-        }}
-      />
+      <div aria-hidden className={cn("metric-accent", accentTone)} />
 
       <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
@@ -169,7 +163,7 @@ export const StatCard = memo(function StatCard({
             <div className="relative min-w-0 group/value">
               <CountUpValue
                 value={value}
-                className="block min-w-0 truncate whitespace-nowrap text-[1.375rem] font-semibold leading-tight tracking-[-0.03em] text-numeric sm:text-[1.5rem] lg:text-[1.75rem]"
+                className="block min-w-0 truncate whitespace-nowrap text-[1.375rem] font-semibold leading-tight text-numeric sm:text-[1.5rem] lg:text-[1.75rem]"
               />
 
               {/* Full value on hover */}

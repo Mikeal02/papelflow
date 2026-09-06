@@ -23,7 +23,6 @@ import {
   Trophy,
   Brain,
   Command,
-  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { memo, useMemo, useCallback } from "react";
 import { useThemeTransition } from "@/hooks/useThemeTransition";
-import { Separator } from "@/components/ui/separator";
 import { useRoutePreloader } from "@/hooks/useRoutePreloader";
 import { ActionCenterTrigger } from "@/components/action-center/ActionCenterTrigger";
 
@@ -93,26 +91,26 @@ const NavItem = memo(function NavItem({
       aria-current={isActive ? "page" : undefined}
       onMouseEnter={() => onPrefetch(item.path)}
       onFocus={() => onPrefetch(item.path)}
-      className="block rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-sidebar"
+      className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-sidebar"
     >
       <div
         className={cn(
-          "group relative flex items-center gap-2.5 overflow-hidden rounded-[10px] py-[7px] pl-2.5 pr-3 text-[13px] font-medium transition-[color,background-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-[2px] active:translate-x-0 active:scale-[0.99]",
+          "group relative flex items-center gap-2.5 overflow-hidden rounded-md py-2 pl-2.5 pr-3 text-[13px] font-medium transition-[color,background-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-px active:translate-x-0 active:scale-[0.99]",
           isActive
-            ? "bg-gradient-to-r from-primary/[0.12] via-primary/[0.05] to-transparent text-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/45",
+            ? "bg-sidebar-accent text-foreground"
+            : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
         )}
       >
         {isActive && (
           <motion.div
             layoutId="sidebar-indicator"
-            className="absolute right-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.45)]"
+            className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-primary"
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
           />
         )}
         <span
           className={cn(
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] transition-[color,background-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.08]",
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-[color,background-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]",
             isActive
               ? "bg-primary/12 text-primary"
               : "text-muted-foreground/80 group-hover:bg-foreground/[0.05] group-hover:text-foreground",
@@ -161,20 +159,11 @@ export const Sidebar = memo(function Sidebar({
   }, [user?.email]);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-dvh w-64 overflow-hidden border-r border-border/50 bg-sidebar">
-      {/* Ambient wash — keeps the rail from reading as a flat slab */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(120% 45% at 0% 0%, hsl(var(--primary) / 0.06), transparent 60%)",
-        }}
-      />
+    <aside className="sidebar-shell fixed left-0 top-0 z-40 h-dvh w-64 overflow-hidden border-r border-sidebar-border bg-sidebar">
       <div className="relative flex h-full flex-col">
         {/* Brand */}
         <div className="flex h-[60px] shrink-0 items-center gap-3 px-5">
-          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-[11px] shadow-[var(--shadow-xs)] ring-1 ring-border/60">
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-md shadow-[var(--shadow-xs)] ring-1 ring-border/60">
             <img
               src="/logo.png"
               alt="Finflow"
@@ -198,7 +187,7 @@ export const Sidebar = memo(function Sidebar({
         <div className="shrink-0 space-y-1.5 px-3 pb-1 pt-3">
           <Button
             onClick={onAddTransaction}
-            className="h-9 w-full gap-2 rounded-[10px] text-[13px] font-medium"
+            className="h-9 w-full gap-2 rounded-md text-[13px] font-semibold"
           >
             <Plus className="h-3.5 w-3.5" />
             New Transaction
@@ -210,7 +199,7 @@ export const Sidebar = memo(function Sidebar({
                   new KeyboardEvent("keydown", { key: "k", metaKey: true }),
                 )
               }
-              className="flex flex-1 items-center gap-2 rounded-[10px] border border-border/50 bg-background/40 px-2.5 py-[7px] text-[11px] text-muted-foreground transition-colors hover:border-border hover:bg-muted/50 hover:text-foreground"
+              className="flex flex-1 items-center gap-2 rounded-md border border-border/50 bg-background/40 px-2.5 py-[7px] text-[11px] text-muted-foreground transition-colors hover:border-border hover:bg-muted/50 hover:text-foreground"
             >
               <Command className="h-3 w-3" />
               <span>Search</span>
@@ -272,7 +261,7 @@ export const Sidebar = memo(function Sidebar({
           {user && (
             <div className="mx-1 px-3 py-2.5 rounded-lg bg-muted/30 border border-border/30">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/12 ring-1 ring-primary/20">
                   <span className="text-[11px] font-semibold text-primary-foreground">
                     {userInitial}
                   </span>

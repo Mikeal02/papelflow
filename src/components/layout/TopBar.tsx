@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Plus, Slash } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataPipelineIndicator } from "@/components/data/DataPipelineIndicator";
 
@@ -38,37 +38,25 @@ export const TopBar = memo(function TopBar({ onAddTransaction }: TopBarProps) {
 
   return (
     <header className="topbar">
-      <nav
-        aria-label="Breadcrumb"
-        className="flex min-w-0 items-center gap-2 text-[13px]"
-      >
+      <div className="flex min-w-0 items-center gap-3">
         <Link
           to="/"
-          className="shrink-0 text-muted-foreground/70 transition-colors hover:text-foreground"
+          aria-label="Finflow dashboard"
+          className="topbar-mark hidden h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-[10px] font-semibold text-primary sm:flex"
         >
-          Finflow
+          F
         </Link>
-        <Slash
-          aria-hidden
-          className="h-3 w-3 shrink-0 -rotate-12 text-border"
-          strokeWidth={1.5}
-        />
-        <span className="truncate font-medium tracking-[-0.01em] text-foreground">
-          {meta.title}
-        </span>
-        {meta.sub && (
-          <>
-            <Slash
-              aria-hidden
-              className="hidden h-3 w-3 shrink-0 -rotate-12 text-border sm:block"
-              strokeWidth={1.5}
-            />
-            <span className="hidden truncate text-muted-foreground/70 sm:block">
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold text-foreground">
+            {meta.title}
+          </p>
+          {meta.sub && (
+            <p className="hidden truncate text-[10px] text-muted-foreground sm:block">
               {meta.sub}
-            </span>
-          </>
-        )}
-      </nav>
+            </p>
+          )}
+        </div>
+      </div>
 
       <div className="flex shrink-0 items-center gap-2.5">
         <DataPipelineIndicator />
@@ -76,7 +64,7 @@ export const TopBar = memo(function TopBar({ onAddTransaction }: TopBarProps) {
         <Button
           size="sm"
           onClick={onAddTransaction}
-          className="h-8 gap-1.5 rounded-[9px] px-3 text-[12.5px] font-medium"
+          className="h-8 gap-1.5 rounded-md px-3 text-xs font-semibold"
         >
           <Plus className="h-3.5 w-3.5" />
           New Transaction
